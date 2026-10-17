@@ -4,19 +4,21 @@
  *   application → domain
  *   infrastructure → application, domain
  *   ui          → application, domain (nunca infrastructure: los adaptadores llegan por main.ts)
+ *   pwa         → nada fuera de pwa: el service worker es un programa aparte (ADR-0007)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const SRC = resolve(__dirname, '..', 'src');
-type Layer = 'domain' | 'application' | 'infrastructure' | 'ui';
+type Layer = 'domain' | 'application' | 'infrastructure' | 'ui' | 'pwa';
 
 const ALLOWED: Record<Layer, readonly Layer[]> = {
   domain: ['domain'],
   application: ['application', 'domain'],
   infrastructure: ['infrastructure', 'application', 'domain'],
   ui: ['ui', 'application', 'domain'],
+  pwa: ['pwa'],
 };
 
 /** Paquetes externos que cada capa puede importar. */
@@ -25,6 +27,7 @@ const ALLOWED_PACKAGES: Record<Layer, readonly string[]> = {
   application: [],
   infrastructure: ['pdfjs-dist', 'pdf-lib', 'jszip'],
   ui: [],
+  pwa: [],
 };
 
 function walk(dir: string): string[] {
@@ -39,7 +42,8 @@ function layerOf(file: string): Layer | null {
   return first === 'domain' ||
     first === 'application' ||
     first === 'infrastructure' ||
-    first === 'ui'
+    first === 'ui' ||
+    first === 'pwa'
     ? first
     : null;
 }
@@ -59,12 +63,13 @@ function importsOf(file: string): string[] {
 describe('arquitectura · regla de dependencia', () => {
   const files = walk(SRC).filter((f) => !f.endsWith('main.ts') && !f.endsWith('.d.ts'));
 
-  it('encuentra las cuatro capas', () => {
+  it('encuentra las cuatro capas y el service worker', () => {
     const layers = new Set(files.map(layerOf));
     expect([...layers].filter(Boolean).sort()).toEqual([
       'application',
       'domain',
       'infrastructure',
+      'pwa',
       'ui',
     ]);
   });
