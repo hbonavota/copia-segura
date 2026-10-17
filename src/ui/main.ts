@@ -18,6 +18,8 @@ import {
 import { mountApp, savedLocale } from './app';
 import { detectLocale, type Locale } from './i18n';
 import { createStore, initialState } from './store';
+// Inter alojada en el propio origen (RF-20): Vite la sirve como un recurso más del build.
+import '@fontsource-variable/inter/wght.css';
 import './styles.css';
 
 const base = import.meta.env.BASE_URL;

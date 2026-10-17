@@ -23,26 +23,28 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
   const regions = {
     header: h('header', { class: 'app-header' }),
     notice: h('div', { class: 'notice', hidden: true }),
-    pages: h('aside', { class: 'panel pages' }),
+    // Portada (RF-24): titular, carga y demo.
     dropzone: h('section', { class: 'dropzone' }),
+    // Editor (RF-24): documento con la tira de páginas debajo y un panel de ajustes al lado.
     editor: h('section', { class: 'editor' }),
-    settings: h('aside', { class: 'panel settings' }),
+    pages: h('div', { class: 'pages' }),
+    settings: h('div', { class: 'settings' }),
     exportBar: h('footer', { class: 'export-bar' }),
     about: h('section', { class: 'about' }),
     camera: h('div', {}),
   };
+  const center = h('div', { class: 'center' }, regions.editor, regions.pages);
+  const inspector = h(
+    'aside',
+    { class: 'inspector' },
+    h('div', { class: 'inspector-scroll' }, regions.settings),
+    regions.exportBar,
+  );
   replaceChildren(
     root,
     regions.header,
     regions.notice,
-    h(
-      'main',
-      { class: 'workspace' },
-      regions.pages,
-      h('div', { class: 'center' }, regions.dropzone, regions.editor),
-      regions.settings,
-    ),
-    regions.exportBar,
+    h('main', { class: 'workspace' }, regions.dropzone, center, inspector),
     regions.about,
     regions.camera,
   );
@@ -55,6 +57,7 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
     const ctx: AppContext = { store, deps, services, t: translator(store.get().locale) };
     document.documentElement.lang = ctx.store.get().locale;
     document.title = `${ctx.t('app.title')} · ${ctx.t('app.tagline')}`;
+    root.dataset.dropLabel = ctx.t('drop.release');
     const camera = cameraDialog(regions.camera, ctx);
     services.registerCamera(camera.open);
     unmount = [
@@ -70,11 +73,24 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
     ];
   };
 
+  let first = true;
   const syncEmptyState = (): void => {
     const empty = store.get().pages.length === 0;
-    regions.dropzone.hidden = !empty;
-    regions.editor.hidden = empty;
-    root.classList.toggle('is-empty', empty);
+    if (!first && root.classList.contains('is-empty') === empty) return;
+    const apply = (): void => {
+      regions.dropzone.hidden = !empty;
+      center.hidden = empty;
+      inspector.hidden = empty;
+      root.classList.toggle('is-empty', empty);
+    };
+    // Portada ⇄ editor con una transición suave (RF-24), salvo que se pida reducir movimiento.
+    const animate =
+      !first &&
+      typeof document.startViewTransition === 'function' &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    first = false;
+    if (animate) document.startViewTransition(apply);
+    else apply();
   };
 
   mountAll();

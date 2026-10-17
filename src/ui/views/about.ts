@@ -2,12 +2,14 @@ import type { View } from '../context';
 import type { MessageKey } from '../i18n';
 import { h, replaceChildren } from '../dom';
 
+const FAQ = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
+
 const list = (t: (k: MessageKey) => string, keys: readonly MessageKey[]): HTMLUListElement =>
   h('ul', {}, ...keys.map((k) => h('li', {}, t(k))));
 
 /**
  * Explicación honesta (RF-13), cómo comprobar la privacidad sin leer código y qué distingue a la
- * herramienta (RF-17). Siempre visible, sin desplegables.
+ * herramienta (RF-17), y preguntas frecuentes (RF-30).
  */
 export const about: View = (root, { deps, t }) => {
   const testUrl = `${deps.links.source}/blob/main/e2e/copia-segura.spec.ts`;
@@ -81,6 +83,19 @@ export const about: View = (root, { deps, t }) => {
           h('a', { href: deps.links.source, rel: 'noopener' }, t('footer.source')),
           ' · ',
           h('a', { href: deps.links.docs, rel: 'noopener' }, t('footer.docs')),
+        ),
+      ),
+    ),
+    h(
+      'section',
+      { class: 'faq', dataset: { testid: 'faq' }, attrs: { 'aria-labelledby': 'faq-title' } },
+      h('h2', { id: 'faq-title' }, t('faq.title')),
+      ...FAQ.map((n) =>
+        h(
+          'details',
+          { class: 'faq-item' },
+          h('summary', {}, t(`faq.${n}.q`)),
+          h('p', {}, t(`faq.${n}.a`)),
         ),
       ),
     ),

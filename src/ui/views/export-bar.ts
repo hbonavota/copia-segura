@@ -1,68 +1,68 @@
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 
-/** Botones de descarga (RF-10). ZIP solo tiene sentido con más de una página. */
+/**
+ * Descarga (RF-10, RF-25): una acción principal bien visible y el resto de formatos como
+ * secundarios. Con varias páginas el ZIP pasa a ser la principal: N descargas seguidas disparan el
+ * aviso de "descargas automáticas" del navegador.
+ */
 export const exportBar: View = (root, { store, services, deps, t }) => {
-  const jpg = h(
-    'button',
-    {
-      type: 'button',
-      class: 'button primary',
-      dataset: { testid: 'export-jpg' },
-      on: { click: () => void services.exportAs('jpg') },
-    },
+  const button = (testid: string, onClick: () => void, ...content: (Node | string)[]) =>
+    h(
+      'button',
+      { type: 'button', class: 'button', dataset: { testid }, on: { click: onClick } },
+      ...content,
+    );
+  const label = (): HTMLSpanElement => h('span', {});
+  const jpgLabel = label();
+  const zipLabel = label();
+  const jpg = button(
+    'export-jpg',
+    () => void services.exportAs('jpg'),
     icon(ICONS.download),
-    h('span', {}, t('export.jpg')),
+    jpgLabel,
   );
-  const zip = h(
-    'button',
-    {
-      type: 'button',
-      class: 'button',
-      dataset: { testid: 'export-zip' },
-      on: { click: () => void services.exportAs('zip') },
-    },
+  const zip = button(
+    'export-zip',
+    () => void services.exportAs('zip'),
     icon(ICONS.download),
-    t('export.zip'),
+    zipLabel,
   );
-  const pdf = h(
-    'button',
-    {
-      type: 'button',
-      class: 'button',
-      dataset: { testid: 'export-pdf' },
-      on: { click: () => void services.exportAs('pdf') },
-    },
-    icon(ICONS.download),
-    t('export.pdf'),
-  );
-  const share = h(
-    'button',
-    {
-      type: 'button',
-      class: 'button',
-      dataset: { testid: 'export-share' },
-      hidden: !deps.exportCopies.canShare(),
-      on: { click: () => void services.exportAs('share') },
-    },
+  const pdf = button('export-pdf', () => void services.exportAs('pdf'), t('export.pdf'));
+  const share = button(
+    'export-share',
+    () => void services.exportAs('share'),
     icon(ICONS.share),
     t('export.share'),
   );
-  replaceChildren(root, jpg, zip, pdf, share);
+  share.hidden = !deps.exportCopies.canShare();
+
+  const primary = h('div', { class: 'export-primary' });
+  const secondary = h('div', { class: 'export-secondary' });
+  replaceChildren(
+    root,
+    primary,
+    h(
+      'div',
+      { class: 'export-more' },
+      h('span', { class: 'muted small' }, t('export.more')),
+      secondary,
+    ),
+  );
 
   const sync = (): void => {
     const { pages, busy } = store.get();
     const n = pages.length;
-    const label = jpg.querySelector('span');
-    if (label) label.textContent = n > 1 ? t('export.jpg.many', { n }) : t('export.jpg');
-    // Con varias páginas, N descargas seguidas disparan el aviso de "descargas automáticas" del
-    // navegador: el ZIP pasa a ser la opción principal.
-    zip.hidden = n < 2;
-    zip.classList.toggle('primary', n > 1);
-    jpg.classList.toggle('primary', n <= 1);
-    if (n > 1 && root.firstElementChild !== zip) root.prepend(zip);
-    if (n <= 1 && root.firstElementChild !== jpg) root.prepend(jpg);
-    for (const button of [jpg, zip, pdf, share]) button.disabled = n === 0 || busy !== null;
+    const many = n > 1;
+    const main = many ? zip : jpg;
+    jpgLabel.textContent = many ? t('export.jpg.short') : t('export.jpg');
+    zipLabel.textContent = many ? t('export.zip.many', { n }) : t('export.zip');
+    main.classList.add('primary');
+    (many ? jpg : zip).classList.remove('primary');
+    if (primary.firstElementChild !== main) replaceChildren(primary, main);
+    replaceChildren(secondary, ...(many ? [jpg, pdf, share] : [pdf, share]));
+    root.classList.toggle('is-busy', busy !== null);
+    for (const b of [jpg, zip, pdf, share]) b.disabled = n === 0 || busy !== null;
   };
   sync();
   const stop = [store.select((s) => s.pages, sync), store.select((s) => s.busy, sync)];

@@ -21,7 +21,10 @@ export function filePicker(onFiles: (files: File[]) => void): HTMLInputElement {
   });
 }
 
-/** Estado vacío: el primer paso. Ocupa el sitio del editor hasta que hay una página. */
+/**
+ * Portada (RF-24): titular, zona de carga con las señales de confianza (RF-23) y la demo (RF-14).
+ * Ocupa el sitio del editor hasta que hay una página.
+ */
 export const dropzone: View = (root, ctx) => {
   const { services, t } = ctx;
   const picker = filePicker((files) => void services.importFiles(files));
@@ -30,39 +33,59 @@ export const dropzone: View = (root, ctx) => {
     root,
     h(
       'div',
-      { class: 'dropzone-inner' },
-      icon(ICONS.file),
-      h('h2', {}, t('drop.title')),
-      h('p', { class: 'muted' }, t('drop.hint')),
+      { class: 'hero' },
+      h('p', { class: 'hero-title' }, t('hero.title')),
+      h('p', { class: 'hero-sub' }, t('hero.sub')),
+    ),
+    h(
+      'div',
+      { class: 'landing-grid' },
       h(
         'div',
-        { class: 'actions' },
+        { class: 'drop-card' },
         h(
-          'button',
-          { type: 'button', class: 'button primary', on: { click: () => picker.click() } },
-          t('drop.choose'),
+          'div',
+          { class: 'dropzone-inner' },
+          h('span', { class: 'drop-icon' }, icon(ICONS.upload)),
+          h('h2', {}, t('drop.title')),
+          h('p', { class: 'muted' }, t('drop.hint')),
+          h(
+            'div',
+            { class: 'actions' },
+            h(
+              'button',
+              { type: 'button', class: 'button primary', on: { click: () => picker.click() } },
+              t('drop.choose'),
+            ),
+            h(
+              'button',
+              { type: 'button', class: 'button', on: { click: () => services.openCamera() } },
+              icon(ICONS.camera),
+              t('drop.camera'),
+            ),
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'link-button',
+              dataset: { testid: 'load-example' },
+              on: { click: () => void services.importExample() },
+            },
+            t('drop.example'),
+          ),
+          picker,
         ),
-        h('span', { class: 'muted' }, t('drop.or')),
         h(
-          'button',
-          { type: 'button', class: 'button', on: { click: () => services.openCamera() } },
-          icon(ICONS.camera),
-          t('drop.camera'),
+          'ul',
+          { class: 'trust-list', dataset: { testid: 'trust-list' } },
+          ...(['trust.local', 'trust.noTracking', 'trust.open'] as const).map((key) =>
+            h('li', {}, icon(ICONS.check), t(key)),
+          ),
         ),
       ),
-      h(
-        'button',
-        {
-          type: 'button',
-          class: 'link-button',
-          dataset: { testid: 'load-example' },
-          on: { click: () => void services.importExample() },
-        },
-        t('drop.example'),
-      ),
-      picker,
+      demoRoot,
     ),
-    demoRoot,
   );
   return demo(demoRoot, ctx);
 };

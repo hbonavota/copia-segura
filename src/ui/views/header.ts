@@ -10,13 +10,17 @@ import {
   systemPrefersDark,
   toggledPreference,
 } from '../theme';
+import { watchExternalRequests } from '../trust';
 
 const LOCALES: readonly { code: Locale; label: string }[] = [
   { code: 'es', label: 'ES' },
   { code: 'en', label: 'EN' },
 ];
 
-/** Cabecera: el nombre como un sello, la frase que explica la herramienta, el idioma y el tema. */
+/**
+ * Cabecera: el nombre como un sello, los pasos (RF-24), el contador de peticiones a otros dominios
+ * (RF-22), el idioma y el tema (RF-19).
+ */
 export const header: View = (root, { store, t }) => {
   const languageButtons = LOCALES.map(({ code, label }) =>
     h(
@@ -55,22 +59,62 @@ export const header: View = (root, { store, t }) => {
   };
   syncTheme();
 
+  // Pasos (RF-24): orientan, no bloquean.
+  const STEPS = ['upload', 'adjust', 'download'] as const;
+  const stepItems = STEPS.map((step, i) =>
+    h(
+      'li',
+      { class: 'step', dataset: { step } },
+      h('span', { class: 'step-dot', attrs: { 'aria-hidden': 'true' } }, String(i + 1)),
+      h('span', { class: 'step-label' }, t(`steps.${step}`)),
+    ),
+  );
+  const syncSteps = (): void => {
+    const { pages, exported } = store.get();
+    const current = pages.length === 0 ? 0 : exported ? 2 : 1;
+    stepItems.forEach((li, i) => {
+      li.classList.toggle('is-done', i < current || (exported && i === 2));
+      if (i === current) li.setAttribute('aria-current', 'step');
+      else li.removeAttribute('aria-current');
+    });
+  };
+  syncSteps();
+
+  // Contador de peticiones a otros dominios (RF-22). En el móvil solo se ve la cifra.
+  const trustNumber = h('span', { class: 'trust-number' });
+  const trustText = h('span', { class: 'trust-text' });
+  const trust = h(
+    'a',
+    {
+      class: 'trust',
+      href: '#verify-title',
+      title: t('trust.counter.title'),
+      dataset: { testid: 'trust-counter' },
+    },
+    icon(ICONS.shield),
+    trustNumber,
+    trustText,
+  );
+  const stopWatchingRequests = watchExternalRequests((n) => {
+    trustNumber.textContent = String(n);
+    trustText.textContent = n === 1 ? t('trust.counter.one') : t('trust.counter.many');
+    trust.setAttribute('aria-label', `${n} ${trustText.textContent}. ${t('trust.counter.title')}`);
+    trust.dataset.count = String(n);
+    trust.classList.toggle('is-warning', n > 0);
+  });
+
   replaceChildren(
     root,
+    h('h1', { class: 'stamp', attrs: { 'aria-label': t('app.title') } }, t('app.title')),
     h(
-      'div',
-      { class: 'brand' },
-      h('h1', { class: 'stamp', attrs: { 'aria-label': t('app.title') } }, t('app.title')),
-      h(
-        'div',
-        { class: 'brand-text' },
-        h('p', { class: 'tagline' }, t('app.tagline')),
-        h('p', { class: 'local' }, icon(ICONS.shield), h('span', {}, t('app.local'))),
-      ),
+      'nav',
+      { class: 'stepper', attrs: { 'aria-label': t('steps.label') } },
+      h('ol', {}, ...stepItems),
     ),
     h(
       'div',
       { class: 'header-controls' },
+      trust,
       h(
         'nav',
         { class: 'lang-switch', attrs: { 'aria-label': t('app.language') } },
@@ -89,8 +133,14 @@ export const header: View = (root, { store, t }) => {
       );
     },
   );
+  const stopSteps = [
+    store.select((st) => st.pages.length, syncSteps),
+    store.select((st) => st.exported, syncSteps),
+  ];
   return () => {
     stopWatchingSystem();
+    stopWatchingRequests();
     unsubscribe();
+    stopSteps.forEach((fn) => fn());
   };
 };

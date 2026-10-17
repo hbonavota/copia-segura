@@ -1,19 +1,21 @@
-import { TEMPLATE_IDS, rectFromCorners, type NormalizedRect, type PageEdits } from '../../domain';
+import {
+  moveRect,
+  rectFromCorners,
+  resizeRect,
+  type NormalizedRect,
+  type PageEdits,
+} from '../../domain';
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
-import { actions, activePage, currentStyle, type AppState, type Tool } from '../store';
+import { actions, activePage, currentStyle, pageToView, viewToPage, type Tool } from '../store';
 
-const STRIP = 0.15;
-const STRIPS: Record<'top' | 'bottom' | 'left' | 'right', NormalizedRect> = {
-  top: { x: 0, y: 0, w: 1, h: STRIP },
-  bottom: { x: 0, y: 1 - STRIP, w: 1, h: STRIP },
-  left: { x: 0, y: 0, w: STRIP, h: 1 },
-  right: { x: 1 - STRIP, y: 0, w: STRIP, h: 1 },
-};
+/** Paso de las flechas al mover una zona con el teclado (RF-27), en fracción de la vista. */
+const NUDGE = 0.005;
+const NUDGE_FAST = 0.05;
 
 /**
- * Editor de la página activa: vista previa real (mismo plan que la exportación, RF-09),
- * dibujo de zonas a tapar y de recorte con el puntero, giro y deshacer.
+ * Editor de la página activa: vista previa real (mismo plan que la exportación, RF-09), dibujo de
+ * zonas a tapar y de recorte con el puntero, zonas editables (RF-27), giro y deshacer.
  */
 export const editor: View = (root, { store, deps, t }) => {
   const canvas = h('canvas', {
@@ -85,39 +87,8 @@ export const editor: View = (root, { store, deps, t }) => {
       },
       icon(path),
     );
-  const stripButtons = (Object.keys(STRIPS) as (keyof typeof STRIPS)[]).map((side) =>
-    h(
-      'button',
-      {
-        type: 'button',
-        class: 'button small',
-        dataset: { testid: `strip-${side}` },
-        on: { click: () => store.update(actions.addMask(toPageFrame(STRIPS[side], store.get()))) },
-      },
-      t(`tool.strip.${side}`),
-    ),
-  );
-
-  const templateSelect = h(
-    'select',
-    { dataset: { testid: 'template' }, attrs: { 'aria-label': t('template.label') } },
-    ...TEMPLATE_IDS.map((id) => h('option', { value: id }, t(`template.${id}`))),
-  );
-  const templateButton = h(
-    'button',
-    {
-      type: 'button',
-      class: 'button small',
-      dataset: { testid: 'apply-template' },
-      on: {
-        click: () => {
-          const id = TEMPLATE_IDS.find((x) => x === templateSelect.value);
-          if (id) store.update(actions.applyTemplate(id));
-        },
-      },
-    },
-    t('template.apply'),
-  );
+  const boxes = h('div', { class: 'mask-boxes' });
+  overlay.append(boxes);
 
   replaceChildren(
     root,
@@ -139,18 +110,8 @@ export const editor: View = (root, { store, deps, t }) => {
         clearCropButton,
       ),
     ),
-    hint,
-    stage,
-    h('div', { class: 'strips' }, h('span', { class: 'muted' }, t('tool.strips')), ...stripButtons),
-    h(
-      'div',
-      { class: 'templates' },
-      h('span', { class: 'muted' }, t('template.label')),
-      templateSelect,
-      templateButton,
-      h('span', { class: 'muted small' }, t('template.help')),
-    ),
-    h('div', { class: 'stage-footer' }, meta, status),
+    h('div', { class: 'stage-wrap' }, stage),
+    h('div', { class: 'stage-footer' }, hint, meta, status),
   );
 
   // ----------------------------------------------------------------------- vista previa
@@ -241,61 +202,177 @@ export const editor: View = (root, { store, deps, t }) => {
     }
   }
 
-  /** Un rectángulo dibujado sobre la vista previa, llevado al marco de página (SPEC-0004). */
-  function toPageFrame(rect: NormalizedRect, state: AppState): NormalizedRect {
-    const crop = state.tool === 'mask' ? activePage(state)?.edits.crop : null;
-    if (!crop) return rect;
-    return {
-      x: crop.x + rect.x * crop.w,
-      y: crop.y + rect.y * crop.h,
-      w: rect.w * crop.w,
-      h: rect.h * crop.h,
-    };
-  }
+  // ----------------------------------------------------------------------- zonas (RF-27)
 
-  let start: { x: number; y: number } | null = null;
-  const pointAt = (event: PointerEvent): { x: number; y: number } => {
+  interface Point {
+    x: number;
+    y: number;
+  }
+  type Gesture =
+    | { kind: 'draw'; start: Point }
+    | { kind: 'move'; index: number; start: Point; rect: NormalizedRect }
+    | { kind: 'resize'; index: number; rect: NormalizedRect };
+  let gesture: Gesture | null = null;
+
+  const pointAt = (event: PointerEvent): Point => {
     const box = overlay.getBoundingClientRect();
     return { x: (event.clientX - box.left) / box.width, y: (event.clientY - box.top) / box.height };
   };
-  const showRubber = (a: { x: number; y: number }, b: { x: number; y: number }): void => {
-    const r = rectFromCorners(a.x, a.y, b.x, b.y);
+  const place = (el: HTMLElement, r: NormalizedRect): void => {
+    el.style.left = `${r.x * 100}%`;
+    el.style.top = `${r.y * 100}%`;
+    el.style.width = `${r.w * 100}%`;
+    el.style.height = `${r.h * 100}%`;
+  };
+  const showRubber = (a: Point, b: Point): void => {
     rubber.hidden = false;
-    rubber.style.left = `${r.x * 100}%`;
-    rubber.style.top = `${r.y * 100}%`;
-    rubber.style.width = `${r.w * 100}%`;
-    rubber.style.height = `${r.h * 100}%`;
+    place(rubber, rectFromCorners(a.x, a.y, b.x, b.y));
+  };
+  const hideRubber = (): void => {
+    rubber.hidden = true;
   };
 
+  /** Zonas de la página activa en coordenadas de la vista previa. */
+  const viewMasks = (): NormalizedRect[] => {
+    const state = store.get();
+    return (activePage(state)?.edits.masks ?? []).map((m) => pageToView(state, m));
+  };
+
+  /** Contornos de las zonas sobre la vista previa: se pueden seleccionar, mover y redimensionar. */
+  function renderBoxes(): void {
+    const state = store.get();
+    const masks = state.tool === 'mask' ? viewMasks() : [];
+    const focused = document.activeElement;
+    const keepFocus = focused instanceof HTMLElement && boxes.contains(focused);
+    replaceChildren(
+      boxes,
+      ...masks.map((rect, index) => {
+        const box = h(
+          'div',
+          {
+            class: 'mask-box',
+            tabIndex: 0,
+            dataset: { testid: `mask-${index + 1}`, index: String(index) },
+            attrs: {
+              role: 'button',
+              'aria-label': t('mask.item', { n: index + 1 }),
+              'aria-pressed': String(state.selectedMask === index),
+            },
+            on: {
+              focus: () => store.update(actions.selectMask(index)),
+              keydown: (event) => onBoxKey(event, index),
+            },
+          },
+          h('span', {
+            class: 'mask-handle',
+            dataset: { handle: 'resize' },
+            attrs: { 'aria-hidden': 'true', title: t('mask.resize', { n: index + 1 }) },
+          }),
+        );
+        place(box, rect);
+        return box;
+      }),
+    );
+    if (keepFocus && state.selectedMask !== null) {
+      boxes.querySelector<HTMLElement>(`[data-index="${state.selectedMask}"]`)?.focus();
+    }
+  }
+
+  function onBoxKey(event: KeyboardEvent, index: number): void {
+    const rect = viewMasks()[index];
+    if (!rect) return;
+    const step = event.shiftKey ? NUDGE_FAST : NUDGE;
+    const moves: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const move = moves[event.key];
+    if (move) {
+      event.preventDefault();
+      store.update(actions.updateMask(index, viewToPage(store.get(), moveRect(rect, ...move))));
+    } else if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();
+      store.update(actions.removeMask(index));
+      overlay.focus();
+    } else if (event.key === 'Escape') {
+      store.update(actions.selectMask(null));
+      (event.currentTarget as HTMLElement).blur();
+    }
+  }
+
+  overlay.tabIndex = -1;
   overlay.addEventListener('pointerdown', (event) => {
     if (event.button !== 0 || !activePage(store.get())) return;
+    const target = event.target as HTMLElement;
+    const box = target.closest<HTMLElement>('.mask-box');
+    const point = pointAt(event);
     overlay.setPointerCapture(event.pointerId);
-    start = pointAt(event);
-    showRubber(start, start);
+    if (box && store.get().tool === 'mask') {
+      const index = Number(box.dataset.index);
+      const rect = viewMasks()[index];
+      if (!rect) return;
+      store.update(actions.selectMask(index));
+      gesture =
+        target.dataset.handle === 'resize'
+          ? { kind: 'resize', index, rect }
+          : { kind: 'move', index, start: point, rect };
+      event.preventDefault();
+      return;
+    }
+    store.update(actions.selectMask(null));
+    gesture = { kind: 'draw', start: point };
+    showRubber(point, point);
   });
+
+  /** Dónde quedaría la zona si se soltara ahora (en la vista previa). */
+  const preview = (g: Exclude<Gesture, { kind: 'draw' }>, p: Point): NormalizedRect =>
+    g.kind === 'move'
+      ? moveRect(g.rect, p.x - g.start.x, p.y - g.start.y)
+      : resizeRect(g.rect, p.x, p.y);
+
   overlay.addEventListener('pointermove', (event) => {
-    if (start) showRubber(start, pointAt(event));
+    if (!gesture) return;
+    const p = pointAt(event);
+    if (gesture.kind === 'draw') {
+      showRubber(gesture.start, p);
+      return;
+    }
+    const box = boxes.querySelector<HTMLElement>(`[data-index="${gesture.index}"]`);
+    if (box) place(box, preview(gesture, p));
   });
+
   const finish = (event: PointerEvent): void => {
-    if (!start) return;
+    const g = gesture;
+    if (!g) return;
+    gesture = null;
     const state = store.get();
-    const rect = toPageFrame(
-      rectFromCorners(start.x, start.y, pointAt(event).x, pointAt(event).y),
-      state,
-    );
-    start = null;
-    rubber.hidden = true;
-    store.update(state.tool === 'crop' ? actions.setCrop(rect) : actions.addMask(rect));
+    const p = pointAt(event);
+    if (g.kind === 'draw') {
+      hideRubber();
+      const rect = viewToPage(state, rectFromCorners(g.start.x, g.start.y, p.x, p.y));
+      store.update(state.tool === 'crop' ? actions.setCrop(rect) : actions.addMask(rect));
+      return;
+    }
+    const next = preview(g, p);
+    if (next.x === g.rect.x && next.y === g.rect.y && next.w === g.rect.w && next.h === g.rect.h) {
+      boxes.querySelector<HTMLElement>(`[data-index="${g.index}"]`)?.focus();
+      return;
+    }
+    store.update(actions.updateMask(g.index, viewToPage(state, next)));
   };
   overlay.addEventListener('pointerup', finish);
   overlay.addEventListener('pointercancel', () => {
-    start = null;
-    rubber.hidden = true;
+    gesture = null;
+    hideRubber();
+    renderBoxes();
   });
   const onKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && start) {
-      start = null;
-      rubber.hidden = true;
+    if (event.key === 'Escape' && gesture) {
+      gesture = null;
+      hideRubber();
+      renderBoxes();
     }
   };
   window.addEventListener('keydown', onKey);
@@ -304,6 +381,7 @@ export const editor: View = (root, { store, deps, t }) => {
 
   const refresh = (): void => {
     syncToolbar();
+    renderBoxes();
     schedule();
   };
   refresh();
@@ -311,6 +389,7 @@ export const editor: View = (root, { store, deps, t }) => {
     store.select((s) => s.pages, refresh),
     store.select((s) => s.activePageId, refresh),
     store.select((s) => s.tool, refresh),
+    store.select((s) => s.selectedMask, renderBoxes),
     store.select((s) => s.preset, schedule),
     store.select((s) => s.overrides, schedule),
     store.select((s) => s.text, schedule),

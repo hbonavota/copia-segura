@@ -178,7 +178,7 @@ test.describe('RNF-01 · privacidad', () => {
 test.describe('RF-12 · idioma', () => {
   test('cambia a inglés y lo recuerda al recargar', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('.dropzone h2')).toHaveText('Arrastra aquí tu DNI');
+    await expect(page.locator('.dropzone h2')).toHaveText('Suelta tu DNI aquí');
     await page.getByRole('button', { name: 'EN', exact: true }).click();
     await expect(page.locator('.dropzone h2')).toHaveText('Drop your ID here');
     await page.reload();
@@ -197,10 +197,10 @@ test.describe('RF-19 · tema claro y oscuro', () => {
     await page.goto('./');
     const toggle = page.getByRole('switch', { name: 'Modo oscuro' });
     await expect(toggle).toHaveAttribute('aria-checked', 'true');
-    expect(await background(page)).toBe('rgb(22, 24, 27)');
+    expect(await background(page)).toBe('rgb(11, 13, 16)');
     await page.emulateMedia({ colorScheme: 'light' });
     await expect(toggle).toHaveAttribute('aria-checked', 'false');
-    expect(await background(page)).toBe('rgb(242, 241, 236)');
+    expect(await background(page)).toBe('rgb(246, 247, 249)');
   });
 
   test('el interruptor cambia el tema, lo recuerda y vuelve a seguir al sistema', async ({
@@ -211,7 +211,7 @@ test.describe('RF-19 · tema claro y oscuro', () => {
     const toggle = page.getByRole('switch', { name: 'Modo oscuro' });
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-checked', 'true');
-    expect(await background(page)).toBe('rgb(22, 24, 27)');
+    expect(await background(page)).toBe('rgb(11, 13, 16)');
 
     // Se aplica antes de que arranque la aplicación (public/theme.js), así que no parpadea.
     await page.reload({ waitUntil: 'commit' });
@@ -278,5 +278,142 @@ test.describe('SPEC-0005 · portada, B/N, plantillas, verificable, móvil', () =
     expect(editor && pages && settings).toBeTruthy();
     expect(editor!.y).toBeLessThan(pages!.y);
     expect(pages!.y).toBeLessThan(settings!.y);
+  });
+});
+
+test.describe('SPEC-0007 · sistema visual y confianza', () => {
+  test('RF-21 · la intensidad es un grupo de radio que se maneja con el teclado', async ({
+    page,
+  }) => {
+    await loadExample(page);
+    const group = page.getByRole('radiogroup', { name: 'Intensidad' });
+    await expect(group.getByRole('radio')).toHaveCount(2);
+    await page.getByTestId('preset-normal').focus();
+    await afterRender(page, () => page.keyboard.press('ArrowRight'));
+    await expect(page.getByTestId('preset-suave')).toBeChecked();
+  });
+
+  test('RF-22 · el contador muestra 0 peticiones a otros dominios tras un flujo completo', async ({
+    page,
+  }) => {
+    await loadExample(page);
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('export-pdf').click(),
+    ]);
+    await download.path();
+    const counter = page.getByTestId('trust-counter');
+    await expect(counter).toHaveAttribute('data-count', '0');
+    await expect(counter).toContainText('peticiones a otros dominios');
+    await expect(counter).toHaveAttribute('href', '#verify-title');
+  });
+
+  test('RF-23 · al exportar, aviso de éxito y paso de descarga completado', async ({ page }) => {
+    await loadExample(page);
+    await expect(page.locator('.step[data-step="adjust"]')).toHaveAttribute('aria-current', 'step');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('export-pdf').click(),
+    ]);
+    await download.path();
+    await expect(page.locator('.notice.is-success')).toContainText('Nada ha salido de tu equipo');
+    await expect(page.locator('.step[data-step="download"]')).toHaveClass(/is-done/);
+  });
+});
+
+test.describe('SPEC-0008 · portada y editor', () => {
+  test('RF-24 · la portada no enseña ajustes; el editor sí, con el paso actual marcado', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await expect(page.locator('.inspector')).toBeHidden();
+    await expect(page.locator('.step[data-step="upload"]')).toHaveAttribute('aria-current', 'step');
+    await loadExample(page);
+    await expect(page.locator('.dropzone')).toBeHidden();
+    await expect(page.locator('.inspector')).toBeVisible();
+    await expect(page.locator('.step[data-step="upload"]')).toHaveClass(/is-done/);
+  });
+
+  test('RF-26 · una sugerencia rellena la finalidad', async ({ page }) => {
+    await loadExample(page);
+    await page.getByTestId('suggest-2').click();
+    await expect(page.getByTestId('text-purpose')).toHaveValue('contrato de alquiler');
+    await expect(page.getByTestId('composed-text')).toContainText('contrato de alquiler');
+  });
+
+  test('RF-26 · con una sola página aparece el hueco para el dorso', async ({ page }) => {
+    await loadExample(page);
+    await expect(page.getByTestId('add-back')).toBeHidden();
+    await page.getByRole('button', { name: 'Quitar página p2' }).click();
+    await expect(page.getByTestId('add-back')).toBeVisible();
+  });
+
+  test('RF-27 · una zona se mueve arrastrándola y se quita con Supr', async ({ page }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    await drag(page, { x: 0.05, y: 0.05 }, { x: 0.25, y: 0.25 });
+    expect(isBlack(await previewPixel(page, { x: 0.15, y: 0.15 }))).toBe(true);
+
+    // Arrastrar la zona hacia la derecha: deja de tapar su sitio y tapa el nuevo.
+    await drag(page, { x: 0.15, y: 0.15 }, { x: 0.65, y: 0.15 });
+    expect(isBlack(await previewPixel(page, { x: 0.15, y: 0.15 }))).toBe(false);
+    expect(isBlack(await previewPixel(page, { x: 0.65, y: 0.15 }))).toBe(true);
+
+    await page.getByTestId('mask-1').focus();
+    await afterRender(page, () => page.keyboard.press('Delete'));
+    expect(isBlack(await previewPixel(page, { x: 0.65, y: 0.15 }))).toBe(false);
+    await expect(page.getByTestId('mask-1')).toHaveCount(0);
+  });
+
+  test('RF-27 · el tirador cambia el tamaño de la zona', async ({ page }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    await drag(page, { x: 0.05, y: 0.05 }, { x: 0.25, y: 0.25 });
+    expect(isBlack(await previewPixel(page, { x: 0.4, y: 0.4 }))).toBe(false);
+    await page.getByTestId('mask-1').click();
+    const handle = await page.getByTestId('mask-1').locator('.mask-handle').boundingBox();
+    const box = await page.getByTestId('overlay').boundingBox();
+    if (!handle || !box) throw new Error('sin tirador');
+    await afterRender(page, async () => {
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5, { steps: 6 });
+      await page.mouse.up();
+    });
+    expect(isBlack(await previewPixel(page, { x: 0.4, y: 0.4 }))).toBe(true);
+  });
+});
+
+test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
+  test('RF-28 · el pixelado sustituye la zona por bloques, no por negro', async ({ page }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    const original = await previewPixel(page, { x: 0.3, y: 0.3 });
+    await afterRender(page, () => page.getByTestId('redaction-pixelate').check());
+    await expect(page.getByTestId('redaction-help')).toContainText('no lo uses sobre números');
+    await drag(page, { x: 0.1, y: 0.1 }, { x: 0.5, y: 0.5 });
+    const pixelated = await previewPixel(page, { x: 0.3, y: 0.3 });
+    expect(isBlack(pixelated)).toBe(false);
+    expect(pixelated).not.toEqual(original);
+  });
+
+  test('RF-29 · una foto HEIC que el navegador no abre da un aviso específico', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'IMG_0001.HEIC',
+      mimeType: 'image/heic',
+      buffer: Buffer.from('no es una imagen'),
+    });
+    await expect(page.locator('.notice.is-error')).toContainText('HEIC');
+  });
+
+  test('RF-30 · preguntas frecuentes desplegables', async ({ page }) => {
+    await page.goto('./');
+    const faq = page.getByTestId('faq');
+    await expect(faq.locator('details')).toHaveCount(9);
+    await faq.locator('summary').first().click();
+    await expect(faq.locator('details').first()).toHaveAttribute('open', '');
   });
 });

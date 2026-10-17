@@ -1,6 +1,6 @@
 {
   "name": "copia-segura",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Prepara una copia limitada de tu documento de identidad (marca de agua, zonas tapadas, sin metadatos) sin que salga de tu navegador.",
   "private": true,
   "type": "module",
@@ -49,6 +49,7 @@
     "example:build": "node scripts/build-example.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
     "jszip": "^3.10.1",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299"

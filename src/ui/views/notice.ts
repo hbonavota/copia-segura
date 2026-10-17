@@ -2,7 +2,7 @@ import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 import { actions } from '../store';
 
-/** Avisos de la interfaz: resultado de importar o exportar, errores. Uno a la vez. */
+/** Avisos de la interfaz: resultado de importar o exportar, errores. Uno a la vez (RF-23). */
 export const notice: View = (root, { store, t }) => {
   const render = (): void => {
     const { notice: current, busy } = store.get();
@@ -19,6 +19,8 @@ export const notice: View = (root, { store, t }) => {
     root.className = `notice is-${current.kind}`;
     replaceChildren(
       root,
+      // Éxito (RF-23): el icono se marca una vez al aparecer.
+      current.kind === 'success' ? h('span', { class: 'notice-icon' }, icon(ICONS.check)) : null,
       h('p', { attrs: { role: current.kind === 'error' ? 'alert' : 'status' } }, current.message),
       h(
         'button',

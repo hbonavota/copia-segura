@@ -32,7 +32,8 @@ export interface PageState {
 }
 
 export interface Notice {
-  readonly kind: 'info' | 'error';
+  /** `success`: una exportación terminada (RF-23). */
+  readonly kind: 'info' | 'success' | 'error';
   readonly message: string;
 }
 
@@ -41,6 +42,10 @@ export interface AppState {
   readonly pages: readonly PageState[];
   readonly activePageId: string | null;
   readonly tool: Tool;
+  /** Zona seleccionada de la página activa, para moverla o quitarla (RF-27). */
+  readonly selectedMask: number | null;
+  /** Ya se ha descargado al menos una copia de las páginas actuales (indicador de pasos, RF-24). */
+  readonly exported: boolean;
   readonly preset: PresetName;
   readonly overrides: Partial<WatermarkStyle>;
   readonly text: WatermarkText;
@@ -67,6 +72,8 @@ export function initialState(locale: Locale): AppState {
     pages: [],
     activePageId: null,
     tool: 'mask',
+    selectedMask: null,
+    exported: false,
     preset: 'normal',
     overrides: {},
     text: defaultText(locale),
@@ -114,6 +121,33 @@ export function activePage(state: AppState): PageState | null {
   return state.pages.find((p) => p.page.id === state.activePageId) ?? null;
 }
 
+/**
+ * Lleva un rectángulo de la vista previa al marco de página (SPEC-0004). Con la herramienta de
+ * tapar la vista previa muestra solo la zona recortada; con la de recortar, la página entera.
+ */
+export function viewToPage(state: AppState, rect: NormalizedRect): NormalizedRect {
+  const crop = state.tool === 'mask' ? activePage(state)?.edits.crop : null;
+  if (!crop) return rect;
+  return {
+    x: crop.x + rect.x * crop.w,
+    y: crop.y + rect.y * crop.h,
+    w: rect.w * crop.w,
+    h: rect.h * crop.h,
+  };
+}
+
+/** Lo contrario de `viewToPage`: dónde se ve en la vista previa una zona de la página. */
+export function pageToView(state: AppState, rect: NormalizedRect): NormalizedRect {
+  const crop = state.tool === 'mask' ? activePage(state)?.edits.crop : null;
+  if (!crop) return rect;
+  return {
+    x: (rect.x - crop.x) / crop.w,
+    y: (rect.y - crop.y) / crop.h,
+    w: rect.w / crop.w,
+    h: rect.h / crop.h,
+  };
+}
+
 /** Preset + ajustes manuales, ya acotados a los límites del dominio (SPEC-0004). */
 export function currentStyle(state: AppState): WatermarkStyle {
   return resolveStyle(state.preset, state.overrides);
@@ -128,7 +162,12 @@ export const actions = {
       if (imported.length === 0) return state;
       const pages = [...state.pages, ...imported.map((p) => ({ ...p }))];
       const first = imported[0];
-      return { ...state, pages, activePageId: state.activePageId ?? first?.page.id ?? null };
+      return {
+        ...state,
+        pages,
+        exported: false,
+        activePageId: state.activePageId ?? first?.page.id ?? null,
+      };
     },
 
   removePage:
@@ -137,18 +176,28 @@ export const actions = {
       const pages = state.pages.filter((p) => p.page.id !== id);
       const activePageId =
         state.activePageId === id ? (pages[0]?.page.id ?? null) : state.activePageId;
-      return { ...state, pages, activePageId };
+      return { ...state, pages, activePageId, selectedMask: null, exported: false };
     },
 
   selectPage:
     (id: string) =>
     (state: AppState): AppState =>
-      state.activePageId === id ? state : { ...state, activePageId: id },
+      state.activePageId === id ? state : { ...state, activePageId: id, selectedMask: null },
 
   setTool:
     (tool: Tool) =>
     (state: AppState): AppState =>
-      state.tool === tool ? state : { ...state, tool },
+      state.tool === tool ? state : { ...state, tool, selectedMask: null },
+
+  selectMask:
+    (index: number | null) =>
+    (state: AppState): AppState =>
+      state.selectedMask === index ? state : { ...state, selectedMask: index },
+
+  setExported:
+    (exported: boolean) =>
+    (state: AppState): AppState =>
+      state.exported === exported ? state : { ...state, exported },
 
   editActive:
     (recipe: (edits: PageEdits) => PageEdits) =>
@@ -180,13 +229,43 @@ export const actions = {
       isNegligible(rect) ? edits : { ...edits, masks: [...edits.masks, rect] },
     ),
 
-  undoMask: (): ((state: AppState) => AppState) =>
+  /** Sustituye una zona (moverla o cambiar su tamaño, RF-27). */
+  updateMask: (index: number, rect: NormalizedRect): ((state: AppState) => AppState) =>
     actions.editActive((edits) =>
-      edits.masks.length === 0 ? edits : { ...edits, masks: edits.masks.slice(0, -1) },
+      index < 0 || index >= edits.masks.length || isNegligible(rect)
+        ? edits
+        : { ...edits, masks: edits.masks.map((m, i) => (i === index ? rect : m)) },
     ),
 
-  clearMasks: (): ((state: AppState) => AppState) =>
-    actions.editActive((edits) => (edits.masks.length === 0 ? edits : { ...edits, masks: [] })),
+  /** Quita una zona concreta y deja de seleccionarla (RF-27). */
+  removeMask:
+    (index: number) =>
+    (state: AppState): AppState => {
+      const next = actions.editActive((edits) =>
+        index < 0 || index >= edits.masks.length
+          ? edits
+          : { ...edits, masks: edits.masks.filter((_, i) => i !== index) },
+      )(state);
+      return next === state ? state : { ...next, selectedMask: null };
+    },
+
+  undoMask:
+    () =>
+    (state: AppState): AppState => {
+      const next = actions.editActive((edits) =>
+        edits.masks.length === 0 ? edits : { ...edits, masks: edits.masks.slice(0, -1) },
+      )(state);
+      return next === state ? state : { ...next, selectedMask: null };
+    },
+
+  clearMasks:
+    () =>
+    (state: AppState): AppState => {
+      const next = actions.editActive((edits) =>
+        edits.masks.length === 0 ? edits : { ...edits, masks: [] },
+      )(state);
+      return next === state ? state : { ...next, selectedMask: null };
+    },
 
   setCrop: (crop: NormalizedRect | null): ((state: AppState) => AppState) =>
     actions.editActive((edits) => (crop && isNegligible(crop) ? edits : { ...edits, crop })),

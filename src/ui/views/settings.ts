@@ -2,19 +2,35 @@ import {
   NAMED_COLORS,
   PRESETS,
   STYLE_LIMITS,
+  TEMPLATE_IDS,
   parseHexColor,
   toHexColor,
+  type NormalizedRect,
   type PresetName,
+  type Redaction,
   type WatermarkStyle,
 } from '../../domain';
 import type { View } from '../context';
 import type { MessageKey } from '../i18n';
 import { h, numberValue, replaceChildren } from '../dom';
-import { actions, currentStyle } from '../store';
+import { actions, currentStyle, viewToPage } from '../store';
 
 const MAX_SIDES = [800, 1000, 1200, 1600, 2000] as const;
+const SUGGESTIONS = [1, 2, 3, 4, 5] as const;
 
-/** Panel de ajustes: texto de la marca, intensidad, ajuste fino y salida (RF-07, RF-08). */
+/** Franjas de un toque, en coordenadas de la vista previa (RF-06, RNF-04). */
+const STRIP = 0.15;
+const STRIPS: Record<'top' | 'bottom' | 'left' | 'right', NormalizedRect> = {
+  top: { x: 0, y: 0, w: 1, h: STRIP },
+  bottom: { x: 0, y: 1 - STRIP, w: 1, h: STRIP },
+  left: { x: 0, y: 0, w: STRIP, h: 1 },
+  right: { x: 1 - STRIP, y: 0, w: STRIP, h: 1 },
+};
+
+/**
+ * Panel de ajustes (RF-24): marca de agua con sugerencias (RF-07, RF-26), intensidad como control
+ * segmentado (RF-21), tapar datos (RF-06, RF-16, RF-28) y salida (RF-08, RF-15).
+ */
 export const settings: View = (root, { store, deps, t }) => {
   const state = store.get();
 
@@ -55,22 +71,118 @@ export const settings: View = (root, { store, deps, t }) => {
   });
   const composed = h('output', { class: 'composed', dataset: { testid: 'composed-text' } });
 
-  // --------------------------------------------------------------------------- preset
-  const presetOption = (name: PresetName): HTMLLabelElement =>
+  const suggestions = h(
+    'div',
+    { class: 'chips', attrs: { role: 'group', 'aria-label': t('mark.suggestions') } },
+    ...SUGGESTIONS.map((n) =>
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'chip',
+          dataset: { testid: `suggest-${n}` },
+          on: {
+            click: () => {
+              const purpose = t(`mark.suggest.${n}`);
+              store.update(actions.setText({ purpose }));
+              const input = root.querySelector<HTMLInputElement>('[data-testid="text-purpose"]');
+              if (input) input.value = purpose;
+            },
+          },
+        },
+        t(`mark.suggest.${n}`),
+      ),
+    ),
+  );
+
+  // --------------------------------------------------------------------------- intensidad
+  /** Una opción de un control segmentado: radio nativo (teclado y lector de pantalla gratis). */
+  const segment = (
+    group: string,
+    value: string,
+    checked: boolean,
+    testid: string,
+    onChange: () => void,
+    ...content: (Node | string)[]
+  ): HTMLLabelElement =>
     h(
       'label',
-      { class: 'preset' },
+      { class: 'segment' },
       h('input', {
         type: 'radio',
-        name: 'preset',
-        value: name,
-        checked: state.preset === name,
-        dataset: { testid: `preset-${name}` },
-        on: { change: () => store.update(actions.setPreset(name)) },
+        name: group,
+        value,
+        checked,
+        class: 'segment-input',
+        dataset: { testid },
+        on: { change: onChange },
       }),
-      h('span', { class: 'preset-name' }, t(`mark.preset.${name}`)),
-      h('span', { class: 'muted' }, t(`mark.preset.${name}.help`)),
+      ...content,
     );
+  const presetOption = (name: PresetName): HTMLLabelElement =>
+    segment(
+      'preset',
+      name,
+      state.preset === name,
+      `preset-${name}`,
+      () => store.update(actions.setPreset(name)),
+      h(
+        'span',
+        { class: `sample sample-${name}`, attrs: { 'aria-hidden': 'true' } },
+        t('mark.sample'),
+      ),
+      h(
+        'span',
+        { class: 'segment-text' },
+        h('span', { class: 'segment-name' }, t(`mark.preset.${name}`)),
+        h('span', { class: 'segment-help' }, t(`mark.preset.${name}.help`)),
+      ),
+    );
+
+  // --------------------------------------------------------------------------- tapar datos
+  const redactionHelp = h('p', { class: 'muted small', dataset: { testid: 'redaction-help' } });
+  const redactionOption = (kind: Redaction): HTMLLabelElement =>
+    segment(
+      'redaction',
+      kind,
+      (state.output.redaction ?? 'solid') === kind,
+      `redaction-${kind}`,
+      () => store.update(actions.setOutput({ redaction: kind })),
+      h('span', { class: `swatch swatch-${kind}`, attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'segment-name' }, t(`redact.${kind}`)),
+    );
+  const stripButtons = (Object.keys(STRIPS) as (keyof typeof STRIPS)[]).map((side) =>
+    h(
+      'button',
+      {
+        type: 'button',
+        class: 'button small',
+        dataset: { testid: `strip-${side}` },
+        on: { click: () => store.update(actions.addMask(viewToPage(store.get(), STRIPS[side]))) },
+      },
+      t(`tool.strip.${side}`),
+    ),
+  );
+  const templateSelect = h(
+    'select',
+    { dataset: { testid: 'template' }, attrs: { 'aria-label': t('template.label') } },
+    ...TEMPLATE_IDS.map((id) => h('option', { value: id }, t(`template.${id}`))),
+  );
+  const templateButton = h(
+    'button',
+    {
+      type: 'button',
+      class: 'button small',
+      dataset: { testid: 'apply-template' },
+      on: {
+        click: () => {
+          const id = TEMPLATE_IDS.find((x) => x === templateSelect.value);
+          if (id) store.update(actions.applyTemplate(id));
+        },
+      },
+    },
+    t('template.apply'),
+  );
 
   // --------------------------------------------------------------------------- ajuste fino
   const range = (
@@ -205,30 +317,33 @@ export const settings: View = (root, { store, deps, t }) => {
     },
   });
 
+  const section = (title: string, ...children: (Node | string | null)[]): HTMLElement =>
+    h(
+      'details',
+      { class: 'panel-section', open: true },
+      h('summary', { class: 'panel-title' }, title),
+      h('div', { class: 'panel-body' }, ...children),
+    );
+
   replaceChildren(
     root,
-    h(
-      'section',
-      { class: 'panel-section' },
-      h('h2', { class: 'panel-title' }, t('mark.title')),
+    section(
+      t('mark.title'),
       textField('freeText', 'mark.freeText'),
       textField('recipient', 'mark.recipient', 'mark.recipient.placeholder'),
       textField('purpose', 'mark.purpose', 'mark.purpose.placeholder'),
-      h('label', { class: 'check' }, includeDate, h('span', {}, t('mark.includeDate'))),
-      h(
-        'p',
-        { class: 'composed-wrap' },
-        h('span', { class: 'muted' }, t('mark.preview')),
-        composed,
-      ),
-    ),
-    h(
-      'section',
-      { class: 'panel-section' },
-      h('h2', { class: 'panel-title' }, t('mark.preset')),
+      suggestions,
+      h('label', { class: 'check switch' }, includeDate, h('span', {}, t('mark.includeDate'))),
       h(
         'div',
-        { class: 'presets', attrs: { role: 'radiogroup' } },
+        { class: 'composed-card' },
+        h('span', { class: 'composed-label' }, t('mark.preview')),
+        composed,
+      ),
+      h('p', { class: 'field-label' }, t('mark.preset')),
+      h(
+        'div',
+        { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': t('mark.preset') } },
         presetOption('normal'),
         presetOption('suave'),
       ),
@@ -244,17 +359,34 @@ export const settings: View = (root, { store, deps, t }) => {
           colorSelect,
           colorPicker,
         ),
-        h('label', { class: 'check' }, outline, h('span', {}, t('mark.outline'))),
+        h('label', { class: 'check switch' }, outline, h('span', {}, t('mark.outline'))),
         resetButton,
       ),
     ),
-    h(
-      'section',
-      { class: 'panel-section' },
-      h('h2', { class: 'panel-title' }, t('output.title')),
+    section(
+      t('redact.title'),
+      h('p', { class: 'field-label' }, t('redact.style')),
+      h(
+        'div',
+        {
+          class: 'segmented compact',
+          attrs: { role: 'radiogroup', 'aria-label': t('redact.style') },
+        },
+        redactionOption('solid'),
+        redactionOption('pixelate'),
+      ),
+      redactionHelp,
+      h('p', { class: 'field-label' }, t('template.label')),
+      h('div', { class: 'templates' }, templateSelect, templateButton),
+      h('p', { class: 'muted small' }, t('template.help')),
+      h('p', { class: 'field-label' }, t('tool.strips')),
+      h('div', { class: 'strips' }, ...stripButtons),
+    ),
+    section(
+      t('output.title'),
       h('label', { class: 'field inline' }, h('span', {}, t('output.maxSide')), maxSide),
       h('p', { class: 'muted small' }, t('output.maxSide.help')),
-      h('label', { class: 'check' }, grayscale, h('span', {}, t('output.grayscale'))),
+      h('label', { class: 'check switch' }, grayscale, h('span', {}, t('output.grayscale'))),
       h('p', { class: 'muted small' }, t('output.grayscale.help')),
       h(
         'label',
@@ -276,10 +408,20 @@ export const settings: View = (root, { store, deps, t }) => {
     outline.checked = style.outline;
     resetButton.hidden = Object.keys(store.get().overrides).length === 0;
   };
+  const syncPreset = (): void => {
+    for (const input of root.querySelectorAll<HTMLInputElement>('input[name="preset"]')) {
+      input.checked = input.value === store.get().preset;
+    }
+  };
   const syncText = (): void => {
     composed.textContent = deps.renderPage.watermarkText(store.get().text) || '—';
   };
   const syncOutput = (): void => {
+    const redaction = store.get().output.redaction ?? 'solid';
+    redactionHelp.textContent = t(`redact.help.${redaction}`);
+    for (const input of root.querySelectorAll<HTMLInputElement>('input[name="redaction"]')) {
+      input.checked = input.value === redaction;
+    }
     grayscale.checked = store.get().output.grayscale ?? false;
     qualityValue.textContent = `${Math.round(store.get().output.jpegQuality * 100)} %`;
   };
@@ -289,6 +431,7 @@ export const settings: View = (root, { store, deps, t }) => {
 
   const stop = [
     store.select((s) => s.preset, syncStyle),
+    store.select((s) => s.preset, syncPreset),
     store.select((s) => s.overrides, syncStyle),
     store.select((s) => s.text, syncText),
     store.select((s) => s.output, syncOutput),

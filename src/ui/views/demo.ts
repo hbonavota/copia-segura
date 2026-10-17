@@ -151,7 +151,12 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
       canvas.height = bitmap.height;
       canvas.getContext('2d')?.drawImage(bitmap, 0, 0);
       bitmap.close();
+      const changed = canvas.dataset.step !== undefined && canvas.dataset.step !== step;
       canvas.dataset.step = step;
+      // Fundido corto al cambiar de paso (SPEC-0007), salvo que se pida reducir movimiento.
+      if (changed && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        canvas.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+      }
     } finally {
       raster.dispose();
     }

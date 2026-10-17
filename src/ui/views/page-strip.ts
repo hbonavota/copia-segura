@@ -24,7 +24,10 @@ function thumbnail(page: PageState): HTMLCanvasElement {
   return canvas;
 }
 
-/** Tira de páginas: elegir la activa, quitar, añadir más o abrir la cámara. */
+/**
+ * Tira de páginas bajo el documento (RF-24): elegir la activa, quitar, añadir más o abrir la
+ * cámara. Con una sola página ofrece un hueco para el dorso (RF-26).
+ */
 export const pageStrip: View = (root, { store, services, t }) => {
   const picker = filePicker((files) => void services.importFiles(files));
   const thumbs = new Map<string, { element: HTMLElement; key: string }>();
@@ -72,15 +75,30 @@ export const pageStrip: View = (root, { store, services, t }) => {
   };
 
   const list = h('ul', { class: 'page-list', attrs: { 'aria-label': t('pages.title') } });
+  const backSlot = h(
+    'li',
+    { class: 'page-slot' },
+    h(
+      'button',
+      {
+        type: 'button',
+        class: 'slot-button',
+        dataset: { testid: 'add-back' },
+        on: { click: () => picker.click() },
+      },
+      icon(ICONS.plus),
+      h('span', {}, t('pages.back')),
+    ),
+  );
 
   const render = (): void => {
     const { pages, activePageId, busy } = store.get();
     for (const id of [...thumbs.keys()]) {
       if (!pages.some((p) => p.page.id === id)) thumbs.delete(id);
     }
-    replaceChildren(list, ...pages.map(item));
-    for (const li of list.children) {
-      const el = li as HTMLElement;
+    replaceChildren(list, ...pages.map(item), pages.length === 1 ? backSlot : null);
+    for (const li of list.querySelectorAll<HTMLElement>('.page-item')) {
+      const el = li;
       el.classList.toggle('is-active', el.dataset.pageId === activePageId);
       el.querySelector('.page-button')?.setAttribute(
         'aria-current',
@@ -93,7 +111,7 @@ export const pageStrip: View = (root, { store, services, t }) => {
 
   replaceChildren(
     root,
-    h('h2', { class: 'panel-title' }, t('pages.title')),
+    h('h2', { class: 'visually-hidden' }, t('pages.title')),
     list,
     h(
       'div',

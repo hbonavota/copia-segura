@@ -11,6 +11,14 @@ const IMPORT_ERROR_KEYS: Record<ImportError['code'], MessageKey> = {
   unknown: 'import.error.unknown',
 };
 
+/** Una foto HEIC que el navegador no sabe abrir merece un aviso propio (RF-29). */
+function importErrorKey(error: ImportError): MessageKey {
+  if (error.code === 'unsupported' && /\.hei[cf]$/i.test(error.fileName)) {
+    return 'import.error.heic';
+  }
+  return IMPORT_ERROR_KEYS[error.code];
+}
+
 /**
  * Orquesta casos de uso con el estado de la interfaz: marca "ocupado", añade páginas, avisa de
  * errores. `openCamera` lo registra el diálogo de cámara cuando se monta.
@@ -42,7 +50,7 @@ export function createServices(
       if (first) store.update(actions.selectPage(first.page.id));
       if (errors.length > 0) {
         const message = errors
-          .map((e) => t()(IMPORT_ERROR_KEYS[e.code], { file: e.fileName, message: e.message }))
+          .map((e) => t()(importErrorKey(e), { file: e.fileName, message: e.message }))
           .join(' ');
         store.update(actions.notify({ kind: 'error', message }));
       } else if (pages.some((p) => p.autoCropped)) {
@@ -98,9 +106,10 @@ export function createServices(
       });
       // Cancelar el menú de compartir no es un error: no se avisa de nada (RF-18).
       if (summary.files.length > 0) {
+        store.update(actions.setExported(true));
         store.update(
           actions.notify({
-            kind: 'info',
+            kind: 'success',
             message: t()(format === 'share' ? 'export.shared' : 'export.done', {
               files: summary.files.join(', '),
             }),
