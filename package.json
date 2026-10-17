@@ -1,0 +1,55 @@
+{
+  "name": "copia-segura",
+  "version": "1.0.0",
+  "description": "Prepara una copia limitada de tu documento de identidad (marca de agua, zonas tapadas, sin metadatos) sin que salga de tu navegador.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Hernán Bonavota",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hbonavota/copia-segura.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "vite --open",
+    "dev": "vite",
+    "prestart": "node scripts/copy-pdfjs-assets.mjs",
+    "predev": "node scripts/copy-pdfjs-assets.mjs",
+    "prebuild": "node scripts/copy-pdfjs-assets.mjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "pretest:e2e": "node scripts/copy-pdfjs-assets.mjs",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build",
+    "example:build": "node scripts/build-example.mjs"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.0",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}
