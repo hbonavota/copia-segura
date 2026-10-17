@@ -49,6 +49,11 @@ jobs:
       - run: npm run test:e2e
         env:
           CI: 'true'
+      # Otra vez en la raíz, como en copia-segura.orbytia.es (ADR-0008).
+      - run: npm run test:e2e
+        env:
+          CI: 'true'
+          E2E_BASE_PATH: /
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

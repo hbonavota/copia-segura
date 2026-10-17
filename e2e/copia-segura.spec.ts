@@ -636,7 +636,7 @@ test.describe('SPEC-0012 · app instalable y sin conexión', () => {
   }) => {
     await page.goto('./');
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
-    expect(href).toBe('/copia-segura/manifest.webmanifest');
+    expect(href).toBe(`${new URL(baseURL ?? '').pathname}manifest.webmanifest`);
     const manifest = (await (await page.request.get(new URL(href ?? '', baseURL).href)).json()) as {
       name: string;
       display: string;

@@ -1,8 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
-/** Igual que en GitHub Pages: la app vive bajo /copia-segura/ (ADR-0006). */
-const BASE_PATH = '/copia-segura/';
+/**
+ * Por defecto bajo /copia-segura/, el caso más exigente con las rutas; `E2E_BASE_PATH=/` prueba la
+ * raíz, como en copia-segura.orbytia.es (ADR-0008).
+ */
+const BASE_PATH = process.env.E2E_BASE_PATH ?? '/copia-segura/';
 
 /**
  * Los e2e corren contra el build de producción servido por `vite preview`: así se prueba también

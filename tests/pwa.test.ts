@@ -128,6 +128,23 @@ describe('RF-36 · qué peticiones atiende', () => {
   });
 });
 
+describe('ADR-0008 · también en la raíz de un dominio propio', () => {
+  const ROOT = 'https://copia-segura.orbytia.es/';
+
+  it('atiende la portada y los recursos de la app', () => {
+    expect(strategyFor(req(ROOT, 'navigate'), ROOT)).toBe('network-first');
+    expect(strategyFor(req(`${ROOT}assets/index-A.js`), ROOT)).toBe('cache-first');
+    expect(strategyFor(req(`${ROOT}sw.js`), ROOT)).toBe('ignore');
+    expect(strategyFor(req('https://orbytia.es/'), ROOT)).toBe('ignore');
+  });
+
+  it('reconoce la portada para guardarla sin conexión', () => {
+    const html = { status: 200, redirected: false, contentType: 'text/html' };
+    expect(isStartPage(ROOT, ROOT, html)).toBe(true);
+    expect(isStartPage(`${ROOT}index.html`, ROOT, html)).toBe(true);
+  });
+});
+
 describe('RF-36 · versiones', () => {
   it('al activar una versión borra solo las cachés anteriores de la app', () => {
     const current = cacheName('bbb');
