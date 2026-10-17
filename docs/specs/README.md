@@ -5,12 +5,13 @@ de ella se derivan los tests y solo entonces se implementa. Cada requisito tiene
 estable (`RF-xx`, `RNF-xx`) que aparece en los tests (`describe('RF-07 …')`) y en los commits,
 de modo que se puede trazar cualquier línea de código hasta el requisito que la justifica.
 
-| Spec                                                | Título                                                                  | Estado   |
-| --------------------------------------------------- | ----------------------------------------------------------------------- | -------- |
-| [SPEC-0001](SPEC-0001-vision-y-alcance.md)          | Visión, problema y alcance                                              | Aprobada |
-| [SPEC-0002](SPEC-0002-requisitos-funcionales.md)    | Requisitos funcionales (RF) con criterios de aceptación                 | Aprobada |
-| [SPEC-0003](SPEC-0003-requisitos-no-funcionales.md) | Requisitos no funcionales (RNF): privacidad, rendimiento, accesibilidad | Aprobada |
-| [SPEC-0004](SPEC-0004-modelo-de-dominio.md)         | Modelo de dominio, invariantes y glosario                               | Aprobada |
+| Spec                                                           | Título                                                                                      | Estado   |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------- |
+| [SPEC-0001](SPEC-0001-vision-y-alcance.md)                     | Visión, problema y alcance                                                                  | Aprobada |
+| [SPEC-0002](SPEC-0002-requisitos-funcionales.md)               | Requisitos funcionales (RF) con criterios de aceptación                                     | Aprobada |
+| [SPEC-0003](SPEC-0003-requisitos-no-funcionales.md)            | Requisitos no funcionales (RNF): privacidad, rendimiento, accesibilidad                     | Aprobada |
+| [SPEC-0004](SPEC-0004-modelo-de-dominio.md)                    | Modelo de dominio, invariantes y glosario                                                   | Aprobada |
+| [SPEC-0005](SPEC-0005-demo-bn-plantillas-verificable-movil.md) | Demo en portada, blanco y negro, plantillas de zonas, verificabilidad y móvil (RF-14…RF-18) | Aprobada |
 
 Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripción de capas en
 [`docs/arquitectura.md`](../arquitectura.md). El modelo de amenazas, en [`docs/amenazas.md`](../amenazas.md).
