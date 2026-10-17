@@ -83,6 +83,8 @@ export interface OutputOptions {
   readonly maxSide: number;
   /** Calidad JPEG, 0–1. */
   readonly jpegQuality: number;
+  /** Documento en escala de grises; la marca conserva su color (RF-15). */
+  readonly grayscale?: boolean;
 }
 
 /** Mosaico de la marca ya calculado para un tamaño de salida concreto. */
@@ -117,5 +119,7 @@ export interface CopyPlan {
   /** Máscaras en píxeles de salida, ya recortadas a la zona conservada. */
   readonly masksPx: readonly PixelRect[];
   readonly watermark: WatermarkLayout | null;
+  /** Convertir el documento a escala de grises antes de tapar y marcar (RF-15). */
+  readonly grayscale: boolean;
   readonly jpegQuality: number;
 }

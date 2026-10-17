@@ -5,3 +5,4 @@ export * from './watermark';
 export * from './plan';
 export * from './pdf-images';
 export * from './naming';
+export * from './templates';

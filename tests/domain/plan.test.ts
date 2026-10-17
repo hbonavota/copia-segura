@@ -104,6 +104,13 @@ describe('RF-09 · determinismo', () => {
     expect(plan()).toEqual(plan());
   });
 
+  it('blanco y negro desactivado por defecto y activable (RF-15)', () => {
+    expect(plan().grayscale).toBe(false);
+    expect(plan({ output: { maxSide: 1200, jpegQuality: 0.82, grayscale: true } }).grayscale).toBe(
+      true,
+    );
+  });
+
   it('sin texto no hay marca', () => {
     expect(plan({ text: '' }).watermark).toBeNull();
   });

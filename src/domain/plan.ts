@@ -53,6 +53,7 @@ export function planCopy(input: PlanInput): CopyPlan {
     output: outputSize,
     masksPx,
     watermark: layoutWatermark(text, outputSize, style, measure),
+    grayscale: output.grayscale ?? false,
     jpegQuality: Math.min(1, Math.max(0.3, output.jpegQuality)),
   };
 }
