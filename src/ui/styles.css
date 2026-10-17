@@ -65,6 +65,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 h1,
@@ -105,6 +106,7 @@ a {
   display: grid;
   grid-template-rows: auto auto 1fr auto auto;
   min-height: 100vh;
+  min-height: 100dvh;
   max-width: 1360px;
   margin: 0 auto;
   padding: 0 16px 32px;
@@ -140,21 +142,6 @@ a {
   /* Móvil primero (RF-18): el editor delante; páginas y ajustes después. */
   .workspace > .center {
     order: -1;
-  }
-
-  /* La barra de exportación queda a mano, fija abajo. */
-  .export-bar {
-    position: sticky;
-    bottom: 0;
-    z-index: 5;
-    background: var(--paper);
-    margin-top: 16px;
-    padding: 10px 0;
-  }
-
-  .export-bar .button {
-    flex: 1 1 auto;
-    justify-content: center;
   }
 }
 
@@ -250,10 +237,6 @@ a {
 }
 
 /* ---------------------------------------------------------------------------- avisos */
-.notice[hidden] {
-  display: none;
-}
-
 .notice {
   display: flex;
   align-items: flex-start;
@@ -554,7 +537,7 @@ input[type='color'] {
 /* ---------------------------------------------------------------------------- carga */
 .dropzone {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 20px;
   align-items: stretch;
 }
@@ -909,5 +892,23 @@ input[type='color'] {
 @media (max-width: 1000px) {
   .app.is-empty .workspace {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Móvil (RF-18): la barra de exportación queda a mano, fija abajo. Va al final para ganar a la
+   regla base de .export-bar, que tiene la misma especificidad. */
+@media (max-width: 1000px) {
+  .export-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background: var(--paper);
+    margin-top: 16px;
+    padding: 10px 0;
+  }
+
+  .export-bar .button {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }

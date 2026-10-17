@@ -38,4 +38,13 @@ describe('RF-16 · plantillas de zonas', () => {
     expect(mrz?.w).toBeCloseTo(0.5);
     expect(mrz?.h).toBeCloseTo(0.34 * 0.4);
   });
+
+  it('aplicar dos veces la misma plantilla no duplica zonas', () => {
+    const first = templateMasks('dni-ar-frente', noEdits);
+    expect(templateMasks('dni-ar-frente', { ...noEdits, masks: first })).toEqual([]);
+  });
+
+  it('cada zona documenta qué tapa', () => {
+    expect(MASK_TEMPLATES['dni-es-dorso'].map((z) => z.field)).toEqual(['domicilio', 'mrz']);
+  });
 });

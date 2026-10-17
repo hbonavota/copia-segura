@@ -3,7 +3,7 @@ import type { MessageKey } from './es';
 export const en: Record<MessageKey, string> = {
   'app.title': 'copia segura',
   'app.tagline': 'Prepare a limited copy of your ID document without it ever leaving your browser.',
-  'app.local': 'Everything happens in your browser. Nothing is sent anywhere.',
+  'app.local': 'Everything happens in your browser. Your document is never sent anywhere.',
   'app.language': 'Language',
 
   'drop.title': 'Drop your ID here',
@@ -40,9 +40,9 @@ export const en: Record<MessageKey, string> = {
   'mark.title': 'Watermark',
   'mark.freeText': 'Text',
   'mark.recipient': 'Recipient',
-  'mark.recipient.placeholder': 'Acme Telecom',
+  'mark.recipient.placeholder': 'e.g. company name',
   'mark.purpose': 'Purpose',
-  'mark.purpose.placeholder': 'account ownership change',
+  'mark.purpose.placeholder': 'e.g. opening an account',
   'mark.includeDate': "Add today's date",
   'mark.preview': 'The text will read',
   'mark.preset': 'Intensity',
@@ -120,6 +120,8 @@ export const en: Record<MessageKey, string> = {
   'about.privacy.2':
     'The page cannot make requests to other domains (its security policy forbids it) and the code is open source. You can verify it in the Network tab of the developer tools.',
 
+  'demo.recipient': 'EXAMPLE CO.',
+  'demo.purpose': 'account opening',
   'demo.title': 'What a copy looks like, step by step (fictional document)',
   'demo.alt': 'Fictional card processed by copia segura',
   'demo.tab.original': 'Original',
@@ -145,13 +147,16 @@ export const en: Record<MessageKey, string> = {
 
   'export.share': 'Share',
   'export.shared': 'Shared: {files}',
+  'export.share.retry': 'Your copies are ready. Tap Share again to open the menu.',
+  'export.share.failed': 'This browser could not open the share menu. Use Download instead.',
+  'export.failed': 'The copy could not be generated ({message}). Try a smaller longest side.',
 
   'verify.title': 'Check it yourself',
   'verify.lead': 'You do not have to trust what this page says. You can verify it in a minute:',
   'verify.step.1':
     'Open the browser developer tools (F12 or Cmd+Option+I), Network tab, and prepare a copy: there is no request to any other domain. No analytics, no external fonts, no server.',
   'verify.step.2':
-    'Look at the page source: its Content-Security-Policy forbids the browser from connecting to any other site, even if someone tried.',
+    'Look at the page source: its Content-Security-Policy stops the page from fetching data or loading resources from any other site, even if someone tried.',
   'verify.step.3':
     'The code is open source, and every change runs a test that records every request of a full flow and fails if any leaves the origin:',
   'verify.step.3.link': 'see it here',
@@ -159,7 +164,7 @@ export const en: Record<MessageKey, string> = {
   'distinct.title': 'What makes it different',
   'distinct.1.title': 'No third parties',
   'distinct.1.text':
-    'No analytics, no Google Fonts, no CDN. Not even your IP address travels anywhere.',
+    'No analytics, no Google Fonts, no CDN. The page only talks to the server that hosts it, and only to load itself.',
   'distinct.2.title': 'Verifiable, not promised',
   'distinct.2.text':
     'The security policy enforces it and a test checks it on every change. The code is public.',

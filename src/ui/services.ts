@@ -108,11 +108,22 @@ export function createServices(
         );
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      store.update(actions.notify({ kind: 'error', message }));
+      store.update(actions.notify({ kind: 'error', message: exportErrorMessage(format, error) }));
     } finally {
       end();
     }
+  }
+
+  /** Mensaje traducido y accionable; el detalle técnico solo si no hay nada mejor que decir. */
+  function exportErrorMessage(format: ExportFormat, error: unknown): string {
+    if (format === 'share') {
+      // iOS solo deja abrir el menú justo después del toque: si generar las copias tardó, se
+      // pierde ese permiso. Volver a pulsar funciona porque el navegador ya tiene todo en caché.
+      const name = error instanceof DOMException ? error.name : '';
+      return t()(name === 'NotAllowedError' ? 'export.share.retry' : 'export.share.failed');
+    }
+    const detail = error instanceof Error ? error.message : String(error);
+    return t()('export.failed', { message: detail });
   }
 
   return {

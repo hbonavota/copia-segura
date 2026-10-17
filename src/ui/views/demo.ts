@@ -33,7 +33,12 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
         class: 'demo-tab',
         id: `demo-tab-${step}`,
         dataset: { testid: `demo-${step}` },
-        attrs: { role: 'tab', 'aria-selected': String(i === 0), tabindex: i === 0 ? '0' : '-1' },
+        attrs: {
+          role: 'tab',
+          'aria-controls': 'demo-panel',
+          'aria-selected': String(i === 0),
+          tabindex: i === 0 ? '0' : '-1',
+        },
         on: {
           click: () => void select(step),
           keydown: (event) => {
@@ -57,30 +62,44 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
       { class: 'demo-tabs', attrs: { role: 'tablist', 'aria-label': t('demo.title') } },
       ...tabs,
     ),
-    h('div', { class: 'demo-stage', attrs: { role: 'tabpanel' } }, canvas),
+    h(
+      'div',
+      {
+        class: 'demo-stage',
+        id: 'demo-panel',
+        attrs: { role: 'tabpanel', 'aria-labelledby': 'demo-tab-marked' },
+      },
+      canvas,
+    ),
     caption,
   );
 
-  let source: { bitmap: Bitmap; page: Page } | null = null;
+  type Source = { bitmap: Bitmap; page: Page } | null;
   /** Objeto mutable: el linter no sigue cambios de una variable capturada por clausuras. */
   const life = { disposed: false };
   let token = 0;
+  /** Una sola descarga aunque se pulsen varias pestañas antes de que termine. */
+  let loading: Promise<Source> | null = null;
 
-  async function load(): Promise<{ bitmap: Bitmap; page: Page } | null> {
-    if (source) return source;
+  async function fetchSource(): Promise<Source> {
     try {
       const response = await fetch(deps.demoImageUrl);
       if (!response.ok) return null;
       const decoded = await deps.decodeImage(await response.blob());
-      source = {
+      if (life.disposed) {
+        decoded.bitmap.close(); // la vista se desmontó mientras cargaba
+        return null;
+      }
+      return {
         bitmap: decoded.bitmap,
         page: { id: 'demo', label: 'demo', sourceName: 'demo', size: decoded.size },
       };
-      return source;
     } catch {
       return null;
     }
   }
+
+  const load = (): Promise<Source> => (loading ??= fetchSource());
 
   async function select(step: Step): Promise<void> {
     tabs.forEach((tab, i) => {
@@ -88,10 +107,13 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
       tab.setAttribute('aria-selected', String(active));
       tab.tabIndex = active ? 0 : -1;
     });
+    canvas.parentElement?.setAttribute('aria-labelledby', `demo-tab-${step}`);
     caption.textContent = t(`demo.caption.${step}` as MessageKey);
     const current = ++token;
     // Función, no expresión: tras cada `await` el estado puede haber cambiado.
     const stale = (): boolean => life.disposed || current !== token;
+    // Con un documento cargado la portada está oculta: no hace falta dibujar.
+    if (store.get().pages.length > 0) return;
     const loaded = await load();
     if (!loaded || stale()) return;
     const locale = store.get().locale;
@@ -101,20 +123,27 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
       masks: step === 'original' ? [] : DEMO_MASKS,
     };
     const marked = step === 'marked' || step === 'gray';
-    const { raster } = await deps.renderPage.run({
-      page: loaded.page,
-      bitmap: loaded.bitmap,
-      edits,
-      style: PRESETS.normal,
-      text: marked
-        ? {
-            ...defaultText(locale),
-            recipient: t('mark.recipient.placeholder'),
-            purpose: t('mark.purpose.placeholder'),
-          }
-        : { freeText: '', recipient: '', purpose: '', includeDate: false },
-      output: { maxSide: 900, jpegQuality: 0.9, grayscale: step === 'gray' },
-    });
+    let rendered: Awaited<ReturnType<typeof deps.renderPage.run>>;
+    try {
+      rendered = await deps.renderPage.run({
+        page: loaded.page,
+        bitmap: loaded.bitmap,
+        edits,
+        style: PRESETS.normal,
+        text: marked
+          ? {
+              ...defaultText(locale),
+              recipient: t('demo.recipient'),
+              purpose: t('demo.purpose'),
+            }
+          : { freeText: '', recipient: '', purpose: '', includeDate: false },
+        output: { maxSide: 900, jpegQuality: 0.9, grayscale: step === 'gray' },
+      });
+    } catch {
+      // La demo es decorativa: si falla, se queda el texto y no se molesta con un error.
+      return;
+    }
+    const { raster } = rendered;
     try {
       if (stale()) return;
       const bitmap = await raster.toBitmap();
@@ -132,6 +161,6 @@ export function demo(root: HTMLElement, { deps, store, t }: AppContext): () => v
 
   return () => {
     life.disposed = true;
-    source?.bitmap.close();
+    void loading?.then((source) => source?.bitmap.close());
   };
 }

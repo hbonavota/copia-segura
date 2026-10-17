@@ -7,7 +7,7 @@ import type { NormalizedRect, PageEdits } from './types';
 export type TemplateId = 'dni-es-frente' | 'dni-es-dorso' | 'dni-ar-frente' | 'dni-ar-dorso';
 
 export interface TemplateZone {
-  /** Qué tapa la zona; la interfaz lo traduce. */
+  /** Qué tapa la zona. Documenta la plantilla y permite comprobarla en los tests. */
   readonly field: 'can' | 'soporte' | 'firma' | 'mrz' | 'domicilio' | 'tramite' | 'codigo-barras';
   readonly rect: NormalizedRect;
 }
@@ -40,14 +40,21 @@ export const TEMPLATE_IDS = Object.keys(MASK_TEMPLATES) as TemplateId[];
 
 /**
  * Lleva las zonas de la plantilla al marco de página: si hay recorte se asume que es la tarjeta;
- * si no, la tarjeta ocupa la página entera.
+ * si no, la tarjeta ocupa la página entera. Las zonas que ya estén tapadas no se repiten.
  */
 export function templateMasks(id: TemplateId, edits: PageEdits): NormalizedRect[] {
   const card = edits.crop ?? { x: 0, y: 0, w: 1, h: 1 };
-  return MASK_TEMPLATES[id].map(({ rect }) => ({
-    x: card.x + rect.x * card.w,
-    y: card.y + rect.y * card.h,
-    w: rect.w * card.w,
-    h: rect.h * card.h,
-  }));
+  const same = (a: NormalizedRect, b: NormalizedRect): boolean =>
+    Math.abs(a.x - b.x) < 1e-9 &&
+    Math.abs(a.y - b.y) < 1e-9 &&
+    Math.abs(a.w - b.w) < 1e-9 &&
+    Math.abs(a.h - b.h) < 1e-9;
+  return MASK_TEMPLATES[id]
+    .map(({ rect }) => ({
+      x: card.x + rect.x * card.w,
+      y: card.y + rect.y * card.h,
+      w: rect.w * card.w,
+      h: rect.h * card.h,
+    }))
+    .filter((zone) => !edits.masks.some((existing) => same(existing, zone)));
 }

@@ -48,9 +48,9 @@ function importsOf(file: string): string[] {
   const source = readFileSync(file, 'utf8');
   const specifiers: string[] = [];
   const pattern =
-    /(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+    /(?:import|export)\s[^'"]*?from\s*['"]([^'"]+)['"]|import\s*\(\s*['"]([^'"]+)['"]\s*\)|import\s+['"]([^'"]+)['"]/g;
   for (const match of source.matchAll(pattern)) {
-    const spec = match[1] ?? match[2];
+    const spec = match[1] ?? match[2] ?? match[3];
     if (spec) specifiers.push(spec);
   }
   return specifiers;

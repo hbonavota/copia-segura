@@ -1,7 +1,7 @@
 export const es = {
   'app.title': 'copia segura',
   'app.tagline': 'Prepara una copia limitada de tu documento sin que salga de tu navegador.',
-  'app.local': 'Todo ocurre en tu navegador. No se envía nada a ningún sitio.',
+  'app.local': 'Todo ocurre en tu navegador. Tu documento no se envía a ningún sitio.',
   'app.language': 'Idioma',
 
   'drop.title': 'Arrastra aquí tu DNI',
@@ -38,9 +38,9 @@ export const es = {
   'mark.title': 'Marca de agua',
   'mark.freeText': 'Texto',
   'mark.recipient': 'Destinatario',
-  'mark.recipient.placeholder': 'Movistar',
+  'mark.recipient.placeholder': 'Ej.: nombre de la empresa',
   'mark.purpose': 'Finalidad',
-  'mark.purpose.placeholder': 'cambio de titularidad',
+  'mark.purpose.placeholder': 'Ej.: alta de un servicio',
   'mark.includeDate': 'Añadir la fecha de hoy',
   'mark.preview': 'Así quedará el texto',
   'mark.preset': 'Intensidad',
@@ -118,6 +118,8 @@ export const es = {
   'about.privacy.2':
     'La página no puede hacer peticiones a otros dominios (lo impide su política de seguridad) y el código es abierto. Puedes comprobarlo en la pestaña Red de las herramientas de desarrollo.',
 
+  'demo.recipient': 'EMPRESA EJEMPLO',
+  'demo.purpose': 'alta de un servicio',
   'demo.title': 'Así queda una copia, paso a paso (documento ficticio)',
   'demo.alt': 'Tarjeta ficticia procesada por copia segura',
   'demo.tab.original': 'Original',
@@ -143,6 +145,9 @@ export const es = {
 
   'export.share': 'Compartir',
   'export.shared': 'Compartido: {files}',
+  'export.share.retry': 'Las copias están listas. Pulsa Compartir otra vez para abrir el menú.',
+  'export.share.failed': 'Este navegador no ha podido abrir el menú de compartir. Usa Descargar.',
+  'export.failed': 'No se pudo generar la copia ({message}). Prueba con un lado máximo menor.',
 
   'verify.title': 'Compruébalo tú',
   'verify.lead':
@@ -150,14 +155,15 @@ export const es = {
   'verify.step.1':
     'Abre las herramientas de desarrollo del navegador (F12 o Cmd+Opción+I), pestaña Red, y prepara una copia: no aparece ninguna petición a otro dominio. Ni analítica, ni fuentes externas, ni servidor.',
   'verify.step.2':
-    'Mira el código fuente de la página: la política de seguridad (Content-Security-Policy) prohíbe al navegador conectar con cualquier otro sitio, aunque alguien lo intentara.',
+    'Mira el código fuente de la página: la política de seguridad (Content-Security-Policy) impide a la página pedir datos o cargar recursos de cualquier otro sitio, aunque alguien lo intentara.',
   'verify.step.3':
     'El código es abierto y cada cambio pasa un test que registra todas las peticiones de un flujo completo y falla si alguna sale del origen:',
   'verify.step.3.link': 'míralo aquí',
 
   'distinct.title': 'Qué la hace distinta',
   'distinct.1.title': 'Sin terceros',
-  'distinct.1.text': 'Ni analítica, ni fuentes de Google, ni CDN. Tu IP tampoco viaja a nadie.',
+  'distinct.1.text':
+    'Ni analítica, ni fuentes de Google, ni CDN. La página solo habla con el servidor que la aloja, y solo para cargarse.',
   'distinct.2.title': 'Verificable, no prometido',
   'distinct.2.text':
     'La política de seguridad lo impone y un test lo comprueba en cada cambio. El código es público.',

@@ -35,7 +35,7 @@ const settings: RenderSettings = {
   style: PRESETS.normal,
   text: {
     freeText: 'COPIA SOLO VÁLIDA PARA',
-    recipient: 'Movistar',
+    recipient: 'Empresa Ejemplo',
     purpose: '',
     includeDate: true,
   },
@@ -53,7 +53,7 @@ function renderPage(rasterizer = new FakeRasterizer()): RenderPage {
 describe('RF-07/RF-09 · RenderPage', () => {
   it('compone el texto con la fecha del reloj y lo pone en el plan', () => {
     const plan = renderPage().plan({ page: page('1', 'p1'), edits: noEdits, ...settings });
-    expect(plan.watermark?.text).toBe('COPIA SOLO VÁLIDA PARA Movistar · 17/10/2026');
+    expect(plan.watermark?.text).toBe('COPIA SOLO VÁLIDA PARA Empresa Ejemplo · 17/10/2026');
   });
 
   it('la vista previa y la exportación usan el mismo plan', async () => {

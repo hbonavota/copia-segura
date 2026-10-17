@@ -21,13 +21,13 @@ describe('RF-07 · texto de la marca', () => {
     const text = composeWatermarkText(
       {
         freeText: 'COPIA SOLO VÁLIDA PARA',
-        recipient: 'Movistar',
-        purpose: 'cambio de titularidad',
+        recipient: 'Empresa Ejemplo',
+        purpose: 'alta de un servicio',
         includeDate: true,
       },
       today,
     );
-    expect(text).toBe('COPIA SOLO VÁLIDA PARA Movistar · cambio de titularidad · 17/10/2026');
+    expect(text).toBe('COPIA SOLO VÁLIDA PARA Empresa Ejemplo · alta de un servicio · 17/10/2026');
   });
 
   it('omite las partes vacías y la fecha si está desactivada', () => {
