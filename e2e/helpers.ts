@@ -23,6 +23,21 @@ export async function afterRender(page: Page, action: () => Promise<unknown>): P
   await expect.poll(() => renderCount(page), { timeout: 15_000 }).toBeGreaterThan(before);
 }
 
+/**
+ * Quita la marca de agua (texto vacío y sin fecha). La marca se dibuja encima de las zonas
+ * tapadas, así que para comprobar el negro de una zona hay que medir sin ella: dónde cae el texto
+ * depende de las fuentes del sistema, y en otra máquina puede caer justo en el píxel medido.
+ */
+export async function withoutWatermark(page: Page): Promise<void> {
+  await afterRender(page, () => page.getByTestId('text-freeText').fill(''));
+  await afterRender(page, () => page.getByTestId('include-date').uncheck());
+}
+
+/** Negro, con la tolerancia que deja la compresión JPEG. */
+export function isBlack([r, g, b]: readonly [number, number, number]): boolean {
+  return Math.max(r, g, b) <= 16;
+}
+
 /** Arrastra sobre la vista previa entre dos puntos dados en fracción del lienzo. */
 export async function drag(
   page: Page,

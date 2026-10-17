@@ -5,9 +5,11 @@ import {
   downloadBytes,
   drag,
   inspectJpeg,
+  isBlack,
   jpegPixel,
   loadExample,
   previewPixel,
+  withoutWatermark,
 } from './helpers';
 
 test.describe('RF-11 / RF-01 · documento de ejemplo', () => {
@@ -25,11 +27,12 @@ test.describe('RF-11 / RF-01 · documento de ejemplo', () => {
 test.describe('RF-06 · tapar zonas', () => {
   test('una zona dibujada queda negra en la vista previa y se puede deshacer', async ({ page }) => {
     await loadExample(page);
+    await withoutWatermark(page);
     const before = await previewPixel(page, { x: 0.3, y: 0.9 });
     expect(before.some((channel) => channel > 60)).toBe(true);
 
     await drag(page, { x: 0.05, y: 0.82 }, { x: 0.55, y: 0.97 });
-    expect(await previewPixel(page, { x: 0.3, y: 0.9 })).toEqual([0, 0, 0]);
+    expect(isBlack(await previewPixel(page, { x: 0.3, y: 0.9 }))).toBe(true);
 
     await afterRender(page, () => page.getByTestId('undo-mask').click());
     const after = await previewPixel(page, { x: 0.3, y: 0.9 });
@@ -40,22 +43,24 @@ test.describe('RF-06 · tapar zonas', () => {
     page,
   }) => {
     await loadExample(page);
+    await withoutWatermark(page);
     await drag(page, { x: 0.05, y: 0.82 }, { x: 0.55, y: 0.97 });
     const [download] = await Promise.all([
       page.waitForEvent('download'),
       page.getByTestId('export-jpg').click(),
     ]);
     const bytes = await downloadBytes(download);
-    expect(await jpegPixel(page, bytes, { x: 0.3, y: 0.9 })).toEqual([0, 0, 0]);
+    expect(isBlack(await jpegPixel(page, bytes, { x: 0.3, y: 0.9 }))).toBe(true);
     const untouched = await jpegPixel(page, bytes, { x: 0.3, y: 0.3 });
     expect(untouched.some((channel) => channel > 60)).toBe(true);
   });
 
   test('las franjas se tapan desde botones, sin ratón (RNF-04)', async ({ page }) => {
     await loadExample(page);
+    await withoutWatermark(page);
     await page.getByTestId('strip-bottom').focus();
     await afterRender(page, () => page.keyboard.press('Enter'));
-    expect(await previewPixel(page, { x: 0.5, y: 0.95 })).toEqual([0, 0, 0]);
+    expect(isBlack(await previewPixel(page, { x: 0.5, y: 0.95 }))).toBe(true);
   });
 });
 
