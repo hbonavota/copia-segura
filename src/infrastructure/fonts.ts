@@ -1,6 +1,6 @@
 /**
- * Tipografía de la marca de agua. Solo fuentes del sistema: la CSP no permite descargar ninguna
- * (ADR-0005) y así el resultado no depende de la red.
+ * Tipografía de la marca de agua: fuentes del sistema. La interfaz usa Inter (RF-20), pero la copia
+ * no debe depender de si una fuente web ha terminado de cargar: así sale igual siempre.
  */
 export const WATERMARK_FONT_STACK =
   'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif';

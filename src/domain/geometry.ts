@@ -87,3 +87,40 @@ export function roundOutward(rect: PixelRect): PixelRect {
   const y1 = Math.ceil(rect.y + rect.h);
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
+
+/**
+ * Desplaza un rectángulo normalizado sin que salga del marco [0, 1] (RF-27): si choca con un
+ * borde, se queda pegado a él conservando su tamaño.
+ */
+export function moveRect(rect: NormalizedRect, dx: number, dy: number): NormalizedRect {
+  return {
+    ...rect,
+    x: Math.min(1 - rect.w, Math.max(0, rect.x + dx)),
+    y: Math.min(1 - rect.h, Math.max(0, rect.y + dy)),
+  };
+}
+
+/**
+ * Lleva la esquina inferior derecha de un rectángulo al punto `(x, y)` (RF-27). La esquina
+ * superior izquierda no se mueve, el resultado no sale del marco y nunca baja de `minSide`.
+ */
+export function resizeRect(
+  rect: NormalizedRect,
+  x: number,
+  y: number,
+  minSide = 0.01,
+): NormalizedRect {
+  return {
+    ...rect,
+    w: Math.min(1 - rect.x, Math.max(minSide, x - rect.x)),
+    h: Math.min(1 - rect.y, Math.max(minSide, y - rect.y)),
+  };
+}
+
+/**
+ * Lado del bloque del tapado pixelado (RF-28): la mitad del lado corto de la zona, nunca menos de
+ * 16 px. Bloques tan grandes dejan la zona en una o dos filas y no conservan la forma de las letras.
+ */
+export function pixelBlockSize(rect: PixelRect): number {
+  return Math.max(16, Math.ceil(Math.min(rect.w, rect.h) / 2));
+}

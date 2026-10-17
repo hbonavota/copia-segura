@@ -3,6 +3,9 @@ import {
   fitScale,
   intersect,
   isNegligible,
+  moveRect,
+  pixelBlockSize,
+  resizeRect,
   nextRotation,
   rectFromCorners,
   rotateRect,
@@ -96,5 +99,38 @@ describe('píxeles', () => {
 
   it('redondea hacia fuera para no dejar líneas sin tapar (RF-06)', () => {
     expect(roundOutward({ x: 10.4, y: 3.6, w: 5.2, h: 2.1 })).toEqual({ x: 10, y: 3, w: 6, h: 3 });
+  });
+});
+
+describe('RF-27 · mover y redimensionar zonas', () => {
+  const r = { x: 0.2, y: 0.3, w: 0.4, h: 0.2 };
+
+  it('mueve conservando el tamaño', () => {
+    expect(moveRect(r, 0.1, -0.1)).toEqual(rectCloseTo({ x: 0.3, y: 0.2, w: 0.4, h: 0.2 }));
+  });
+
+  it('se queda pegada al borde en lugar de salir de la página', () => {
+    expect(moveRect(r, 1, 1)).toEqual(rectCloseTo({ x: 0.6, y: 0.8, w: 0.4, h: 0.2 }));
+    expect(moveRect(r, -1, -1)).toEqual(rectCloseTo({ x: 0, y: 0, w: 0.4, h: 0.2 }));
+  });
+
+  it('redimensiona desde la esquina inferior derecha sin mover la superior izquierda', () => {
+    expect(resizeRect(r, 0.9, 0.7)).toEqual(rectCloseTo({ x: 0.2, y: 0.3, w: 0.7, h: 0.4 }));
+  });
+
+  it('no baja del tamaño mínimo ni sale del marco', () => {
+    expect(resizeRect(r, 0, 0)).toEqual(rectCloseTo({ x: 0.2, y: 0.3, w: 0.01, h: 0.01 }));
+    expect(resizeRect(r, 5, 5)).toEqual(rectCloseTo({ x: 0.2, y: 0.3, w: 0.8, h: 0.7 }));
+  });
+});
+
+describe('RF-28 · bloque del pixelado', () => {
+  it('es la mitad del lado corto de la zona', () => {
+    expect(pixelBlockSize({ x: 0, y: 0, w: 400, h: 60 })).toBe(30);
+    expect(pixelBlockSize({ x: 0, y: 0, w: 61, h: 300 })).toBe(31);
+  });
+
+  it('nunca baja de 16 px', () => {
+    expect(pixelBlockSize({ x: 0, y: 0, w: 200, h: 10 })).toBe(16);
   });
 });

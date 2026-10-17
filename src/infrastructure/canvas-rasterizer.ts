@@ -1,4 +1,11 @@
-import type { CopyPlan, Rotation, Size, WatermarkLayout } from '../domain';
+import {
+  pixelBlockSize,
+  type CopyPlan,
+  type PixelRect,
+  type Rotation,
+  type Size,
+  type WatermarkLayout,
+} from '../domain';
 import type { Bitmap, Raster, Rasterizer } from '../application';
 import { context2d, createCanvas, watermarkFont, type AnyCanvas, type AnyContext2D } from './fonts';
 
@@ -23,9 +30,13 @@ export class CanvasRasterizer implements Rasterizer {
     // 1b. Blanco y negro (RF-15): solo el documento; la marca se dibuja después y conserva su color.
     if (plan.grayscale) toGrayscale(ctx, plan.output);
 
-    // 2. Máscaras: negro opaco sobre los píxeles (RF-06).
-    ctx.fillStyle = '#000';
-    for (const mask of plan.masksPx) ctx.fillRect(mask.x, mask.y, mask.w, mask.h);
+    // 2. Máscaras: negro opaco sobre los píxeles (RF-06) o pixelado grueso (RF-28).
+    if (plan.redaction === 'pixelate') {
+      for (const mask of plan.masksPx) pixelate(ctx, mask, plan.output);
+    } else {
+      ctx.fillStyle = '#000';
+      for (const mask of plan.masksPx) ctx.fillRect(mask.x, mask.y, mask.w, mask.h);
+    }
 
     // 3. Marca de agua (RF-07).
     if (plan.watermark) drawWatermark(ctx, plan.watermark, plan.output);
@@ -55,6 +66,32 @@ function drawRotated(ctx: AnyContext2D, image: Bitmap, rotation: Rotation, rotat
       ctx.drawImage(image, 0, 0);
       return;
   }
+}
+
+/**
+ * Pixelado grueso (RF-28): reduce la zona a una rejilla de bloques promediando sus píxeles y la
+ * vuelve a ampliar sin suavizado. Los píxeles originales de la zona dejan de existir.
+ */
+function pixelate(ctx: AnyContext2D, mask: PixelRect, output: Size): void {
+  const x = Math.max(0, mask.x);
+  const y = Math.max(0, mask.y);
+  const w = Math.min(output.width, mask.x + mask.w) - x;
+  const h = Math.min(output.height, mask.y + mask.h) - y;
+  if (w <= 0 || h <= 0) return;
+  const block = pixelBlockSize({ x, y, w, h });
+  const cols = Math.max(1, Math.ceil(w / block));
+  const rows = Math.max(1, Math.ceil(h / block));
+  const small = createCanvas(cols, rows);
+  const smallCtx = context2d(small);
+  smallCtx.imageSmoothingEnabled = true;
+  smallCtx.imageSmoothingQuality = 'high';
+  smallCtx.drawImage(ctx.canvas, x, y, w, h, 0, 0, cols, rows);
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(small, 0, 0, cols, rows, x, y, w, h);
+  ctx.restore();
+  small.width = 0;
+  small.height = 0;
 }
 
 /** Escala de grises por luminancia Rec. 601, píxel a píxel (no depende de `ctx.filter`). */

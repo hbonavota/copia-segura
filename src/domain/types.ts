@@ -85,7 +85,11 @@ export interface OutputOptions {
   readonly jpegQuality: number;
   /** Documento en escala de grises; la marca conserva su color (RF-15). */
   readonly grayscale?: boolean;
+  /** Cómo se tapan las zonas: negro opaco (por defecto) o pixelado grueso (RF-28). */
+  readonly redaction?: Redaction;
 }
+
+export type Redaction = 'solid' | 'pixelate';
 
 /** Mosaico de la marca ya calculado para un tamaño de salida concreto. */
 export interface WatermarkLayout {
@@ -121,5 +125,7 @@ export interface CopyPlan {
   readonly watermark: WatermarkLayout | null;
   /** Convertir el documento a escala de grises antes de tapar y marcar (RF-15). */
   readonly grayscale: boolean;
+  /** Estilo de las máscaras (RF-28). */
+  readonly redaction: Redaction;
   readonly jpegQuality: number;
 }

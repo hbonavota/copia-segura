@@ -111,6 +111,13 @@ describe('RF-09 · determinismo', () => {
     );
   });
 
+  it('tapado en negro por defecto y pixelado a petición (RF-28)', () => {
+    expect(plan().redaction).toBe('solid');
+    expect(
+      plan({ output: { maxSide: 1200, jpegQuality: 0.82, redaction: 'pixelate' } }).redaction,
+    ).toBe('pixelate');
+  });
+
   it('sin texto no hay marca', () => {
     expect(plan({ text: '' }).watermark).toBeNull();
   });
