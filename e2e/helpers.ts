@@ -3,7 +3,7 @@ import { expect, type Download, type Page } from '@playwright/test';
 
 /** Carga el documento de ejemplo y espera a que la vista previa esté dibujada (RF-11). */
 export async function loadExample(page: Page): Promise<void> {
-  await page.goto('/');
+  await page.goto('./');
   await page.getByTestId('load-example').click();
   await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 45_000 });
 }

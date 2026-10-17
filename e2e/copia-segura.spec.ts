@@ -86,10 +86,10 @@ test.describe('RF-07 / RF-08 / RF-10 · exportación', () => {
     page,
   }) => {
     await loadExample(page);
-    await page.getByTestId('text-recipient').fill('Movistar');
-    await page.getByTestId('text-purpose').fill('cambio de titularidad');
+    await page.getByTestId('text-recipient').fill('Empresa Ejemplo');
+    await page.getByTestId('text-purpose').fill('alta de un servicio');
     await expect(page.getByTestId('composed-text')).toContainText(
-      'COPIA SOLO VÁLIDA PARA Movistar · cambio de titularidad',
+      'COPIA SOLO VÁLIDA PARA Empresa Ejemplo · alta de un servicio',
     );
     await afterRender(page, () => page.getByTestId('max-side').selectOption('800'));
 
@@ -142,6 +142,25 @@ test.describe('RNF-01 · privacidad', () => {
     expect(foreign).toEqual([]);
   });
 
+  test('la política de seguridad bloquea de verdad una petición a otro dominio', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    const outcome = await page.evaluate(async () => {
+      const violation = new Promise<string>((resolve) =>
+        document.addEventListener('securitypolicyviolation', (e) => resolve(e.effectiveDirective), {
+          once: true,
+        }),
+      );
+      const request = fetch('https://example.com/').then(
+        () => 'enviada',
+        () => 'bloqueada',
+      );
+      return { request: await request, directive: await violation };
+    });
+    expect(outcome).toEqual({ request: 'bloqueada', directive: 'connect-src' });
+  });
+
   test('el HTML publicado lleva la política de seguridad y no guarda el documento', async ({
     page,
   }) => {
@@ -158,7 +177,7 @@ test.describe('RNF-01 · privacidad', () => {
 
 test.describe('RF-12 · idioma', () => {
   test('cambia a inglés y lo recuerda al recargar', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('./');
     await expect(page.locator('.dropzone h2')).toHaveText('Arrastra aquí tu DNI');
     await page.getByRole('button', { name: 'EN', exact: true }).click();
     await expect(page.locator('.dropzone h2')).toHaveText('Drop your ID here');
@@ -171,7 +190,7 @@ test.describe('RF-12 · idioma', () => {
 
 test.describe('SPEC-0005 · portada, B/N, plantillas, verificable, móvil', () => {
   test('RF-14 · la portada muestra la demo y sus pestañas cambian el paso', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('./');
     const canvas = page.locator('.demo-canvas');
     await expect(canvas).toHaveAttribute('data-step', 'marked');
     await page.getByTestId('demo-original').click();
@@ -202,7 +221,7 @@ test.describe('SPEC-0005 · portada, B/N, plantillas, verificable, móvil', () =
   });
 
   test('RF-17 · explica cómo verificarlo y qué la hace distinta', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('./');
     await expect(page.getByTestId('verify')).toContainText('Compruébalo tú');
     await expect(page.getByTestId('verify').getByRole('link')).toHaveAttribute(
       'href',
