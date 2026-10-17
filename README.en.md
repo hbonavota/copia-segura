@@ -32,6 +32,7 @@ else's server, which is exactly what you want to avoid.
 | **Watermark** | Editable text: `COPY ONLY VALID FOR <recipient> · <purpose> · <date>` (Spanish default in the Spanish UI). Two intensities (_Visible_ and _Discreet_) plus fine tuning of opacity, size, spacing, angle, colour and outline. The tiling covers the whole image, corners included.                                                                                |
 | **Output**    | One JPG per page, a ZIP, a multi-page PDF, or the phone's share menu. Optional black and white. Configurable longest side (1200 px by default); no EXIF, XMP or colour profile from the original photo.                                                                                                                                                          |
 | **Interface** | Spanish and English; light or dark theme (follows the system or your choice, and remembers it).                                                                                                                                                                                                                                                                  |
+| **App**       | Installable on phone and desktop; works offline. It stores its own files, never your documents.                                                                                                                                                                                                                                                                  |
 | **Privacy**   | Everything happens in the browser. The page cannot make requests to other domains (enforced by its Content Security Policy) and stores the document nowhere. A counter in the header shows live the resources from other domains recorded by the browser (zero), and an end-to-end test records every request of a full flow and fails if any leaves the origin. |
 
 And what it does **not** do, stated in the interface itself: a watermark deters and leaves a trace,
@@ -62,8 +63,9 @@ that enforces it.
 ## Use it
 
 The simplest way is the [published version](https://hbonavota.github.io/copia-segura/): nothing to
-install. With photos it keeps working offline once loaded; opening a PDF or exporting to PDF/ZIP
-downloads the corresponding modules the first time, always from the page's own origin.
+install, although you can install it as an app from the browser. Once opened it works offline with
+photos and, from your first document onwards, with PDFs and exports too: the app stores its own
+files (never yours), always from the page's own origin.
 
 Locally, with Node 22.13 or newer (`.nvmrc`):
 
@@ -86,7 +88,7 @@ architecture** applied to a genuinely small application.
   model. Tests cite the requirement they cover (`describe('RF-07 · marca de agua')`), so any line of
   code can be traced back to the reason it exists.
 - **Decisions on record.** `docs/adr/` explains why there is no backend, why there is no UI
-  framework, why pdf.js and pdf-lib, and what the CSP guarantees.
+  framework, why pdf.js and pdf-lib, what the CSP guarantees and why there is a service worker.
 - **Four layers with one-way dependencies**, enforced by a test:
 
   ```
@@ -95,8 +97,8 @@ architecture** applied to a genuinely small application.
 
   `domain/` is pure (watermark geometry, rectangle rotation, embedded-image detection from a PDF
   operator list) and is tested without a browser. `application/` holds use cases and ports.
-  `infrastructure/` holds the adapters (pdf.js, canvas, pdf-lib, JSZip, `getUserMedia`). `ui/` is
-  TypeScript against the DOM, no React: a minimal observable state store and views that mount and unmount.
+  `infrastructure/` holds the adapters (pdf.js, canvas, pdf-lib, JSZip, `getUserMedia`). `pwa/` is
+  the service worker, isolated from the rest. `ui/` is TypeScript against the DOM, no React: a minimal observable state store and views that mount and unmount.
 
 - **Three levels of testing.** Unit tests for `domain` and `application` with port doubles (Vitest,
   ≥ 90 % line and ≥ 85 % branch coverage); an architecture test that analyses imports; and Playwright end-to-end tests
@@ -112,7 +114,7 @@ messages are in English where the ecosystem expects it and Spanish where the dom
 
 ```
 docs/
-  specs/          SPEC-0001…0011: vision, requirements, NFRs, domain, differentiators, theme, redesign, any document
+  specs/          SPEC-0001…0012: vision, requirements, NFRs, domain, differentiators, theme, redesign, documents, app
   adr/            architecture decision records
   arquitectura.md layers, ports, one use case end to end
   amenazas.md     threat model: what it protects and what it does not
@@ -121,6 +123,7 @@ src/
   application/    use cases and ports
   infrastructure/ browser adapters
   ui/             views, store, i18n, styles, main.ts (composition root)
+  pwa/            service worker and its rules (installable app, offline)
 tests/            unit and architecture tests (Vitest)
 e2e/              Playwright
 scripts/          pdf.js assets, sample document, screenshots
@@ -135,6 +138,7 @@ scripts/          pdf.js assets, sample document, screenshots
 | `npm run test:e2e`      | End-to-end tests against the production build (`npx playwright install chromium` the first time) |
 | `npm run check`         | Lint, typecheck, formatting, tests and build: same as CI                                         |
 | `npm run build`         | Production build in `dist/` (`BASE_PATH=/copia-segura/` for Pages)                               |
+| `npm run example:icons` | Regenerates the installable app's icons                                                          |
 | `npm run example:cards` | Regenerates the fictional cards (front, back and demo)                                           |
 | `npm run example:build` | Regenerates the sample PDF from the fictional cards                                              |
 

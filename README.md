@@ -32,6 +32,7 @@ documento a un servidor ajeno, que es justo lo que quieres evitar.
 | **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Visible_ y _Discreta_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                                                                                                                                                                            |
 | **Salida**        | JPG por página, ZIP, un PDF de varias páginas o el menú de compartir del móvil. Blanco y negro opcional. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                                                                                                                                                     |
 | **Interfaz**      | Español e inglés; tema claro u oscuro (sigue al del sistema o el que elijas, y lo recuerda).                                                                                                                                                                                                                                                                                                                                       |
+| **App**           | Instalable en el móvil y en el escritorio; funciona sin conexión. Guarda sus propios archivos, nunca tus documentos.                                                                                                                                                                                                                                                                                                               |
 | **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un contador en la cabecera muestra en vivo los recursos de otros dominios que registra el navegador (cero) y un test e2e registra todas las de un flujo completo y falla si alguna sale del origen.                                                           |
 
 Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y deja rastro, pero no
@@ -62,8 +63,9 @@ fuente de la página, y el test que lo comprueba.
 ## Usarla
 
 La forma más simple es abrir la [versión publicada](https://hbonavota.github.io/copia-segura/):
-no se instala nada. Con fotos funciona sin conexión una vez cargada; abrir un PDF o exportar a
-PDF/ZIP descarga la primera vez los módulos correspondientes, siempre desde el propio origen.
+no hace falta instalar nada, aunque se puede instalar como app desde el navegador. Una vez abierta
+funciona sin conexión con fotos y, desde que abres tu primer documento, también con PDF y al
+exportar: la app guarda sus propios archivos (nunca los tuyos), siempre desde el propio origen.
 
 En local, con Node 22.13 o superior (`.nvmrc`):
 
@@ -86,7 +88,7 @@ Es un proyecto pensado también como muestra de forma de trabajar: **Spec-Driven
   de dominio. Los tests citan el requisito que cubren (`describe('RF-07 · marca de agua')`), así
   que cualquier línea de código se puede trazar hasta la razón por la que existe.
 - **Decisiones registradas.** `docs/adr/` explica por qué no hay backend, por qué no hay framework
-  de interfaz, por qué pdf.js y pdf-lib, y qué garantiza la CSP.
+  de interfaz, por qué pdf.js y pdf-lib, qué garantiza la CSP y por qué hay un _service worker_.
 - **Cuatro capas con la dependencia en un solo sentido**, comprobada por un test:
 
   ```
@@ -96,7 +98,7 @@ Es un proyecto pensado también como muestra de forma de trabajar: **Spec-Driven
   `domain/` es puro (geometría de la marca, giro de rectángulos, detección de imágenes en PDF a
   partir de la lista de operadores) y se prueba sin navegador. `application/` tiene los casos de
   uso y los puertos. `infrastructure/` son los adaptadores (pdf.js, canvas, pdf-lib, JSZip,
-  `getUserMedia`). `ui/` es TypeScript contra el DOM, sin React: un almacén de estado observable
+  `getUserMedia`). `pwa/` es el _service worker_, aislado del resto. `ui/` es TypeScript contra el DOM, sin React: un almacén de estado observable
   mínimo y vistas que se montan y desmontan.
 
 - **Tres niveles de prueba.** Unitarias en `domain` y `application` con dobles de los puertos
@@ -111,7 +113,7 @@ Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```
 docs/
-  specs/          SPEC-0001…0011: visión, requisitos, RNF, dominio, diferencial, tema, rediseño, cualquier documento
+  specs/          SPEC-0001…0012: visión, requisitos, RNF, dominio, diferencial, tema, rediseño, documentos, app
   adr/            decisiones de arquitectura
   arquitectura.md capas, puertos, flujo de un caso de uso
   amenazas.md     qué protege y qué no
@@ -120,6 +122,7 @@ src/
   application/    casos de uso y puertos
   infrastructure/ adaptadores del navegador
   ui/             vistas, store, i18n, estilos, main.ts (raíz de composición)
+  pwa/            service worker y sus reglas (app instalable y sin conexión)
 tests/            unitarios y de arquitectura (Vitest)
 e2e/              Playwright
 scripts/          recursos de pdf.js, documento de ejemplo, capturas
@@ -134,6 +137,7 @@ scripts/          recursos de pdf.js, documento de ejemplo, capturas
 | `npm run test:e2e`      | E2E contra el build de producción (`npx playwright install chromium` la primera vez) |
 | `npm run check`         | Lint, typecheck, formato, tests y build: lo mismo que CI                             |
 | `npm run build`         | Build de producción en `dist/` (`BASE_PATH=/copia-segura/` para Pages)               |
+| `npm run example:icons` | Regenera los iconos de la app instalable                                             |
 | `npm run example:cards` | Regenera las tarjetas ficticias (frente, dorso y demo)                               |
 | `npm run example:build` | Regenera el PDF de ejemplo a partir de las tarjetas ficticias                        |
 

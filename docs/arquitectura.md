@@ -22,6 +22,10 @@ flowchart LR
   subgraph infra["infrastructure/ (adaptadores)"]
     I["PdfJsReader · BrowserImageDecoder<br/>CanvasRasterizer · CanvasTextMeasurer<br/>PdfLibWriter · JsZipArchiver<br/>AnchorDownloader · WebShareSharer<br/>MediaDevicesCamera · SystemClock"]
   end
+  subgraph pwa["pwa/ (service worker, programa aparte)"]
+    SW["sw.ts · rules.ts"]
+  end
+  Main -. registra .-> SW
   Main --> Views --> Store
   Views --> Services --> UC
   UC --> Ports
@@ -66,9 +70,18 @@ Casos de uso (una función o clase pequeña por caso) y puertos (interfaces Type
 Un archivo por adaptador. Es la única capa que conoce pdf.js, canvas, pdf-lib, JSZip, `getUserMedia`
 o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 
+### `src/pwa/`
+
+El _service worker_ (ADR-0007, SPEC-0012): un programa aparte que Vite publica como `sw.js`. Sus
+reglas (qué precargar, qué peticiones atender, qué cachés borrar) son funciones puras en `rules.ts`
+con tests unitarios; `sw.ts` solo las conecta con los eventos del navegador. No importa nada de
+fuera de `pwa/` y lo comprueba el test de arquitectura.
+
 ### `src/ui/`
 
-- `main.ts`: raíz de composición. Construye los adaptadores, los casos de uso y monta las vistas.
+- `main.ts`: raíz de composición. Construye los adaptadores, los casos de uso, monta las vistas y
+  registra el _service worker_ en el build publicado.
+- `install.ts`: botón _Instalar como app_ a partir del aviso del navegador (RF-35).
 - `store.ts`: estado inmutable con `get`, `update` y `select` (suscripción por selector), más las
   acciones que lo transforman y la conversión entre coordenadas de la vista previa y del marco de
   página (`viewToPage` / `pageToView`). Tiene sus propios tests.

@@ -2,6 +2,24 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.5.0] · 2026-10-17
+
+SPEC-0012 y ADR-0007: app instalable y sin conexión.
+
+### Añadido
+
+- Se instala como app en el móvil y en el escritorio: _manifest_, iconos (también _maskable_ e
+  iOS) y botón _Instalar como app_ cuando el navegador lo ofrece (RF-35).
+- Funciona sin conexión gracias a un _service worker_ propio y sin dependencias: precarga mínima y,
+  al abrir el primer documento, el resto en segundo plano; versión nueva en cada despliegue. Solo
+  guarda archivos de la app, nunca el documento: un test e2e busca los bytes de un documento en
+  toda la caché (RF-36).
+
+### Cambiado
+
+- ADR-0005 (punto 7) y RNF-01 quedan modificados por ADR-0007 y SPEC-0012: ahora sí hay _service
+  worker_ y la caché guarda archivos de la app.
+
 ## [1.4.1] · 2026-10-17
 
 SPEC-0011: textos breves y tarjeta de muestra.
