@@ -2,7 +2,7 @@ import type { View } from '../context';
 import type { MessageKey } from '../i18n';
 import { h, replaceChildren } from '../dom';
 
-const FAQ = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
+const FAQ = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
 
 const list = (t: (k: MessageKey) => string, keys: readonly MessageKey[]): HTMLUListElement =>
   h('ul', {}, ...keys.map((k) => h('li', {}, t(k))));

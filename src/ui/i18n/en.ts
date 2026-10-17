@@ -226,7 +226,7 @@ export const en: Record<MessageKey, string> = {
     'Yes, in current versions of Safari, Chrome, Firefox and Edge, and you can use the camera. iPhone HEIC photos open in Safari; in other browsers, share them as JPG or set the camera to "Most Compatible" (Settings › Camera › Formats).',
   'faq.5.q': 'Does it work offline?',
   'faq.5.a':
-    'With photos, yes, once the page has loaded. Opening a PDF or exporting to PDF or ZIP downloads the required modules the first time, always from this same site.',
+    'Yes. Once opened, it works offline with photos. As soon as you open your first document, it stores the rest of the app in the background (what PDFs and exporting need), so from then on everything works offline. It stores its own files, never your documents.',
   'faq.6.q': 'Does it work for passports, driving licences or other documents?',
   'faq.6.a':
     'Yes: it works with any image or PDF. The templates of typical areas are only for Spanish and Argentine IDs.',
@@ -255,4 +255,8 @@ export const en: Record<MessageKey, string> = {
   'about.summary':
     'It records who you gave the copy to, what for and when, and makes reusing it harder. It does not stop someone from using it.',
   'about.more': 'More information',
+  'install.button': 'Install as an app',
+  'faq.10.q': 'Can I install it as an app?',
+  'faq.10.a':
+    'Yes. In Chrome, Edge or Android, tap "Install as an app" or use the browser menu › Install. On iPhone: Safari › Share › Add to Home Screen. It opens without the browser bar and still sends nothing.',
 };

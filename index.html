@@ -6,6 +6,12 @@
     <!-- csp -->
     <meta name="referrer" content="no-referrer" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0d10" />
+    <!-- App instalable (SPEC-0012): manifest e iconos del propio origen. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="copia segura" />
     <!-- Tema guardado antes del primer pintado (RF-19). -->
     <script src="theme.js" vite-ignore></script>
     <meta

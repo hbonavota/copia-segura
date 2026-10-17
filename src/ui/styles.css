@@ -609,6 +609,10 @@ output,
   margin: 10px 0 6px;
 }
 
+.install {
+  justify-self: center;
+}
+
 .trust-list {
   display: flex;
   flex-wrap: wrap;

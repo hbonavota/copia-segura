@@ -17,6 +17,7 @@ import {
 } from '../infrastructure';
 import { mountApp, savedLocale } from './app';
 import { detectLocale, type Locale } from './i18n';
+import { listenForInstall } from './install';
 import { createStore, initialState } from './store';
 // Inter alojada en el propio origen (RF-20): Vite la sirve como un recurso más del build.
 import '@fontsource-variable/inter/wght.css';
@@ -59,4 +60,28 @@ const saved = savedLocale();
 const locale: Locale = saved === 'es' || saved === 'en' ? saved : detectLocale(navigator.languages);
 const root = document.getElementById('app');
 if (!root) throw new Error('Falta el elemento #app en index.html');
-mountApp(root, createStore(initialState(locale)), deps);
+const store = createStore(initialState(locale));
+mountApp(root, store, deps);
+
+// App instalable y sin conexión (SPEC-0012, ADR-0007). Solo en el build publicado: en desarrollo
+// un service worker serviría archivos viejos. Se registra tras la carga para no competir con ella.
+listenForInstall();
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {
+      // Sin service worker la app funciona igual; solo no se instala ni va sin conexión.
+    });
+  });
+  // Con el primer documento abierto, el resto de la app se guarda en segundo plano para que
+  // abrir PDF y exportar también funcionen sin conexión (RF-36).
+  const stopWarmUp = store.select(
+    (s) => s.pages.length > 0,
+    (opened) => {
+      if (!opened) return;
+      stopWarmUp();
+      void navigator.serviceWorker.ready.then((registration) =>
+        registration.active?.postMessage({ type: 'warm-up' }),
+      );
+    },
+  );
+}

@@ -510,7 +510,7 @@ test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
   test('RF-30 · preguntas frecuentes desplegables', async ({ page }) => {
     await page.goto('./');
     const faq = page.getByTestId('faq');
-    await expect(faq.locator('details')).toHaveCount(9);
+    await expect(faq.locator('details')).toHaveCount(10);
     await faq.locator('summary').first().click();
     await expect(faq.locator('details').first()).toHaveAttribute('open', '');
   });
@@ -619,5 +619,168 @@ test.describe('RF-33 · textos breves, detalle plegado', () => {
     await page.goto('./');
     const stamp = await page.locator('.stamp').boundingBox();
     expect(stamp?.width ?? 999).toBeLessThan(220);
+  });
+});
+
+test.describe('SPEC-0012 · app instalable y sin conexión', () => {
+  /** Espera a que el service worker controle la página (lo registra tras la carga). */
+  async function controlled(page: Page): Promise<void> {
+    await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, {
+      timeout: 30_000,
+    });
+  }
+
+  test('RF-35 · el manifest es del propio origen y tiene lo que pide la instalación', async ({
+    page,
+    baseURL,
+  }) => {
+    await page.goto('./');
+    const href = await page.locator('link[rel="manifest"]').getAttribute('href');
+    expect(href).toBe('/copia-segura/manifest.webmanifest');
+    const manifest = (await (await page.request.get(new URL(href ?? '', baseURL).href)).json()) as {
+      name: string;
+      display: string;
+      start_url: string;
+      icons: { sizes: string; purpose: string }[];
+    };
+    expect(manifest.name).toBe('copia segura');
+    expect(manifest.display).toBe('standalone');
+    expect(manifest.start_url).toBe('./');
+    expect(manifest.icons.map((i) => `${i.sizes} ${i.purpose}`)).toEqual([
+      '192x192 any',
+      '512x512 any',
+      '512x512 maskable',
+    ]);
+  });
+
+  test('RF-36 · sin conexión se abre y procesa una foto', async ({ page, context }) => {
+    await page.goto('./');
+    await controlled(page);
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator('.hero-title')).toBeVisible();
+    // Una foto local (no viene de la red) se abre y se marca sin conexión.
+    const png = await page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 800;
+      c.height = 500;
+      const ctx = c.getContext('2d');
+      if (!ctx) throw new Error('sin canvas');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, 800, 500);
+      return c.toDataURL('image/png').split(',')[1] ?? '';
+    });
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'foto.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(png, 'base64'),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 30_000 });
+    await expect(page.getByTestId('meta')).toHaveText('800 × 500 px');
+  });
+
+  /** PNG blanco con un marcador único añadido tras el final (los lectores lo ignoran). */
+  async function markedPng(page: Page, marker: string): Promise<Buffer> {
+    const png = await page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 800;
+      c.height = 500;
+      const ctx = c.getContext('2d');
+      if (!ctx) throw new Error('sin canvas');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, 800, 500);
+      return c.toDataURL('image/png').split(',')[1] ?? '';
+    });
+    return Buffer.concat([Buffer.from(png, 'base64'), Buffer.from(marker)]);
+  }
+
+  test('RF-36 · los bytes del documento no aparecen en ninguna entrada de la caché', async ({
+    page,
+  }) => {
+    const marker = 'COPIA-SEGURA-MARCADOR-DEL-DOCUMENTO-7f3a9c';
+    await page.goto('./');
+    await controlled(page);
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'mi-documento.png',
+      mimeType: 'image/png',
+      buffer: await markedPng(page, marker),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 30_000 });
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('export-pdf').click(),
+    ]);
+    await download.path();
+    // Tras abrir el documento, el service worker guarda el resto de la app en segundo plano.
+    await expect
+      .poll(() => page.evaluate(async () => (await caches.keys()).length), { timeout: 30_000 })
+      .toBeGreaterThan(0);
+    const found = await page.evaluate(async (needle) => {
+      const hits: string[] = [];
+      for (const key of await caches.keys()) {
+        const cache = await caches.open(key);
+        for (const request of await cache.keys()) {
+          const body = await (await cache.match(request))?.text();
+          if (body?.includes(needle)) hits.push(request.url);
+          if (request.url.includes('mi-documento')) hits.push(request.url);
+        }
+      }
+      return hits;
+    }, marker);
+    expect(found).toEqual([]);
+  });
+
+  test('RF-36 · tras abrir un documento, exportar a PDF también funciona sin conexión', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('./');
+    await controlled(page);
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'foto.png',
+      mimeType: 'image/png',
+      buffer: await markedPng(page, ''),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 30_000 });
+    // Espera a que el segundo plano haya guardado pdf-lib (el chunk de exportar a PDF).
+    await expect
+      .poll(
+        () =>
+          page.evaluate(async () => {
+            for (const key of await caches.keys()) {
+              const urls = (await (await caches.open(key)).keys()).map((r) => r.url);
+              if (urls.some((u) => /\/assets\/es-[\w-]+\.js$/.test(u))) return true;
+            }
+            return false;
+          }),
+        { timeout: 30_000 },
+      )
+      .toBe(true);
+    await context.setOffline(true);
+    await page.reload();
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'foto.png',
+      mimeType: 'image/png',
+      buffer: await markedPng(page, ''),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 30_000 });
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('export-pdf').click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  });
+
+  test('RF-36 · abrir otro archivo de la app en una pestaña no rompe el arranque sin conexión', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('./');
+    await controlled(page);
+    await page.goto('./manifest.webmanifest');
+    await page.goto('./ejemplo/tarjeta-ficticia.jpg');
+    await context.setOffline(true);
+    await page.goto('./');
+    await expect(page.locator('.hero-title')).toBeVisible();
   });
 });

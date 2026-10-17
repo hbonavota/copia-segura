@@ -224,7 +224,7 @@ export const es = {
     'Sí, en las versiones actuales de Safari, Chrome, Firefox y Edge, y puedes usar la cámara. Las fotos HEIC del iPhone se abren en Safari; en otros navegadores, compártelas como JPG o pon la cámara en «Más compatible» (Ajustes › Cámara › Formatos).',
   'faq.5.q': '¿Funciona sin conexión?',
   'faq.5.a':
-    'Con fotos, sí, una vez cargada la página. Abrir un PDF o exportar en PDF o ZIP descarga la primera vez los módulos necesarios, siempre desde esta misma web.',
+    'Sí. Una vez abierta, con fotos funciona sin conexión. En cuanto abres tu primer documento, guarda en segundo plano el resto de la app (lo necesario para PDF y para exportar), así que desde ahí todo funciona sin conexión. Guarda sus propios archivos, nunca tus documentos.',
   'faq.6.q': '¿Sirve para el pasaporte, el carné de conducir u otros documentos?',
   'faq.6.a':
     'Sí: funciona con cualquier imagen o PDF. Las plantillas de zonas típicas son solo para el DNI de España y de Argentina.',
@@ -253,6 +253,10 @@ export const es = {
   'about.summary':
     'Deja constancia de a quién, para qué y cuándo entregaste la copia, y encarece reutilizarla. No impide que alguien la use.',
   'about.more': 'Más información',
+  'install.button': 'Instalar como app',
+  'faq.10.q': '¿Se puede instalar como una app?',
+  'faq.10.a':
+    'Sí. En Chrome, Edge o Android, pulsa «Instalar como app» o usa el menú del navegador › Instalar. En iPhone: Safari › Compartir › Añadir a pantalla de inicio. Se abre sin barra del navegador y sigue sin enviar nada.',
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -1,6 +1,6 @@
 {
   "name": "copia-segura",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Prepara una copia limitada de tu DNI o de cualquier documento (marca de agua, zonas tapadas, sin metadatos) sin que salga de tu navegador.",
   "private": true,
   "type": "module",
@@ -46,6 +46,7 @@
     "pretest:e2e": "node scripts/copy-pdfjs-assets.mjs",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build",
+    "example:icons": "node scripts/build-icons.mjs",
     "example:cards": "node scripts/build-cards.mjs",
     "example:build": "node scripts/build-example.mjs"
   },

@@ -1,6 +1,7 @@
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 import { demo } from './demo';
+import { isInstalled, promptInstall, watchInstall } from '../install';
 
 export const ACCEPTED_TYPES = 'application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.webp,.heic,.heif';
 
@@ -29,6 +30,22 @@ export const dropzone: View = (root, ctx) => {
   const { services, t } = ctx;
   const picker = filePicker((files) => void services.importFiles(files));
   const demoRoot = h('figure', { class: 'demo', dataset: { testid: 'demo' } });
+  // Instalar como app (RF-35): solo aparece si el navegador lo ofrece y no está ya instalada.
+  const install = h(
+    'button',
+    {
+      type: 'button',
+      class: 'button small install',
+      hidden: true,
+      dataset: { testid: 'install' },
+      on: { click: () => void promptInstall() },
+    },
+    icon(ICONS.install),
+    t('install.button'),
+  );
+  const stopInstall = watchInstall((available) => {
+    install.hidden = !available || isInstalled();
+  });
   replaceChildren(
     root,
     h(
@@ -89,9 +106,14 @@ export const dropzone: View = (root, ctx) => {
             h('li', {}, icon(ICONS.check), t(key)),
           ),
         ),
+        install,
       ),
       demoRoot,
     ),
   );
-  return demo(demoRoot, ctx);
+  const stopDemo = demo(demoRoot, ctx);
+  return () => {
+    stopInstall();
+    stopDemo();
+  };
 };
