@@ -1,0 +1,121 @@
+# copia segura
+
+**Prepara una copia limitada de tu DNI sin que salga de tu navegador.** Marca de agua con
+destinatario, finalidad y fecha; zonas tapadas; resolución reducida; sin metadatos. Sin servidor,
+sin cuenta, sin instalar nada.
+
+[English version](README.en.md) · [Probar la aplicación](https://hbonavota.github.io/copia-segura/) · [Cómo está hecha](docs/arquitectura.md)
+
+![Editor de copia segura con el documento de ejemplo: marca diagonal, una zona tapada y el panel de ajustes](docs/img/editor.png)
+
+## Por qué
+
+Cada vez que una empresa pide "una foto del DNI" (cambio de titularidad, alta, verificación,
+alquiler…) entregas una copia íntegra y reutilizable de tu identidad, con los metadatos de la foto
+incluidos. Si esa copia se filtra, no hay forma de demostrar a quién la diste ni para qué.
+
+Las agencias de protección de datos recomiendan entregar **copias limitadas**: con una marca que
+diga a quién, para qué y cuándo; con los datos que el trámite no necesita tapados; y con la
+resolución justa. Hacerlo a mano es tedioso, y las webs de "añadir marca de agua" te piden subir el
+documento a un servidor ajeno, que es justo lo que quieres evitar.
+
+## Qué hace
+
+|                   |                                                                                                                                                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entrada**       | Un PDF (cada página es editable; si la página es un A4 con la foto del documento dentro, se recorta sola), fotos JPG/PNG/WebP, o una captura con la cámara para la foto sosteniendo el documento (sin espejo).                                                         |
+| **Edición**       | Tapar zonas dibujando con el ratón o por franjas con botones, recortar, girar, deshacer.                                                                                                                                                                               |
+| **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Normal_ y _Suave_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                    |
+| **Salida**        | JPG por página, ZIP o un PDF de varias páginas. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                                                  |
+| **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un test e2e registra todas las peticiones de un flujo completo y falla si alguna sale del origen. |
+
+Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y deja rastro, pero no
+impide que alguien use la copia, y se puede intentar borrar con herramientas de _inpainting_. Los
+detalles están en el [modelo de amenazas](docs/amenazas.md).
+
+## Usarla
+
+La forma más simple es abrir la [versión publicada](https://hbonavota.github.io/copia-segura/):
+no se instala nada. Con fotos funciona sin conexión una vez cargada; abrir un PDF o exportar a
+PDF/ZIP descarga la primera vez los módulos correspondientes, siempre desde el propio origen.
+
+En local, con Node 20 o superior:
+
+```bash
+git clone https://github.com/hbonavota/copia-segura.git
+cd copia-segura
+npm install
+npm start          # abre http://localhost:5173
+```
+
+`npm start` solo levanta un servidor de archivos estáticos: no hay backend ni en desarrollo.
+
+## Cómo está hecha
+
+Es un proyecto pensado también como muestra de forma de trabajar: **Spec-Driven Development** y
+**arquitectura limpia** en una aplicación pequeña de verdad.
+
+- **Especificación primero.** `docs/specs/` contiene la visión, los requisitos funcionales (`RF-xx`)
+  con criterios de aceptación _Dado / Cuando / Entonces_, los no funcionales (`RNF-xx`) y el modelo
+  de dominio. Los tests citan el requisito que cubren (`describe('RF-07 · marca de agua')`), así
+  que cualquier línea de código se puede trazar hasta la razón por la que existe.
+- **Decisiones registradas.** `docs/adr/` explica por qué no hay backend, por qué no hay framework
+  de interfaz, por qué pdf.js y pdf-lib, y qué garantiza la CSP.
+- **Cuatro capas con la dependencia en un solo sentido**, comprobada por un test:
+
+  ```
+  ui  →  application  →  domain          infrastructure implementa los puertos de application
+  ```
+
+  `domain/` es puro (geometría de la marca, giro de rectángulos, detección de imágenes en PDF a
+  partir de la lista de operadores) y se prueba sin navegador. `application/` tiene los casos de
+  uso y los puertos. `infrastructure/` son los adaptadores (pdf.js, canvas, pdf-lib, JSZip,
+  `getUserMedia`). `ui/` es TypeScript contra el DOM, sin React: un almacén de estado observable
+  mínimo y vistas que se montan y desmontan.
+
+- **Tres niveles de prueba.** Unitarias en `domain` y `application` con dobles de los puertos
+  (Vitest, cobertura ≥ 90 %); un test de arquitectura que analiza los imports; y e2e con Playwright
+  contra el build de producción, CSP incluida.
+- **CI y despliegue.** Cada push pasa lint, typecheck, formato, tests, build y e2e. `main` se publica
+  en GitHub Pages solo si CI está en verde.
+
+Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
+
+### Estructura
+
+```
+docs/
+  specs/          SPEC-0001…0004: visión, requisitos, RNF, modelo de dominio
+  adr/            decisiones de arquitectura
+  arquitectura.md capas, puertos, flujo de un caso de uso
+  amenazas.md     qué protege y qué no
+src/
+  domain/         tipos y funciones puras
+  application/    casos de uso y puertos
+  infrastructure/ adaptadores del navegador
+  ui/             vistas, store, i18n, estilos, main.ts (raíz de composición)
+tests/            unitarios y de arquitectura (Vitest)
+e2e/              Playwright
+scripts/          recursos de pdf.js, documento de ejemplo, capturas
+```
+
+### Comandos
+
+| Comando                 | Qué hace                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `npm start`             | Servidor de desarrollo y abre el navegador                                           |
+| `npm test`              | Tests unitarios y de arquitectura                                                    |
+| `npm run test:e2e`      | E2E contra el build de producción (`npx playwright install chromium` la primera vez) |
+| `npm run check`         | Lint, typecheck, formato, tests y build: lo mismo que CI                             |
+| `npm run build`         | Build de producción en `dist/` (`BASE_PATH=/copia-segura/` para Pages)               |
+| `npm run example:build` | Regenera el PDF de ejemplo a partir de las tarjetas ficticias                        |
+
+## Contribuir
+
+Las propuestas de cambio empiezan por el requisito: si el cambio altera el alcance, primero una
+spec nueva en `docs/specs/`; si no, un PR con su test. Detalles en [CONTRIBUTING.md](CONTRIBUTING.md).
+Las vulnerabilidades se reportan según [SECURITY.md](SECURITY.md).
+
+## Licencia
+
+[MIT](LICENSE) · Hernán Bonavota
