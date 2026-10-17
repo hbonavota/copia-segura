@@ -1,5 +1,6 @@
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
+import { demo } from './demo';
 
 export const ACCEPTED_TYPES = 'application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.webp,.heic,.heif';
 
@@ -21,8 +22,10 @@ export function filePicker(onFiles: (files: File[]) => void): HTMLInputElement {
 }
 
 /** Estado vacío: el primer paso. Ocupa el sitio del editor hasta que hay una página. */
-export const dropzone: View = (root, { services, t }) => {
+export const dropzone: View = (root, ctx) => {
+  const { services, t } = ctx;
   const picker = filePicker((files) => void services.importFiles(files));
+  const demoRoot = h('figure', { class: 'demo', dataset: { testid: 'demo' } });
   replaceChildren(
     root,
     h(
@@ -59,6 +62,7 @@ export const dropzone: View = (root, { services, t }) => {
       ),
       picker,
     ),
+    demoRoot,
   );
-  return () => undefined;
+  return demo(demoRoot, ctx);
 };

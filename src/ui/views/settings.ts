@@ -176,6 +176,17 @@ export const settings: View = (root, { store, deps, t }) => {
       h('option', { value: String(px), selected: px === state.output.maxSide }, `${px} px`),
     ),
   );
+  const grayscale = h('input', {
+    type: 'checkbox',
+    checked: state.output.grayscale ?? false,
+    dataset: { testid: 'grayscale' },
+    on: {
+      change: (event) =>
+        store.update(
+          actions.setOutput({ grayscale: (event.currentTarget as HTMLInputElement).checked }),
+        ),
+    },
+  });
   const qualityValue = h('output', {});
   const quality = h('input', {
     type: 'range',
@@ -243,6 +254,8 @@ export const settings: View = (root, { store, deps, t }) => {
       h('h2', { class: 'panel-title' }, t('output.title')),
       h('label', { class: 'field inline' }, h('span', {}, t('output.maxSide')), maxSide),
       h('p', { class: 'muted small' }, t('output.maxSide.help')),
+      h('label', { class: 'check' }, grayscale, h('span', {}, t('output.grayscale'))),
+      h('p', { class: 'muted small' }, t('output.grayscale.help')),
       h(
         'label',
         { class: 'field range' },
@@ -267,6 +280,7 @@ export const settings: View = (root, { store, deps, t }) => {
     composed.textContent = deps.renderPage.watermarkText(store.get().text) || '—';
   };
   const syncOutput = (): void => {
+    grayscale.checked = store.get().output.grayscale ?? false;
     qualityValue.textContent = `${Math.round(store.get().output.jpegQuality * 100)} %`;
   };
   syncStyle();

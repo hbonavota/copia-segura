@@ -2,7 +2,7 @@ import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 
 /** Botones de descarga (RF-10). ZIP solo tiene sentido con más de una página. */
-export const exportBar: View = (root, { store, services, t }) => {
+export const exportBar: View = (root, { store, services, deps, t }) => {
   const jpg = h(
     'button',
     {
@@ -36,7 +36,19 @@ export const exportBar: View = (root, { store, services, t }) => {
     icon(ICONS.download),
     t('export.pdf'),
   );
-  replaceChildren(root, jpg, zip, pdf);
+  const share = h(
+    'button',
+    {
+      type: 'button',
+      class: 'button',
+      dataset: { testid: 'export-share' },
+      hidden: !deps.exportCopies.canShare(),
+      on: { click: () => void services.exportAs('share') },
+    },
+    icon(ICONS.share),
+    t('export.share'),
+  );
+  replaceChildren(root, jpg, zip, pdf, share);
 
   const sync = (): void => {
     const { pages, busy } = store.get();
@@ -50,7 +62,7 @@ export const exportBar: View = (root, { store, services, t }) => {
     jpg.classList.toggle('primary', n <= 1);
     if (n > 1 && root.firstElementChild !== zip) root.prepend(zip);
     if (n <= 1 && root.firstElementChild !== jpg) root.prepend(jpg);
-    for (const button of [jpg, zip, pdf]) button.disabled = n === 0 || busy !== null;
+    for (const button of [jpg, zip, pdf, share]) button.disabled = n === 0 || busy !== null;
   };
   sync();
   const stop = [store.select((s) => s.pages, sync), store.select((s) => s.busy, sync)];

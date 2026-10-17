@@ -7,3 +7,4 @@ export { MediaDevicesCamera } from './media-devices-camera';
 export { PdfJsReader } from './pdfjs-reader';
 export { PdfLibWriter } from './pdf-lib-writer';
 export { SystemClock } from './system-clock';
+export { WebShareSharer } from './web-share-sharer';

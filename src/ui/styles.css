@@ -42,6 +42,11 @@
 }
 
 /* ---------------------------------------------------------------------------- base */
+/* `hidden` siempre gana a cualquier `display` de los componentes. */
+[hidden] {
+  display: none !important;
+}
+
 *,
 *::before,
 *::after {
@@ -130,6 +135,26 @@ a {
   .workspace {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+
+  /* Móvil primero (RF-18): el editor delante; páginas y ajustes después. */
+  .workspace > .center {
+    order: -1;
+  }
+
+  /* La barra de exportación queda a mano, fija abajo. */
+  .export-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background: var(--paper);
+    margin-top: 16px;
+    padding: 10px 0;
+  }
+
+  .export-bar .button {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }
 
@@ -528,19 +553,79 @@ input[type='color'] {
 
 /* ---------------------------------------------------------------------------- carga */
 .dropzone {
-  border: 2px dashed var(--line-strong);
-  border-radius: 8px;
-  padding: 48px 24px;
-  text-align: center;
-  background: var(--surface);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  align-items: stretch;
 }
 
 .dropzone-inner {
   display: grid;
   gap: 12px;
   justify-items: center;
-  max-width: 48ch;
-  margin: 0 auto;
+  align-content: center;
+  text-align: center;
+  border: 2px dashed var(--line-strong);
+  border-radius: 8px;
+  padding: 40px 24px;
+  background: var(--surface);
+}
+
+/* Demo de la portada (RF-14) */
+.demo {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.demo-title {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+.demo-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.demo-tab {
+  border: 1px solid transparent;
+  border-bottom: 0;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.demo-tab[aria-selected='true'] {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: -1px;
+}
+
+.demo-stage {
+  line-height: 0;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  aspect-ratio: 1600 / 1010;
+}
+
+.demo-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.demo-caption {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  min-height: 2.6em;
 }
 
 .dropzone svg {
@@ -632,6 +717,22 @@ input[type='color'] {
   gap: 6px;
   margin-top: 10px;
   font-size: 0.875rem;
+}
+
+.templates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.templates select {
+  padding: 5px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .stage-footer {
@@ -742,5 +843,71 @@ input[type='color'] {
     transition:
       border-color 120ms ease,
       background-color 120ms ease;
+  }
+}
+
+/* ---------------------------------------------------------------------------- verificable */
+.verify,
+.distinct {
+  margin-bottom: 28px;
+}
+
+.verify h2,
+.distinct h2 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.verify-lead {
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.verify-steps {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 8px;
+  max-width: 80ch;
+  font-size: 0.95rem;
+}
+
+.distinct-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 28px;
+  font-size: 0.9rem;
+}
+
+.distinct-list dt {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.distinct-list dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+@media (max-width: 800px) {
+  .distinct-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sin páginas todavía: la tira de páginas sobra y la portada gana el espacio (RF-14). */
+.app.is-empty .workspace {
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.app.is-empty .pages {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .app.is-empty .workspace {
+    grid-template-columns: 1fr;
   }
 }

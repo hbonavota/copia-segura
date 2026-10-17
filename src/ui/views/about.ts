@@ -1,10 +1,58 @@
 import type { View } from '../context';
+import type { MessageKey } from '../i18n';
 import { h, replaceChildren } from '../dom';
 
-/** Lo que una marca de agua consigue y lo que no (RF-13). Siempre visible, sin desplegables. */
+const list = (t: (k: MessageKey) => string, keys: readonly MessageKey[]): HTMLUListElement =>
+  h('ul', {}, ...keys.map((k) => h('li', {}, t(k))));
+
+/**
+ * Explicación honesta (RF-13), cómo comprobar la privacidad sin leer código y qué distingue a la
+ * herramienta (RF-17). Siempre visible, sin desplegables.
+ */
 export const about: View = (root, { deps, t }) => {
+  const testUrl = `${deps.links.source}/blob/main/e2e/copia-segura.spec.ts`;
   replaceChildren(
     root,
+    h(
+      'section',
+      {
+        class: 'verify',
+        dataset: { testid: 'verify' },
+        attrs: { 'aria-labelledby': 'verify-title' },
+      },
+      h('h2', { id: 'verify-title' }, t('verify.title')),
+      h('p', { class: 'verify-lead' }, t('verify.lead')),
+      h(
+        'ol',
+        { class: 'verify-steps' },
+        h('li', {}, t('verify.step.1')),
+        h('li', {}, t('verify.step.2')),
+        h(
+          'li',
+          {},
+          t('verify.step.3'),
+          ' ',
+          h('a', { href: testUrl, rel: 'noopener' }, t('verify.step.3.link')),
+          '.',
+        ),
+      ),
+    ),
+    h(
+      'section',
+      {
+        class: 'distinct',
+        dataset: { testid: 'distinct' },
+        attrs: { 'aria-labelledby': 'distinct-title' },
+      },
+      h('h2', { id: 'distinct-title' }, t('distinct.title')),
+      h(
+        'dl',
+        { class: 'distinct-list' },
+        ...(['1', '2', '3', '4', '5', '6'] as const).map((n) =>
+          h('div', {}, h('dt', {}, t(`distinct.${n}.title`)), h('dd', {}, t(`distinct.${n}.text`))),
+        ),
+      ),
+    ),
     h('h2', {}, t('about.title')),
     h(
       'div',
@@ -13,19 +61,13 @@ export const about: View = (root, { deps, t }) => {
         'div',
         {},
         h('h3', {}, t('about.does.title')),
-        h(
-          'ul',
-          {},
-          h('li', {}, t('about.does.1')),
-          h('li', {}, t('about.does.2')),
-          h('li', {}, t('about.does.3')),
-        ),
+        list(t, ['about.does.1', 'about.does.2', 'about.does.3']),
       ),
       h(
         'div',
         {},
         h('h3', {}, t('about.doesnt.title')),
-        h('ul', {}, h('li', {}, t('about.doesnt.1')), h('li', {}, t('about.doesnt.2'))),
+        list(t, ['about.doesnt.1', 'about.doesnt.2']),
       ),
       h(
         'div',

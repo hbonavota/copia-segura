@@ -4,6 +4,8 @@
  */
 import {
   isNegligible,
+  templateMasks,
+  type TemplateId,
   resolveStyle,
   nextRotation,
   rotateRect,
@@ -188,6 +190,13 @@ export const actions = {
 
   setCrop: (crop: NormalizedRect | null): ((state: AppState) => AppState) =>
     actions.editActive((edits) => (crop && isNegligible(crop) ? edits : { ...edits, crop })),
+
+  /** Añade las zonas de una plantilla a la página activa (RF-16). */
+  applyTemplate: (id: TemplateId): ((state: AppState) => AppState) =>
+    actions.editActive((edits) => ({
+      ...edits,
+      masks: [...edits.masks, ...templateMasks(id, edits)],
+    })),
 
   setPreset:
     (preset: PresetName) =>

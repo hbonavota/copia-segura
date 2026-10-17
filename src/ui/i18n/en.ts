@@ -120,6 +120,62 @@ export const en: Record<MessageKey, string> = {
   'about.privacy.2':
     'The page cannot make requests to other domains (its security policy forbids it) and the code is open source. You can verify it in the Network tab of the developer tools.',
 
+  'demo.title': 'What a copy looks like, step by step (fictional document)',
+  'demo.alt': 'Fictional card processed by copia segura',
+  'demo.tab.original': 'Original',
+  'demo.tab.masked': 'Redacted',
+  'demo.tab.marked': 'Watermark',
+  'demo.tab.gray': 'B/W',
+  'demo.caption.original': 'The photo as is: every detail visible.',
+  'demo.caption.masked': 'Signature, document number and barcode covered with opaque black.',
+  'demo.caption.marked': 'A mark with recipient, purpose and date crossing the whole document.',
+  'demo.caption.gray':
+    'In black and white the copy is even less useful for forgery; the mark stays in colour.',
+
+  'template.label': 'Typical areas',
+  'template.apply': 'Apply',
+  'template.help': 'Approximate: crop to the card first and check them.',
+  'template.dni-es-frente': 'Spanish DNI · front',
+  'template.dni-es-dorso': 'Spanish DNI · back',
+  'template.dni-ar-frente': 'Argentine DNI · front',
+  'template.dni-ar-dorso': 'Argentine DNI · back',
+
+  'output.grayscale': 'Black and white',
+  'output.grayscale.help': 'The document in greyscale; the watermark keeps its colour.',
+
+  'export.share': 'Share',
+  'export.shared': 'Shared: {files}',
+
+  'verify.title': 'Check it yourself',
+  'verify.lead': 'You do not have to trust what this page says. You can verify it in a minute:',
+  'verify.step.1':
+    'Open the browser developer tools (F12 or Cmd+Option+I), Network tab, and prepare a copy: there is no request to any other domain. No analytics, no external fonts, no server.',
+  'verify.step.2':
+    'Look at the page source: its Content-Security-Policy forbids the browser from connecting to any other site, even if someone tried.',
+  'verify.step.3':
+    'The code is open source, and every change runs a test that records every request of a full flow and fails if any leaves the origin:',
+  'verify.step.3.link': 'see it here',
+
+  'distinct.title': 'What makes it different',
+  'distinct.1.title': 'No third parties',
+  'distinct.1.text':
+    'No analytics, no Google Fonts, no CDN. Not even your IP address travels anywhere.',
+  'distinct.2.title': 'Verifiable, not promised',
+  'distinct.2.text':
+    'The security policy enforces it and a test checks it on every change. The code is public.',
+  'distinct.3.title': 'PDFs and multiple pages',
+  'distinct.3.text':
+    'Open the PDF from your scanner or phone, crop just the card, and export front and back together as PDF or ZIP.',
+  'distinct.4.title': 'No metadata, just enough resolution',
+  'distinct.4.text':
+    'Removes location, phone model and date from the photo, and caps the size so it is good for reading, not for forging.',
+  'distinct.5.title': 'Typical areas in one click',
+  'distinct.5.text':
+    'Templates for Spanish and Argentine IDs with the details a process usually does not need.',
+  'distinct.6.title': 'Honest about its limits',
+  'distinct.6.text':
+    'It tells you what a watermark achieves and what it does not, instead of promising security that does not exist.',
+
   'notice.close': 'Dismiss',
   'footer.source': 'Source code',
   'footer.docs': 'How it is built',

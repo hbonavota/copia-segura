@@ -1,5 +1,6 @@
 import {
   type CaptureFromCamera,
+  type DecodedImage,
   type ExportCopies,
   type ExportFormat,
   type ImportFiles,
@@ -16,6 +17,10 @@ export interface Dependencies {
   readonly capture: CaptureFromCamera;
   /** URL del documento ficticio de ejemplo, servido desde el propio origen (RF-11). */
   readonly exampleUrl: string;
+  /** Tarjeta ficticia de la demo de la portada (RF-14). */
+  readonly demoImageUrl: string;
+  /** Decodifica una imagen (para la demo; las importaciones pasan por `importFiles`). */
+  readonly decodeImage: (blob: Blob) => Promise<DecodedImage>;
   /** Enlaces del pie: repositorio y documentación. */
   readonly links: { readonly source: string; readonly docs: string };
 }

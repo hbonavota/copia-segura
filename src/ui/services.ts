@@ -96,12 +96,17 @@ export function createServices(
         output: state.output,
         format,
       });
-      store.update(
-        actions.notify({
-          kind: 'info',
-          message: t()('export.done', { files: summary.files.join(', ') }),
-        }),
-      );
+      // Cancelar el menú de compartir no es un error: no se avisa de nada (RF-18).
+      if (summary.files.length > 0) {
+        store.update(
+          actions.notify({
+            kind: 'info',
+            message: t()(format === 'share' ? 'export.shared' : 'export.done', {
+              files: summary.files.join(', '),
+            }),
+          }),
+        );
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       store.update(actions.notify({ kind: 'error', message }));

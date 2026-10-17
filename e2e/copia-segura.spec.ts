@@ -168,3 +168,57 @@ test.describe('RF-12 · idioma', () => {
     await expect(page.getByTestId('text-freeText')).toHaveValue('COPY ONLY VALID FOR');
   });
 });
+
+test.describe('SPEC-0005 · portada, B/N, plantillas, verificable, móvil', () => {
+  test('RF-14 · la portada muestra la demo y sus pestañas cambian el paso', async ({ page }) => {
+    await page.goto('/');
+    const canvas = page.locator('.demo-canvas');
+    await expect(canvas).toHaveAttribute('data-step', 'marked');
+    await page.getByTestId('demo-original').click();
+    await expect(canvas).toHaveAttribute('data-step', 'original');
+    await page.getByTestId('demo-original').press('ArrowRight');
+    await expect(canvas).toHaveAttribute('data-step', 'masked');
+    await expect(page.getByTestId('demo-masked')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('RF-15 · en blanco y negro el documento queda en grises', async ({ page }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    await afterRender(page, () => page.getByTestId('grayscale').check());
+    const [r, g, b] = await previewPixel(page, { x: 0.5, y: 0.03 });
+    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(2);
+  });
+
+  test('RF-16 · aplicar una plantilla tapa sus zonas y se deshace zona a zona', async ({
+    page,
+  }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    await page.getByTestId('template').selectOption('dni-es-dorso');
+    await afterRender(page, () => page.getByTestId('apply-template').click());
+    expect(isBlack(await previewPixel(page, { x: 0.5, y: 0.85 }))).toBe(true);
+    await afterRender(page, () => page.getByTestId('undo-mask').click());
+    expect(isBlack(await previewPixel(page, { x: 0.5, y: 0.85 }))).toBe(false);
+  });
+
+  test('RF-17 · explica cómo verificarlo y qué la hace distinta', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('verify')).toContainText('Compruébalo tú');
+    await expect(page.getByTestId('verify').getByRole('link')).toHaveAttribute(
+      'href',
+      /e2e\/copia-segura\.spec\.ts$/,
+    );
+    await expect(page.getByTestId('distinct').locator('dt')).toHaveCount(6);
+  });
+
+  test('RF-18 · en móvil el editor va antes que las páginas y los ajustes', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await loadExample(page);
+    const editor = await page.locator('.editor').boundingBox();
+    const pages = await page.locator('.pages').boundingBox();
+    const settings = await page.locator('.settings').boundingBox();
+    expect(editor && pages && settings).toBeTruthy();
+    expect(editor!.y).toBeLessThan(pages!.y);
+    expect(pages!.y).toBeLessThan(settings!.y);
+  });
+});

@@ -79,6 +79,7 @@ export const ICONS = {
   close: 'M6 6l12 12M18 6 6 18',
   shield: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z',
   download: 'M12 4v12m0 0 5-5m-5 5-5-5M4 20h16',
+  share: 'M12 15V3m0 0L7 8m5-5 5 5M5 12v8h14v-8',
 } as const;
 
 /** Descarga un valor de `<input type="range">` o `number` como número finito. */

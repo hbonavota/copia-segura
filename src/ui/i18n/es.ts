@@ -118,6 +118,62 @@ export const es = {
   'about.privacy.2':
     'La página no puede hacer peticiones a otros dominios (lo impide su política de seguridad) y el código es abierto. Puedes comprobarlo en la pestaña Red de las herramientas de desarrollo.',
 
+  'demo.title': 'Así queda una copia, paso a paso (documento ficticio)',
+  'demo.alt': 'Tarjeta ficticia procesada por copia segura',
+  'demo.tab.original': 'Original',
+  'demo.tab.masked': 'Tapado',
+  'demo.tab.marked': 'Marca',
+  'demo.tab.gray': 'B/N',
+  'demo.caption.original': 'La foto tal cual: todos los datos visibles.',
+  'demo.caption.masked': 'Firma, número de trámite y código de barras tapados con negro opaco.',
+  'demo.caption.marked': 'Marca con destinatario, finalidad y fecha cruzando todo el documento.',
+  'demo.caption.gray':
+    'En blanco y negro la copia vale aún menos para falsificar; la marca sigue en color.',
+
+  'template.label': 'Zonas típicas',
+  'template.apply': 'Aplicar',
+  'template.help': 'Aproximadas: recorta antes a la tarjeta y revísalas.',
+  'template.dni-es-frente': 'DNI España · frente',
+  'template.dni-es-dorso': 'DNI España · dorso',
+  'template.dni-ar-frente': 'DNI Argentina · frente',
+  'template.dni-ar-dorso': 'DNI Argentina · dorso',
+
+  'output.grayscale': 'Blanco y negro',
+  'output.grayscale.help': 'El documento en grises; la marca conserva su color.',
+
+  'export.share': 'Compartir',
+  'export.shared': 'Compartido: {files}',
+
+  'verify.title': 'Compruébalo tú',
+  'verify.lead':
+    'No hace falta fiarse de lo que dice esta página. Puedes verificarlo en un minuto:',
+  'verify.step.1':
+    'Abre las herramientas de desarrollo del navegador (F12 o Cmd+Opción+I), pestaña Red, y prepara una copia: no aparece ninguna petición a otro dominio. Ni analítica, ni fuentes externas, ni servidor.',
+  'verify.step.2':
+    'Mira el código fuente de la página: la política de seguridad (Content-Security-Policy) prohíbe al navegador conectar con cualquier otro sitio, aunque alguien lo intentara.',
+  'verify.step.3':
+    'El código es abierto y cada cambio pasa un test que registra todas las peticiones de un flujo completo y falla si alguna sale del origen:',
+  'verify.step.3.link': 'míralo aquí',
+
+  'distinct.title': 'Qué la hace distinta',
+  'distinct.1.title': 'Sin terceros',
+  'distinct.1.text': 'Ni analítica, ni fuentes de Google, ni CDN. Tu IP tampoco viaja a nadie.',
+  'distinct.2.title': 'Verificable, no prometido',
+  'distinct.2.text':
+    'La política de seguridad lo impone y un test lo comprueba en cada cambio. El código es público.',
+  'distinct.3.title': 'PDF y varias páginas',
+  'distinct.3.text':
+    'Abre el PDF del escáner o del móvil, recorta solo la tarjeta y exporta frente y dorso juntos en PDF o ZIP.',
+  'distinct.4.title': 'Sin metadatos y con resolución justa',
+  'distinct.4.text':
+    'Elimina la ubicación, el modelo del móvil y la fecha de la foto, y limita el tamaño para que sirva para leer, no para falsificar.',
+  'distinct.5.title': 'Zonas típicas en un clic',
+  'distinct.5.text':
+    'Plantillas para el DNI de España y de Argentina con los datos que un trámite no suele necesitar.',
+  'distinct.6.title': 'Honesta sobre sus límites',
+  'distinct.6.text':
+    'Te explica qué consigue una marca de agua y qué no, en vez de prometer una seguridad que no existe.',
+
   'notice.close': 'Cerrar aviso',
   'footer.source': 'Código fuente',
   'footer.docs': 'Cómo está hecho',

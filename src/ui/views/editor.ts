@@ -1,4 +1,4 @@
-import { rectFromCorners, type NormalizedRect, type PageEdits } from '../../domain';
+import { TEMPLATE_IDS, rectFromCorners, type NormalizedRect, type PageEdits } from '../../domain';
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 import { actions, activePage, currentStyle, type AppState, type Tool } from '../store';
@@ -98,6 +98,27 @@ export const editor: View = (root, { store, deps, t }) => {
     ),
   );
 
+  const templateSelect = h(
+    'select',
+    { dataset: { testid: 'template' }, attrs: { 'aria-label': t('template.label') } },
+    ...TEMPLATE_IDS.map((id) => h('option', { value: id }, t(`template.${id}`))),
+  );
+  const templateButton = h(
+    'button',
+    {
+      type: 'button',
+      class: 'button small',
+      dataset: { testid: 'apply-template' },
+      on: {
+        click: () => {
+          const id = TEMPLATE_IDS.find((x) => x === templateSelect.value);
+          if (id) store.update(actions.applyTemplate(id));
+        },
+      },
+    },
+    t('template.apply'),
+  );
+
   replaceChildren(
     root,
     h(
@@ -121,6 +142,14 @@ export const editor: View = (root, { store, deps, t }) => {
     hint,
     stage,
     h('div', { class: 'strips' }, h('span', { class: 'muted' }, t('tool.strips')), ...stripButtons),
+    h(
+      'div',
+      { class: 'templates' },
+      h('span', { class: 'muted' }, t('template.label')),
+      templateSelect,
+      templateButton,
+      h('span', { class: 'muted small' }, t('template.help')),
+    ),
     h('div', { class: 'stage-footer' }, meta, status),
   );
 

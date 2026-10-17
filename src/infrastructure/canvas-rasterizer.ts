@@ -20,6 +20,9 @@ export class CanvasRasterizer implements Rasterizer {
     drawRotated(ctx, source, plan.rotation, plan.rotated);
     ctx.restore();
 
+    // 1b. Blanco y negro (RF-15): solo el documento; la marca se dibuja después y conserva su color.
+    if (plan.grayscale) toGrayscale(ctx, plan.output);
+
     // 2. Máscaras: negro opaco sobre los píxeles (RF-06).
     ctx.fillStyle = '#000';
     for (const mask of plan.masksPx) ctx.fillRect(mask.x, mask.y, mask.w, mask.h);
@@ -52,6 +55,21 @@ function drawRotated(ctx: AnyContext2D, image: Bitmap, rotation: Rotation, rotat
       ctx.drawImage(image, 0, 0);
       return;
   }
+}
+
+/** Escala de grises por luminancia Rec. 601, píxel a píxel (no depende de `ctx.filter`). */
+function toGrayscale(ctx: AnyContext2D, size: Size): void {
+  const image = ctx.getImageData(0, 0, size.width, size.height);
+  const px = image.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const y = Math.round(
+      0.299 * (px[i] ?? 0) + 0.587 * (px[i + 1] ?? 0) + 0.114 * (px[i + 2] ?? 0),
+    );
+    px[i] = y;
+    px[i + 1] = y;
+    px[i + 2] = y;
+  }
+  ctx.putImageData(image, 0, 0);
 }
 
 function drawWatermark(ctx: AnyContext2D, layout: WatermarkLayout, output: Size): void {

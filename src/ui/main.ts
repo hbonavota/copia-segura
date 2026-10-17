@@ -13,6 +13,7 @@ import {
   PdfJsReader,
   PdfLibWriter,
   SystemClock,
+  WebShareSharer,
 } from '../infrastructure';
 import { mountApp, savedLocale } from './app';
 import { detectLocale, type Locale } from './i18n';
@@ -30,17 +31,22 @@ const renderPage = new RenderPage({
   clock: new SystemClock(),
 });
 
+const imageDecoder = new BrowserImageDecoder();
+
 const deps = {
   importFiles: new ImportFiles({
     pdfReader: new PdfJsReader({ maxRenderSide: 2600, assetsBaseUrl: pdfjsAssets }),
-    imageDecoder: new BrowserImageDecoder(),
+    imageDecoder,
   }),
+  decodeImage: (blob: Blob) => imageDecoder.decode(blob),
+  demoImageUrl: `${base}ejemplo/tarjeta-ficticia.jpg`,
   renderPage,
   exportCopies: new ExportCopies({
     renderPage,
     pdfWriter: new PdfLibWriter(),
     archiver: new JsZipArchiver(),
     downloader: new AnchorDownloader(),
+    sharer: new WebShareSharer(),
   }),
   capture: new CaptureFromCamera({ camera: new MediaDevicesCamera() }),
   exampleUrl: `${base}ejemplo/documento-ficticio.pdf`,
