@@ -121,32 +121,44 @@ export class PdfJsReader implements PdfReader {
 
     const transform: unknown = base.transform;
     if (!isMatrix(transform)) throw new ImportError('unknown', 'pdf', 'Viewport inválido.');
-    const embeddedImages = await this.findImages(pdfjs, page, transform, base);
+    const { embeddedImages, textGlyphs } = await this.analyse(pdfjs, page, transform, base);
     const bitmap = await createImageBitmap(canvas);
     canvas.width = 0;
     canvas.height = 0;
-    return { bitmap, size: { width, height }, embeddedImages };
+    return { bitmap, size: { width, height }, embeddedImages, textGlyphs };
   }
 
   /**
-   * Traduce la lista de operadores de pdf.js al vocabulario mínimo del dominio. Límites conocidos:
+   * Recorre la lista de operadores de pdf.js una vez: posiciones de las imágenes (traducidas al
+   * vocabulario mínimo del dominio) y número de glifos de texto. Límites conocidos:
    * las imágenes repetidas (`paintImageXObjectRepeat`) y las dibujadas dentro de anotaciones se
    * ignoran; anotaciones y grupos de transparencia solo cuentan como save/restore para que la
    * matriz de transformación siga cuadrando después de ellos. Para fotos de documentos
    * escaneadas o pegadas en una página es más que suficiente.
    */
-  private async findImages(
+  private async analyse(
     pdfjs: PdfJs,
     page: PDFPageProxy,
     transform: Matrix,
     size: { width: number; height: number },
-  ): Promise<NormalizedRect[]> {
+  ): Promise<{ embeddedImages: NormalizedRect[]; textGlyphs: number }> {
     const { OPS } = pdfjs;
     const list = await page.getOperatorList();
     const ops: PdfOp[] = [];
+    // Texto real de la página (RF-32): los operadores de texto llevan la lista de glifos.
+    let textGlyphs = 0;
     list.fnArray.forEach((fn, i) => {
       const args = list.argsArray[i] as unknown[] | null;
       switch (fn) {
+        case OPS.showText:
+        case OPS.showSpacedText:
+        case OPS.nextLineShowText:
+        case OPS.nextLineSetSpacingShowText: {
+          const glyphs = args?.find(Array.isArray);
+          if (Array.isArray(glyphs))
+            textGlyphs += glyphs.filter((g) => g !== null && typeof g === 'object').length;
+          break;
+        }
         case OPS.save:
           ops.push({ kind: 'save' });
           break;
@@ -181,7 +193,7 @@ export class PdfJsReader implements PdfReader {
           break;
       }
     });
-    return embeddedImageRects(ops, { transform, size });
+    return { embeddedImages: embeddedImageRects(ops, { transform, size }), textGlyphs };
   }
 }
 

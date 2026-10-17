@@ -33,7 +33,8 @@ export const pdfPage = (
   width: number,
   height: number,
   embeddedImages: PdfPageSource['embeddedImages'] = [],
-): PdfPageSource => ({ ...decoded(width, height), embeddedImages });
+  textGlyphs = 0,
+): PdfPageSource => ({ ...decoded(width, height), embeddedImages, textGlyphs });
 
 export const file = (name: string, type: string): File => new File(['x'], name, { type });
 

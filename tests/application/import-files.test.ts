@@ -29,6 +29,23 @@ describe('RF-01 · importar un PDF', () => {
     expect(pages[0]?.autoCropped).toBe(true);
   });
 
+  it('RF-32 · no recorta una página con texto (una nómina con logo) aunque tenga una imagen', async () => {
+    const logo = { x: 0.1, y: 0.05, w: 0.35, h: 0.18 };
+    const importer = new ImportFiles({
+      pdfReader: new FakePdfReader([pdfPage(595, 842, [logo], 1200)]),
+      imageDecoder: new FakeImageDecoder(decoded(1, 1)),
+    });
+    const { pages } = await importer.run([file('nomina.pdf', 'application/pdf')]);
+    expect(pages[0]?.edits.crop).toBeNull();
+    expect(pages[0]?.autoCropped).toBe(false);
+  });
+
+  it('RF-32 · un pie corto de la app de escaneo no impide el recorte', () => {
+    const card = { x: 0.1, y: 0.24, w: 0.8, h: 0.36 };
+    expect(suggestedCrop([card], 30)).toEqual(card);
+    expect(suggestedCrop([card], 500)).toBeNull();
+  });
+
   it('no propone recorte para un escaneo a página completa ni para páginas sin imágenes', () => {
     expect(suggestedCrop([{ x: 0, y: 0, w: 1, h: 1 }])).toBeNull();
     expect(suggestedCrop([{ x: 0.01, y: 0.01, w: 0.985, h: 0.985 }])).toBeNull();

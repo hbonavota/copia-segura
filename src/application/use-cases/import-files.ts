@@ -32,11 +32,22 @@ export const NO_EDITS: PageEdits = { rotation: 0, crop: null, masks: [] };
 /** Una imagen que cubre casi toda la página no merece recorte (es un escaneo a página completa). */
 const FULL_PAGE_AREA = 0.97;
 
+/**
+ * Una página con más texto que esto es un documento (una nómina, un contrato), no la foto de una
+ * tarjeta pegada en un folio: recortarla al logo o a una imagen sería destruirla (RF-32). El margen
+ * deja pasar el pie que añaden algunas apps de escaneo ("Escaneado con…").
+ */
+export const TEXT_PAGE_GLYPHS = 80;
+
 function isPdf(file: File): boolean {
   return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
 }
 
-export function suggestedCrop(embeddedImages: readonly NormalizedRect[]): NormalizedRect | null {
+export function suggestedCrop(
+  embeddedImages: readonly NormalizedRect[],
+  textGlyphs = 0,
+): NormalizedRect | null {
+  if (textGlyphs > TEXT_PAGE_GLYPHS) return null;
   const largest = largestEmbeddedImage(embeddedImages);
   if (!largest) return null;
   if (largest.w * largest.h >= FULL_PAGE_AREA) return null;
@@ -83,7 +94,7 @@ export class ImportFiles {
   }
 
   private pdfPage(source: PdfPageSource, sourceName: string, pageNumber: number): ImportedPage {
-    const crop = suggestedCrop(source.embeddedImages);
+    const crop = suggestedCrop(source.embeddedImages, source.textGlyphs);
     return {
       page: {
         id: this.id(),

@@ -18,6 +18,8 @@ export interface DecodedImage {
 export interface PdfPageSource extends DecodedImage {
   /** Rectángulos de las imágenes incrustadas en la página, normalizados a la página mostrada. */
   readonly embeddedImages: readonly NormalizedRect[];
+  /** Caracteres de texto que dibuja la página (no los de imágenes escaneadas). */
+  readonly textGlyphs: number;
 }
 
 export interface PdfReader {
