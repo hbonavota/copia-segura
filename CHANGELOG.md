@@ -2,6 +2,16 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.5.1] · 2026-10-18
+
+ADR-0008: dominio propio.
+
+### Cambiado
+
+- La app se publica en https://copia-segura.orbytia.es/ (la URL anterior redirige).
+- El despliegue toma la ruta de la app de GitHub Pages en vez de fijarla: funciona igual en la raíz
+  de un dominio propio que bajo `/<repositorio>/`. CI prueba las dos rutas.
+
 ## [1.5.0] · 2026-10-17
 
 SPEC-0012 y ADR-0007: app instalable y sin conexión.

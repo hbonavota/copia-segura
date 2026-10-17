@@ -1,14 +1,14 @@
 # copia segura
 
 [![CI](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml/badge.svg)](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml)
-[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
+[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://copia-segura.orbytia.es/)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Prepare a limited copy of your ID, or any document, without it ever leaving your browser.** Watermark
 with recipient, purpose and date; redacted areas; reduced resolution; no metadata. No server, no
 account, nothing to install.
 
-[Versión en español](README.md) · [Try it](https://hbonavota.github.io/copia-segura/) · [How it is built](docs/arquitectura.md)
+[Versión en español](README.md) · [Try it](https://copia-segura.orbytia.es/) · [How it is built](docs/arquitectura.md)
 
 ![copia segura landing: upload area, step-by-step demo with a fictional document and watermark settings](docs/img/inicio.png)
 
@@ -62,7 +62,7 @@ that enforces it.
 
 ## Use it
 
-The simplest way is the [published version](https://hbonavota.github.io/copia-segura/): nothing to
+The simplest way is the [published version](https://copia-segura.orbytia.es/): nothing to
 install, although you can install it as an app from the browser. Once opened it works offline with
 photos and, from your first document onwards, with PDFs and exports too: the app stores its own
 files (never yours), always from the page's own origin.
@@ -137,7 +137,7 @@ scripts/          pdf.js assets, sample document, screenshots
 | `npm test`              | Unit and architecture tests                                                                      |
 | `npm run test:e2e`      | End-to-end tests against the production build (`npx playwright install chromium` the first time) |
 | `npm run check`         | Lint, typecheck, formatting, tests and build: same as CI                                         |
-| `npm run build`         | Production build in `dist/` (`BASE_PATH=/copia-segura/` for Pages)                               |
+| `npm run build`         | Production build in `dist/` (`BASE_PATH=/sub/` when served under a sub-path)                     |
 | `npm run example:icons` | Regenerates the installable app's icons                                                          |
 | `npm run example:cards` | Regenerates the fictional cards (front, back and demo)                                           |
 | `npm run example:build` | Regenerates the sample PDF from the fictional cards                                              |

@@ -17,7 +17,8 @@ sitio.
 
 - La página publica un _manifest_ del propio origen con nombre, iconos (192 y 512 px, y uno
   _maskable_ para Android), `display: standalone`, colores de fondo y tema, y `start_url` /
-  `scope` relativos, para que funcione bajo `/copia-segura/`.
+  `scope` relativos, para que funcione en la raíz de un dominio propio o bajo una subruta
+  (ADR-0008).
 - Dado un navegador que ofrece instalar (Chrome, Edge, Android), la portada muestra **Instalar
   como app**, que abre su diálogo. No aparece si ya se usa instalada ni si el navegador no lo ofrece.
 - En iPhone (Safari no ofrece ese aviso) las preguntas frecuentes explican cómo hacerlo: Compartir ›

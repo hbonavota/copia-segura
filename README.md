@@ -1,14 +1,14 @@
 # copia segura
 
 [![CI](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml/badge.svg)](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml)
-[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
+[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://copia-segura.orbytia.es/)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
 
 **Prepara una copia limitada de tu DNI, o de cualquier documento, sin que salga de tu navegador.** Marca de agua con
 destinatario, finalidad y fecha; zonas tapadas; resolución reducida; sin metadatos. Sin servidor,
 sin cuenta, sin instalar nada.
 
-[English version](README.en.md) · [Probar la aplicación](https://hbonavota.github.io/copia-segura/) · [Cómo está hecha](docs/arquitectura.md)
+[English version](README.en.md) · [Probar la aplicación](https://copia-segura.orbytia.es/) · [Cómo está hecha](docs/arquitectura.md)
 
 ![Portada de copia segura: zona de carga, demo paso a paso con un documento ficticio y ajustes de la marca](docs/img/inicio.png)
 
@@ -62,7 +62,7 @@ fuente de la página, y el test que lo comprueba.
 
 ## Usarla
 
-La forma más simple es abrir la [versión publicada](https://hbonavota.github.io/copia-segura/):
+La forma más simple es abrir la [versión publicada](https://copia-segura.orbytia.es/):
 no hace falta instalar nada, aunque se puede instalar como app desde el navegador. Una vez abierta
 funciona sin conexión con fotos y, desde que abres tu primer documento, también con PDF y al
 exportar: la app guarda sus propios archivos (nunca los tuyos), siempre desde el propio origen.
@@ -136,7 +136,7 @@ scripts/          recursos de pdf.js, documento de ejemplo, capturas
 | `npm test`              | Tests unitarios y de arquitectura                                                    |
 | `npm run test:e2e`      | E2E contra el build de producción (`npx playwright install chromium` la primera vez) |
 | `npm run check`         | Lint, typecheck, formato, tests y build: lo mismo que CI                             |
-| `npm run build`         | Build de producción en `dist/` (`BASE_PATH=/copia-segura/` para Pages)               |
+| `npm run build`         | Build de producción en `dist/` (`BASE_PATH=/sub/` si se sirve en una subruta)        |
 | `npm run example:icons` | Regenera los iconos de la app instalable                                             |
 | `npm run example:cards` | Regenera las tarjetas ficticias (frente, dorso y demo)                               |
 | `npm run example:build` | Regenera el PDF de ejemplo a partir de las tarjetas ficticias                        |

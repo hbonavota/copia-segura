@@ -1,12 +1,12 @@
 {
   "name": "copia-segura",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Prepara una copia limitada de tu DNI o de cualquier documento (marca de agua, zonas tapadas, sin metadatos) sin que salga de tu navegador.",
   "private": true,
   "type": "module",
   "license": "MIT",
   "author": "Hernán Bonavota",
-  "homepage": "https://hbonavota.github.io/copia-segura/",
+  "homepage": "https://copia-segura.orbytia.es/",
   "repository": {
     "type": "git",
     "url": "https://github.com/hbonavota/copia-segura.git"
