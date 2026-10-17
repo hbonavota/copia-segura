@@ -6,7 +6,8 @@
 
 - El estilo de tapado es _Negro_ (por defecto) o _Pixelado_ y se aplica a todas las zonas.
 - El pixelado es **grueso**: el bloque mide la mitad del lado corto de la zona (mínimo 16 px), de
-  modo que una zona queda en una o dos filas de bloques.
+  modo que una zona queda en una o dos filas de bloques. Cada bloque se rellena con la media exacta
+  de sus píxeles, calculada por la aplicación: el resultado es igual en todos los navegadores.
 - La interfaz advierte que solo el negro es irreversible y que el pixelado no debe usarse sobre
   números ni texto: hay técnicas que recuperan texto pixelado con bloques pequeños.
 

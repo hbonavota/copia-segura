@@ -16,14 +16,17 @@ encaja: con dos o tres ajustes, obligar a avanzar página a página solo añade 
   tira de páginas debajo; a la derecha un único panel de ajustes con secciones _Marca de agua_,
   _Tapar datos_ y _Salida_.
 - Un indicador de pasos _Subir → Ajustar → Descargar_ orienta sin bloquear: marca el paso actual
-  (`aria-current="step"`) y los completados.
+  (`aria-current="step"`) y los completados (también con texto para lectores de pantalla).
+- Al pasar de un estado a otro, el foco va al primer control del estado nuevo.
 - El cambio de estado usa _View Transitions_ cuando el navegador la soporta y el usuario no ha
   pedido reducir movimiento; si no, es instantáneo.
 
 ## RF-25 · Descargar siempre a mano
 
 - En escritorio el botón principal de descarga queda fijo al pie del panel de ajustes, visible
-  aunque se desplace el panel. Las demás salidas (PDF, ZIP, Compartir) van como secundarias.
+  aunque se desplace el panel; el documento acompaña al desplazarse. Las demás salidas van como
+  secundarias (PDF, Compartir y, con varias páginas, JPG; con una sola página el ZIP no aporta).
+- Ningún ancho de pantalla, de 320 px en adelante, provoca desplazamiento lateral.
 - En pantallas estrechas se mantiene RF-18: editor primero y barra de descarga fija abajo.
 
 ## RF-26 · Sugerencias y frente / dorso
@@ -39,8 +42,11 @@ encaja: con dos o tres ajustes, obligar a avanzar página a página solo añade 
 - Con la herramienta _Tapar_, las zonas existentes se ven con su contorno sobre la vista previa.
 - Dada una zona, cuando se pulsa, queda seleccionada; arrastrándola se mueve y con el tirador de
   su esquina se cambia el tamaño. Nunca sale de la página.
-- Dada una zona seleccionada, `Supr` o `Retroceso` la quitan, las flechas la mueven (con
-  `Mayús`, más rápido) y `Esc` deja de seleccionarla. Cada zona es enfocable con el tabulador.
+- Dada una zona seleccionada, `Supr` o `Retroceso` la quitan, las flechas la mueven, `Alt` +
+  flechas cambian su tamaño (con `Mayús`, más rápido) y `Esc` deja de seleccionarla. Cada zona es
+  enfocable con el tabulador y el foco no se pierde al moverla, soltarla o quitarla.
+- Una zona recién dibujada queda seleccionada. Un clic sin arrastre solo selecciona: no reescribe
+  la zona, aunque sobresalga del recorte (se mueve y se acota en el marco de página, no en la vista).
 - Pulsar fuera de las zonas dibuja una nueva, como hasta ahora (RF-06).
 
 ## Fuera de alcance

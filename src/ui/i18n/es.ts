@@ -10,7 +10,6 @@ export const es = {
   'drop.choose': 'Elegir archivos',
   'drop.camera': 'Usar la cámara',
   'drop.example': 'Ver cómo funciona con un DNI de prueba',
-  'drop.or': 'o',
 
   'pages.title': 'Páginas',
   'pages.add': 'Añadir',
@@ -26,7 +25,7 @@ export const es = {
   'tool.clearMasks': 'Quitar todas las zonas',
   'tool.clearCrop': 'Quitar recorte',
   'tool.hint.mask':
-    'Dibuja un rectángulo sobre lo que el trámite no necesita. Pulsa una zona para moverla o cambiar su tamaño; Supr la quita.',
+    'Dibuja un rectángulo sobre lo que el trámite no necesita. Arrastra una zona para moverla o su esquina para cambiar el tamaño; con el teclado: flechas para mover, Alt + flechas para el tamaño, Supr para quitarla.',
   'tool.hint.crop': 'Dibuja el rectángulo que quieres conservar. Fuera de él no se exporta nada.',
   'tool.strips': 'Tapar una franja',
   'tool.strip.top': 'Arriba',
@@ -69,7 +68,6 @@ export const es = {
   'output.quality': 'Calidad JPEG',
 
   'export.jpg': 'Descargar copia',
-  'export.jpg.many': 'Descargar {n} copias',
   'export.zip': 'ZIP',
   'export.pdf': 'PDF',
   'export.working': 'Generando…',
@@ -190,9 +188,10 @@ export const es = {
   'trust.local': 'Se procesa en este dispositivo',
   'trust.noTracking': 'Sin analítica ni cookies',
   'trust.open': 'Código abierto',
-  'trust.counter.one': 'petición a otro dominio',
-  'trust.counter.many': 'peticiones a otros dominios',
-  'trust.counter.title': 'Medido en vivo en esta página. Pulsa para ver cómo comprobarlo tú.',
+  'trust.counter.one': 'recurso de otro dominio',
+  'trust.counter.many': 'recursos de otros dominios',
+  'trust.counter.title':
+    'Recursos de otros dominios que el navegador ha registrado en esta página, en vivo. Pulsa para ver cómo comprobarlo a fondo.',
   'steps.label': 'Pasos',
   'steps.upload': 'Subir',
   'steps.adjust': 'Ajustar',
@@ -201,7 +200,6 @@ export const es = {
   'pages.back': 'Añadir el dorso',
   'mask.item': 'Zona {n}',
   'mask.resize': 'Cambiar el tamaño de la zona {n}',
-  'mask.remove': 'Quitar zona',
   'mark.suggestions': 'Sugerencias',
   'mark.suggest.1': 'apertura de cuenta',
   'mark.suggest.2': 'contrato de alquiler',
@@ -224,7 +222,7 @@ export const es = {
   'faq.title': 'Preguntas frecuentes',
   'faq.1.q': '¿Se sube mi DNI a algún servidor?',
   'faq.1.a':
-    'No. El documento se abre y se procesa en tu navegador: la página no tiene un servidor al que enviarlo y su política de seguridad le impide hablar con otros dominios. El contador de la cabecera lo muestra en vivo y «Compruébalo tú» explica cómo verificarlo.',
+    'No. El documento se abre y se procesa en tu navegador: la página no tiene un servidor al que enviarlo y su política de seguridad le impide pedir datos a otros dominios. «Compruébalo tú» explica cómo verificarlo con las herramientas del propio navegador.',
   'faq.2.q': '¿Qué texto pongo en la marca?',
   'faq.2.a':
     'Para quién es, para qué trámite y la fecha. Cuanto más concreto, menos vale la copia para otra cosa: «COPIA SOLO VÁLIDA PARA Banco Ejemplo · apertura de cuenta · 17/10/2026».',
@@ -233,7 +231,7 @@ export const es = {
     'Lo que el trámite no necesita. Suele bastar con nombre, foto y número; la firma, el código de barras, la dirección o la zona de lectura mecánica (las líneas con <<<) rara vez hacen falta. Si dudas, pregunta qué datos necesitan.',
   'faq.4.q': '¿Funciona en el móvil? ¿Y con fotos del iPhone?',
   'faq.4.a':
-    'Sí, en cualquier navegador actual, y puedes usar la cámara. Las fotos HEIC del iPhone se abren en Safari; en otros navegadores, compártelas como JPG o pon la cámara en «Más compatible» (Ajustes › Cámara › Formatos).',
+    'Sí, en las versiones actuales de Safari, Chrome, Firefox y Edge, y puedes usar la cámara. Las fotos HEIC del iPhone se abren en Safari; en otros navegadores, compártelas como JPG o pon la cámara en «Más compatible» (Ajustes › Cámara › Formatos).',
   'faq.5.q': '¿Funciona sin conexión?',
   'faq.5.a':
     'Con fotos, sí, una vez cargada la página. Abrir un PDF o exportar en PDF o ZIP descarga la primera vez los módulos necesarios, siempre desde esta misma web.',
@@ -249,6 +247,9 @@ export const es = {
   'faq.9.q': '¿Me pueden pedir una copia del DNI?',
   'faq.9.a':
     'Depende del trámite. Puedes preguntar para qué la necesitan y entregar solo lo imprescindible. Para dudas concretas, la autoridad de protección de datos de tu país (en España, la AEPD) publica guías. Esto no es asesoramiento legal.',
+  'mask.selected': 'seleccionada',
+  'steps.done': 'completado',
+  'export.as': 'Descargar {format}',
 } as const;
 
 export type MessageKey = keyof typeof es;

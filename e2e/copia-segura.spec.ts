@@ -304,8 +304,24 @@ test.describe('SPEC-0007 · sistema visual y confianza', () => {
     await download.path();
     const counter = page.getByTestId('trust-counter');
     await expect(counter).toHaveAttribute('data-count', '0');
-    await expect(counter).toContainText('peticiones a otros dominios');
+    await expect(counter).toContainText('recursos de otros dominios');
     await expect(counter).toHaveAttribute('href', '#verify-title');
+  });
+
+  test('RF-22 · un recurso de otro dominio sube el contador y lo pone en aviso', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    const counter = page.getByTestId('trust-counter');
+    await expect(counter).toHaveAttribute('data-count', '0');
+    // La CSP lo bloquea, pero el navegador registra el intento: el contador no lo esconde.
+    await page.evaluate(() => {
+      const img = document.createElement('img');
+      img.src = 'https://example.com/pixel.png';
+      document.body.append(img);
+    });
+    await expect(counter).toHaveAttribute('data-count', '1');
+    await expect(counter).toHaveClass(/is-warning/);
   });
 
   test('RF-23 · al exportar, aviso de éxito y paso de descarga completado', async ({ page }) => {
@@ -334,6 +350,33 @@ test.describe('SPEC-0008 · portada y editor', () => {
     await expect(page.locator('.step[data-step="upload"]')).toHaveClass(/is-done/);
   });
 
+  test('RF-24 · sin desplazamiento lateral en móvil, tablet y escritorio', async ({ page }) => {
+    const overflow = (): Promise<number> =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+    const widths = [320, 360, 390, 768, 1024, 1280];
+    await page.goto('./');
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await overflow(), `portada a ${width} px`).toBeLessThanOrEqual(0);
+    }
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await loadExample(page);
+    for (const width of widths) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await overflow(), `editor a ${width} px`).toBeLessThanOrEqual(0);
+    }
+  });
+
+  test('RF-24 · al cargar un documento el foco pasa al editor', async ({ page }) => {
+    await page.goto('./');
+    await page.getByTestId('load-example').focus();
+    await page.keyboard.press('Enter');
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 45_000 });
+    await expect(page.locator('.editor button').first()).toBeFocused();
+  });
+
   test('RF-26 · una sugerencia rellena la finalidad', async ({ page }) => {
     await loadExample(page);
     await page.getByTestId('suggest-2').click();
@@ -359,7 +402,8 @@ test.describe('SPEC-0008 · portada y editor', () => {
     expect(isBlack(await previewPixel(page, { x: 0.15, y: 0.15 }))).toBe(false);
     expect(isBlack(await previewPixel(page, { x: 0.65, y: 0.15 }))).toBe(true);
 
-    await page.getByTestId('mask-1').focus();
+    // Tras arrastrar, la zona sigue seleccionada y con el foco: Supr la quita directamente.
+    await expect(page.getByTestId('mask-1')).toBeFocused();
     await afterRender(page, () => page.keyboard.press('Delete'));
     expect(isBlack(await previewPixel(page, { x: 0.65, y: 0.15 }))).toBe(false);
     await expect(page.getByTestId('mask-1')).toHaveCount(0);
@@ -384,6 +428,55 @@ test.describe('SPEC-0008 · portada y editor', () => {
   });
 });
 
+test.describe('RF-27 · zonas con teclado y con recorte', () => {
+  test('flechas mueven, Alt + flechas redimensionan y Esc suelta sin perder el foco', async ({
+    page,
+  }) => {
+    await loadExample(page);
+    await withoutWatermark(page);
+    await drag(page, { x: 0.05, y: 0.05 }, { x: 0.25, y: 0.25 });
+    const zone = page.getByTestId('mask-1');
+    await expect(zone).toBeFocused();
+    const left = async (): Promise<number> => (await zone.boundingBox())?.x ?? 0;
+    const width = async (): Promise<number> => (await zone.boundingBox())?.width ?? 0;
+
+    const x0 = await left();
+    await afterRender(page, () => page.keyboard.press('Shift+ArrowRight'));
+    expect(await left()).toBeGreaterThan(x0);
+
+    const w0 = await width();
+    await afterRender(page, () => page.keyboard.press('Alt+Shift+ArrowRight'));
+    expect(await width()).toBeGreaterThan(w0);
+
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('overlay')).toBeFocused();
+  });
+
+  test('una zona que sobresale del recorte no se mueve al pulsarla', async ({ page }) => {
+    await loadExample(page);
+    // Página A4 entera: una zona en la esquina, fuera de donde quedará el recorte.
+    await afterRender(page, () => page.getByTestId('clear-crop').click());
+    await drag(page, { x: 0.02, y: 0.02 }, { x: 0.6, y: 0.2 });
+    // Recortar dejando fuera parte de la zona.
+    await afterRender(page, () => page.getByTestId('tool-crop').click());
+    await drag(page, { x: 0.3, y: 0.1 }, { x: 0.9, y: 0.6 });
+    await afterRender(page, () => page.getByTestId('tool-mask').click());
+
+    const zone = page.getByTestId('mask-1');
+    const before = await zone.boundingBox();
+    const render = await page.locator('canvas.preview').getAttribute('data-render');
+    // Clic en la parte visible de la zona (el resto queda fuera del recorte).
+    const box = await page.getByTestId('overlay').boundingBox();
+    if (!box) throw new Error('sin vista previa');
+    await page.mouse.click(box.x + box.width * 0.1, box.y + box.height * 0.1);
+    await expect(zone).toHaveAttribute('data-selected', 'true');
+    expect(await zone.boundingBox()).toEqual(before);
+    // Un clic sin arrastre solo selecciona: no cambia las zonas ni vuelve a dibujar.
+    await page.waitForTimeout(200);
+    expect(await page.locator('canvas.preview').getAttribute('data-render')).toBe(render);
+  });
+});
+
 test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
   test('RF-28 · el pixelado sustituye la zona por bloques, no por negro', async ({ page }) => {
     await loadExample(page);
@@ -395,6 +488,11 @@ test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
     const pixelated = await previewPixel(page, { x: 0.3, y: 0.3 });
     expect(isBlack(pixelated)).toBe(false);
     expect(pixelated).not.toEqual(original);
+    // Zona de 480 × 303 px en la salida → bloques de 152 px desde (120, 76). Dos puntos del mismo
+    // bloque, (360, 190) y (372, 197), tienen exactamente el mismo color: la media del bloque.
+    expect(await previewPixel(page, { x: 0.31, y: 0.26 })).toEqual(
+      await previewPixel(page, { x: 0.3, y: 0.25 }),
+    );
   });
 
   test('RF-29 · una foto HEIC que el navegador no abre da un aviso específico', async ({

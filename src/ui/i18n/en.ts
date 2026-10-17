@@ -12,7 +12,6 @@ export const en: Record<MessageKey, string> = {
   'drop.choose': 'Choose files',
   'drop.camera': 'Use the camera',
   'drop.example': 'See how it works with a sample ID',
-  'drop.or': 'or',
 
   'pages.title': 'Pages',
   'pages.add': 'Add',
@@ -28,7 +27,7 @@ export const en: Record<MessageKey, string> = {
   'tool.clearMasks': 'Remove all areas',
   'tool.clearCrop': 'Remove crop',
   'tool.hint.mask':
-    "Draw a rectangle over what the recipient doesn't need. Click an area to move or resize it; Delete removes it.",
+    "Draw a rectangle over what the recipient doesn't need. Drag an area to move it, or its corner to resize it; with the keyboard: arrows to move, Alt + arrows to resize, Delete to remove it.",
   'tool.hint.crop': 'Draw the rectangle you want to keep. Nothing outside it is exported.',
   'tool.strips': 'Redact a strip',
   'tool.strip.top': 'Top',
@@ -71,7 +70,6 @@ export const en: Record<MessageKey, string> = {
   'output.quality': 'JPEG quality',
 
   'export.jpg': 'Download copy',
-  'export.jpg.many': 'Download {n} copies',
   'export.zip': 'ZIP',
   'export.pdf': 'PDF',
   'export.working': 'Generating…',
@@ -191,9 +189,10 @@ export const en: Record<MessageKey, string> = {
   'trust.local': 'Processed on this device',
   'trust.noTracking': 'No analytics, no cookies',
   'trust.open': 'Open source',
-  'trust.counter.one': 'request to another domain',
-  'trust.counter.many': 'requests to other domains',
-  'trust.counter.title': 'Measured live on this page. Click to see how to check it yourself.',
+  'trust.counter.one': 'resource from another domain',
+  'trust.counter.many': 'resources from other domains',
+  'trust.counter.title':
+    'Resources from other domains that the browser has recorded on this page, live. Click to see how to check it thoroughly.',
   'steps.label': 'Steps',
   'steps.upload': 'Upload',
   'steps.adjust': 'Adjust',
@@ -202,7 +201,6 @@ export const en: Record<MessageKey, string> = {
   'pages.back': 'Add the back',
   'mask.item': 'Area {n}',
   'mask.resize': 'Resize area {n}',
-  'mask.remove': 'Remove area',
   'mark.suggestions': 'Suggestions',
   'mark.suggest.1': 'opening an account',
   'mark.suggest.2': 'rental agreement',
@@ -225,7 +223,7 @@ export const en: Record<MessageKey, string> = {
   'faq.title': 'Frequently asked questions',
   'faq.1.q': 'Is my ID uploaded to a server?',
   'faq.1.a':
-    'No. The document is opened and processed in your browser: the page has no server to send it to, and its security policy stops it from talking to other domains. The counter in the header shows this live, and "Check it yourself" explains how to verify it.',
+    'No. The document is opened and processed in your browser: the page has no server to send it to, and its security policy stops it from requesting data from other domains. "Check it yourself" explains how to verify this with the browser\'s own tools.',
   'faq.2.q': 'What text should the watermark say?',
   'faq.2.a':
     'Who it is for, what it is for and the date. The more specific, the less the copy is worth for anything else: "COPY ONLY VALID FOR Example Bank · opening an account · 17/10/2026".',
@@ -234,7 +232,7 @@ export const en: Record<MessageKey, string> = {
     "Whatever the recipient doesn't need. Name, photo and number are usually enough; the signature, barcode, address or machine-readable zone (the lines with <<<) are rarely required. If in doubt, ask which details they need.",
   'faq.4.q': 'Does it work on a phone? And with iPhone photos?',
   'faq.4.a':
-    'Yes, in any current browser, and you can use the camera. iPhone HEIC photos open in Safari; in other browsers, share them as JPG or set the camera to "Most Compatible" (Settings › Camera › Formats).',
+    'Yes, in current versions of Safari, Chrome, Firefox and Edge, and you can use the camera. iPhone HEIC photos open in Safari; in other browsers, share them as JPG or set the camera to "Most Compatible" (Settings › Camera › Formats).',
   'faq.5.q': 'Does it work offline?',
   'faq.5.a':
     'With photos, yes, once the page has loaded. Opening a PDF or exporting to PDF or ZIP downloads the required modules the first time, always from this same site.',
@@ -250,4 +248,7 @@ export const en: Record<MessageKey, string> = {
   'faq.9.q': 'Can they ask me for a copy of my ID?',
   'faq.9.a':
     "It depends on the procedure. You can ask what it is for and hand over only what is essential. For specific questions, your country's data protection authority publishes guidance. This is not legal advice.",
+  'mask.selected': 'selected',
+  'steps.done': 'done',
+  'export.as': 'Download {format}',
 };

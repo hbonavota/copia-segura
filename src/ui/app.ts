@@ -75,13 +75,22 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
 
   let first = true;
   const syncEmptyState = (): void => {
-    const empty = store.get().pages.length === 0;
-    if (!first && root.classList.contains('is-empty') === empty) return;
     const apply = (): void => {
+      // Se lee aquí y no al programar la transición: el estado puede haber cambiado entretanto.
+      const empty = store.get().pages.length === 0;
+      if (root.classList.contains('is-empty') === empty && !regions.dropzone.hidden === empty) {
+        return;
+      }
+      const focusLost = (empty ? center : regions.dropzone).contains(document.activeElement);
       regions.dropzone.hidden = !empty;
       center.hidden = empty;
       inspector.hidden = empty;
       root.classList.toggle('is-empty', empty);
+      // El elemento con el foco acaba de ocultarse: se lleva al primer control del nuevo estado.
+      if (focusLost) {
+        const target = empty ? regions.dropzone : regions.editor;
+        target.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
+      }
     };
     // Portada ⇄ editor con una transición suave (RF-24), salvo que se pida reducir movimiento.
     const animate =

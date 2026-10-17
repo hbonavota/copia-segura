@@ -67,13 +67,17 @@ export const header: View = (root, { store, t }) => {
       { class: 'step', dataset: { step } },
       h('span', { class: 'step-dot', attrs: { 'aria-hidden': 'true' } }, String(i + 1)),
       h('span', { class: 'step-label' }, t(`steps.${step}`)),
+      h('span', { class: 'visually-hidden step-done' }, ` (${t('steps.done')})`),
     ),
   );
   const syncSteps = (): void => {
     const { pages, exported } = store.get();
     const current = pages.length === 0 ? 0 : exported ? 2 : 1;
     stepItems.forEach((li, i) => {
-      li.classList.toggle('is-done', i < current || (exported && i === 2));
+      const done = i < current || (exported && i === 2);
+      li.classList.toggle('is-done', done);
+      const doneText = li.querySelector<HTMLElement>('.step-done');
+      if (doneText) doneText.hidden = !done;
       if (i === current) li.setAttribute('aria-current', 'step');
       else li.removeAttribute('aria-current');
     });
@@ -107,9 +111,9 @@ export const header: View = (root, { store, t }) => {
     root,
     h('h1', { class: 'stamp', attrs: { 'aria-label': t('app.title') } }, t('app.title')),
     h(
-      'nav',
-      { class: 'stepper', attrs: { 'aria-label': t('steps.label') } },
-      h('ol', {}, ...stepItems),
+      'div',
+      { class: 'stepper' },
+      h('ol', { attrs: { 'aria-label': t('steps.label') } }, ...stepItems),
     ),
     h(
       'div',

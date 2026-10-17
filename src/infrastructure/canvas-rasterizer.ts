@@ -69,29 +69,39 @@ function drawRotated(ctx: AnyContext2D, image: Bitmap, rotation: Rotation, rotat
 }
 
 /**
- * Pixelado grueso (RF-28): reduce la zona a una rejilla de bloques promediando sus píxeles y la
- * vuelve a ampliar sin suavizado. Los píxeles originales de la zona dejan de existir.
+ * Pixelado grueso (RF-28): cada bloque se rellena con la media de sus píxeles. La media se calcula
+ * aquí, no con el suavizado del navegador (que no promedia igual en todos), así que el resultado
+ * es el mismo en cualquier navegador y no queda ningún píxel original dentro de la zona.
  */
 function pixelate(ctx: AnyContext2D, mask: PixelRect, output: Size): void {
-  const x = Math.max(0, mask.x);
-  const y = Math.max(0, mask.y);
-  const w = Math.min(output.width, mask.x + mask.w) - x;
-  const h = Math.min(output.height, mask.y + mask.h) - y;
+  const x0 = Math.max(0, mask.x);
+  const y0 = Math.max(0, mask.y);
+  const w = Math.min(output.width, mask.x + mask.w) - x0;
+  const h = Math.min(output.height, mask.y + mask.h) - y0;
   if (w <= 0 || h <= 0) return;
-  const block = pixelBlockSize({ x, y, w, h });
-  const cols = Math.max(1, Math.ceil(w / block));
-  const rows = Math.max(1, Math.ceil(h / block));
-  const small = createCanvas(cols, rows);
-  const smallCtx = context2d(small);
-  smallCtx.imageSmoothingEnabled = true;
-  smallCtx.imageSmoothingQuality = 'high';
-  smallCtx.drawImage(ctx.canvas, x, y, w, h, 0, 0, cols, rows);
-  ctx.save();
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(small, 0, 0, cols, rows, x, y, w, h);
-  ctx.restore();
-  small.width = 0;
-  small.height = 0;
+  const block = pixelBlockSize({ x: x0, y: y0, w, h });
+  const image = ctx.getImageData(x0, y0, w, h);
+  const px = image.data;
+  for (let by = 0; by < h; by += block) {
+    for (let bx = 0; bx < w; bx += block) {
+      const bw = Math.min(block, w - bx);
+      const bh = Math.min(block, h - by);
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      for (let y = by; y < by + bh; y++) {
+        for (let x = bx; x < bx + bw; x++) {
+          const i = (y * w + x) * 4;
+          r += px[i] ?? 0;
+          g += px[i + 1] ?? 0;
+          b += px[i + 2] ?? 0;
+        }
+      }
+      const n = bw * bh;
+      ctx.fillStyle = `rgb(${Math.round(r / n)} ${Math.round(g / n)} ${Math.round(b / n)})`;
+      ctx.fillRect(x0 + bx, y0 + by, bw, bh);
+    }
+  }
 }
 
 /** Escala de grises por luminancia Rec. 601, píxel a píxel (no depende de `ctx.filter`). */

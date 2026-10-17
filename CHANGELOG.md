@@ -10,12 +10,15 @@ Rediseño de la interfaz: SPEC-0007, SPEC-0008 y SPEC-0009.
 
 - Sistema visual nuevo (RF-20): neutros fríos, un solo color de acción, verde para la confianza y
   el rojo del sello solo para la marca; Inter alojada en el propio origen.
-- Contador en vivo de peticiones a otros dominios en la cabecera (RF-22).
+- Contador en vivo de recursos de otros dominios registrados por el navegador (RF-22), con sus
+  límites documentados.
 - Portada y editor de dos paneles con indicador de pasos _Subir → Ajustar → Descargar_ y transición
   entre ambos (RF-24); descarga fija al pie del panel (RF-25).
 - Intensidad como control segmentado con muestra de la marca (RF-21).
 - Sugerencias de finalidad y hueco para el dorso (RF-26).
 - Zonas editables: seleccionar, mover, redimensionar y quitar, también con teclado (RF-27).
+- Sin desplazamiento lateral de 320 px en adelante; foco gestionado entre portada y editor;
+  contraste de controles ≥ 3:1.
 - Tapado pixelado grueso como alternativa al negro, con aviso de cuándo no usarlo (RF-28).
 - Aviso específico para fotos HEIC que el navegador no abre (RF-29).
 - Preguntas frecuentes (RF-30).

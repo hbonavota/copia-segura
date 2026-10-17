@@ -19,6 +19,8 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}${BASE_PATH}`,
     trace: 'retain-on-failure',
     locale: 'es-ES',
+    // Sin transiciones: los tests no dependen de la duración de una animación.
+    contextOptions: { reducedMotion: 'reduce' },
     ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
       ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } }
       : {}),

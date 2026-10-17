@@ -122,30 +122,24 @@ export function activePage(state: AppState): PageState | null {
 }
 
 /**
- * Lleva un rectángulo de la vista previa al marco de página (SPEC-0004). Con la herramienta de
- * tapar la vista previa muestra solo la zona recortada; con la de recortar, la página entera.
+ * Zona del marco de página que muestra la vista previa: con la herramienta de tapar, la recortada;
+ * con la de recortar, la página entera (SPEC-0004).
  */
-export function viewToPage(state: AppState, rect: NormalizedRect): NormalizedRect {
+export function viewFrame(state: AppState): NormalizedRect {
   const crop = state.tool === 'mask' ? activePage(state)?.edits.crop : null;
-  if (!crop) return rect;
-  return {
-    x: crop.x + rect.x * crop.w,
-    y: crop.y + rect.y * crop.h,
-    w: rect.w * crop.w,
-    h: rect.h * crop.h,
-  };
+  return crop ?? { x: 0, y: 0, w: 1, h: 1 };
+}
+
+/** Lleva un rectángulo de la vista previa al marco de página. */
+export function viewToPage(state: AppState, rect: NormalizedRect): NormalizedRect {
+  const f = viewFrame(state);
+  return { x: f.x + rect.x * f.w, y: f.y + rect.y * f.h, w: rect.w * f.w, h: rect.h * f.h };
 }
 
 /** Lo contrario de `viewToPage`: dónde se ve en la vista previa una zona de la página. */
 export function pageToView(state: AppState, rect: NormalizedRect): NormalizedRect {
-  const crop = state.tool === 'mask' ? activePage(state)?.edits.crop : null;
-  if (!crop) return rect;
-  return {
-    x: (rect.x - crop.x) / crop.w,
-    y: (rect.y - crop.y) / crop.h,
-    w: rect.w / crop.w,
-    h: rect.h / crop.h,
-  };
+  const f = viewFrame(state);
+  return { x: (rect.x - f.x) / f.w, y: (rect.y - f.y) / f.h, w: rect.w / f.w, h: rect.h / f.h };
 }
 
 /** Preset + ajustes manuales, ya acotados a los límites del dominio (SPEC-0004). */

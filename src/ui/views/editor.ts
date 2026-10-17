@@ -7,9 +7,17 @@ import {
 } from '../../domain';
 import type { View } from '../context';
 import { ICONS, h, icon, replaceChildren } from '../dom';
-import { actions, activePage, currentStyle, pageToView, viewToPage, type Tool } from '../store';
+import {
+  actions,
+  activePage,
+  currentStyle,
+  pageToView,
+  viewFrame,
+  viewToPage,
+  type Tool,
+} from '../store';
 
-/** Paso de las flechas al mover una zona con el teclado (RF-27), en fracción de la vista. */
+/** Paso de las flechas al mover o redimensionar una zona (RF-27), en fracción de la vista. */
 const NUDGE = 0.005;
 const NUDGE_FAST = 0.05;
 
@@ -27,7 +35,7 @@ export const editor: View = (root, { store, deps, t }) => {
   const overlay = h('div', { class: 'overlay', dataset: { testid: 'overlay' } }, cropShade, rubber);
   const stage = h('div', { class: 'stage' }, canvas, overlay);
   const meta = h('p', { class: 'meta muted', dataset: { testid: 'meta' } });
-  const hint = h('p', { class: 'hint muted' });
+  const hint = h('p', { class: 'hint muted', id: 'editor-hint' });
   const status = h('p', { class: 'rendering muted', hidden: true }, t('editor.rendering'));
 
   const toolButton = (tool: Tool, label: string): HTMLButtonElement =>
@@ -203,17 +211,24 @@ export const editor: View = (root, { store, deps, t }) => {
   }
 
   // ----------------------------------------------------------------------- zonas (RF-27)
+  // Las zonas viven en el marco de página: mover y redimensionar se calcula ahí, de modo que una
+  // zona que sobresale del recorte no se desplaza al tocarla y nunca sale de la página.
 
   interface Point {
-    x: number;
-    y: number;
+    readonly x: number;
+    readonly y: number;
   }
   type Gesture =
-    | { kind: 'draw'; start: Point }
-    | { kind: 'move'; index: number; start: Point; rect: NormalizedRect }
-    | { kind: 'resize'; index: number; rect: NormalizedRect };
+    | { readonly kind: 'draw'; readonly start: Point }
+    | {
+        readonly kind: 'move' | 'resize';
+        readonly index: number;
+        readonly start: Point;
+        readonly rect: NormalizedRect;
+      };
   let gesture: Gesture | null = null;
 
+  /** Punto del puntero en fracciones de la vista previa. */
   const pointAt = (event: PointerEvent): Point => {
     const box = overlay.getBoundingClientRect();
     return { x: (event.clientX - box.left) / box.width, y: (event.clientY - box.top) / box.height };
@@ -231,32 +246,40 @@ export const editor: View = (root, { store, deps, t }) => {
   const hideRubber = (): void => {
     rubber.hidden = true;
   };
-
-  /** Zonas de la página activa en coordenadas de la vista previa. */
-  const viewMasks = (): NormalizedRect[] => {
-    const state = store.get();
-    return (activePage(state)?.edits.masks ?? []).map((m) => pageToView(state, m));
+  const pageMasks = (): readonly NormalizedRect[] => activePage(store.get())?.edits.masks ?? [];
+  const sameRect = (a: NormalizedRect, b: NormalizedRect): boolean =>
+    a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
+  const boxAt = (index: number | null): HTMLElement | null =>
+    index === null ? null : boxes.querySelector<HTMLElement>(`[data-index="${index}"]`);
+  const focusSelected = (): void => {
+    boxAt(store.get().selectedMask)?.focus({ preventScroll: true });
   };
 
   /** Contornos de las zonas sobre la vista previa: se pueden seleccionar, mover y redimensionar. */
   function renderBoxes(): void {
     const state = store.get();
-    const masks = state.tool === 'mask' ? viewMasks() : [];
+    const masks = state.tool === 'mask' ? pageMasks() : [];
     const focused = document.activeElement;
     const keepFocus = focused instanceof HTMLElement && boxes.contains(focused);
     replaceChildren(
       boxes,
       ...masks.map((rect, index) => {
+        const selected = state.selectedMask === index;
+        const name = t('mask.item', { n: index + 1 });
         const box = h(
           'div',
           {
             class: 'mask-box',
             tabIndex: 0,
-            dataset: { testid: `mask-${index + 1}`, index: String(index) },
+            dataset: {
+              testid: `mask-${index + 1}`,
+              index: String(index),
+              selected: String(selected),
+            },
             attrs: {
               role: 'button',
-              'aria-label': t('mask.item', { n: index + 1 }),
-              'aria-pressed': String(state.selectedMask === index),
+              'aria-label': selected ? `${name} · ${t('mask.selected')}` : name,
+              'aria-describedby': 'editor-hint',
             },
             on: {
               focus: () => store.update(actions.selectMask(index)),
@@ -269,38 +292,62 @@ export const editor: View = (root, { store, deps, t }) => {
             attrs: { 'aria-hidden': 'true', title: t('mask.resize', { n: index + 1 }) },
           }),
         );
-        place(box, rect);
+        place(box, pageToView(state, rect));
         return box;
       }),
     );
-    if (keepFocus && state.selectedMask !== null) {
-      boxes.querySelector<HTMLElement>(`[data-index="${state.selectedMask}"]`)?.focus();
+    if (keepFocus) {
+      if (state.selectedMask === null) overlay.focus({ preventScroll: true });
+      else focusSelected();
     }
   }
 
+  const ARROWS: Record<string, readonly [number, number]> = {
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+  };
+
+  /** Teclado (RF-27): flechas mueven, Alt + flechas cambian el tamaño, Supr quita, Esc suelta. */
   function onBoxKey(event: KeyboardEvent, index: number): void {
-    const rect = viewMasks()[index];
+    const rect = pageMasks()[index];
     if (!rect) return;
-    const step = event.shiftKey ? NUDGE_FAST : NUDGE;
-    const moves: Record<string, [number, number]> = {
-      ArrowLeft: [-step, 0],
-      ArrowRight: [step, 0],
-      ArrowUp: [0, -step],
-      ArrowDown: [0, step],
-    };
-    const move = moves[event.key];
-    if (move) {
+    const arrow = ARROWS[event.key];
+    if (arrow) {
       event.preventDefault();
-      store.update(actions.updateMask(index, viewToPage(store.get(), moveRect(rect, ...move))));
+      const f = viewFrame(store.get());
+      const step = event.shiftKey ? NUDGE_FAST : NUDGE;
+      const dx = arrow[0] * step * f.w;
+      const dy = arrow[1] * step * f.h;
+      const next = event.altKey
+        ? resizeRect(rect, rect.x + rect.w + dx, rect.y + rect.h + dy)
+        : moveRect(rect, dx, dy);
+      if (!sameRect(next, rect)) store.update(actions.updateMask(index, next));
+      focusSelected();
     } else if (event.key === 'Delete' || event.key === 'Backspace') {
       event.preventDefault();
       store.update(actions.removeMask(index));
-      overlay.focus();
+      overlay.focus({ preventScroll: true });
     } else if (event.key === 'Escape') {
       store.update(actions.selectMask(null));
-      (event.currentTarget as HTMLElement).blur();
+      overlay.focus({ preventScroll: true });
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      store.update(actions.selectMask(index));
     }
   }
+
+  /** Dónde quedaría la zona si se soltara ahora, en el marco de página. */
+  const preview = (g: Extract<Gesture, { kind: 'move' | 'resize' }>, p: Point): NormalizedRect => {
+    const state = store.get();
+    if (g.kind === 'move') {
+      const f = viewFrame(state);
+      return moveRect(g.rect, (p.x - g.start.x) * f.w, (p.y - g.start.y) * f.h);
+    }
+    const corner = viewToPage(state, { x: p.x, y: p.y, w: 0, h: 0 });
+    return resizeRect(g.rect, corner.x, corner.y);
+  };
 
   overlay.tabIndex = -1;
   overlay.addEventListener('pointerdown', (event) => {
@@ -311,13 +358,11 @@ export const editor: View = (root, { store, deps, t }) => {
     overlay.setPointerCapture(event.pointerId);
     if (box && store.get().tool === 'mask') {
       const index = Number(box.dataset.index);
-      const rect = viewMasks()[index];
+      const rect = pageMasks()[index];
       if (!rect) return;
       store.update(actions.selectMask(index));
-      gesture =
-        target.dataset.handle === 'resize'
-          ? { kind: 'resize', index, rect }
-          : { kind: 'move', index, start: point, rect };
+      const kind = target.dataset.handle === 'resize' ? 'resize' : 'move';
+      gesture = { kind, index, start: point, rect };
       event.preventDefault();
       return;
     }
@@ -326,12 +371,6 @@ export const editor: View = (root, { store, deps, t }) => {
     showRubber(point, point);
   });
 
-  /** Dónde quedaría la zona si se soltara ahora (en la vista previa). */
-  const preview = (g: Exclude<Gesture, { kind: 'draw' }>, p: Point): NormalizedRect =>
-    g.kind === 'move'
-      ? moveRect(g.rect, p.x - g.start.x, p.y - g.start.y)
-      : resizeRect(g.rect, p.x, p.y);
-
   overlay.addEventListener('pointermove', (event) => {
     if (!gesture) return;
     const p = pointAt(event);
@@ -339,8 +378,8 @@ export const editor: View = (root, { store, deps, t }) => {
       showRubber(gesture.start, p);
       return;
     }
-    const box = boxes.querySelector<HTMLElement>(`[data-index="${gesture.index}"]`);
-    if (box) place(box, preview(gesture, p));
+    const box = boxAt(gesture.index);
+    if (box) place(box, pageToView(store.get(), preview(gesture, p)));
   });
 
   const finish = (event: PointerEvent): void => {
@@ -352,15 +391,23 @@ export const editor: View = (root, { store, deps, t }) => {
     if (g.kind === 'draw') {
       hideRubber();
       const rect = viewToPage(state, rectFromCorners(g.start.x, g.start.y, p.x, p.y));
-      store.update(state.tool === 'crop' ? actions.setCrop(rect) : actions.addMask(rect));
+      if (state.tool === 'crop') {
+        store.update(actions.setCrop(rect));
+        return;
+      }
+      const before = pageMasks().length;
+      store.update(actions.addMask(rect));
+      // La zona recién dibujada queda seleccionada: Supr o las flechas actúan sobre ella.
+      if (pageMasks().length > before) {
+        store.update(actions.selectMask(before));
+        focusSelected();
+      }
       return;
     }
     const next = preview(g, p);
-    if (next.x === g.rect.x && next.y === g.rect.y && next.w === g.rect.w && next.h === g.rect.h) {
-      boxes.querySelector<HTMLElement>(`[data-index="${g.index}"]`)?.focus();
-      return;
-    }
-    store.update(actions.updateMask(g.index, viewToPage(state, next)));
+    // Un clic sin arrastre solo selecciona: no reescribe la zona.
+    if (!sameRect(next, g.rect)) store.update(actions.updateMask(g.index, next));
+    focusSelected();
   };
   overlay.addEventListener('pointerup', finish);
   overlay.addEventListener('pointercancel', () => {
