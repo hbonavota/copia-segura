@@ -12,6 +12,7 @@ de modo que se puede trazar cualquier línea de código hasta el requisito que l
 | [SPEC-0003](SPEC-0003-requisitos-no-funcionales.md)            | Requisitos no funcionales (RNF): privacidad, rendimiento, accesibilidad                     | Implementada |
 | [SPEC-0004](SPEC-0004-modelo-de-dominio.md)                    | Modelo de dominio, invariantes y glosario                                                   | Implementada |
 | [SPEC-0005](SPEC-0005-demo-bn-plantillas-verificable-movil.md) | Demo en portada, blanco y negro, plantillas de zonas, verificabilidad y móvil (RF-14…RF-18) | Implementada |
+| [SPEC-0006](SPEC-0006-tema-claro-y-oscuro.md)                  | Tema claro y oscuro (RF-19)                                                                 | Implementada |
 
 Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripción de capas en
 [`docs/arquitectura.md`](../arquitectura.md). El modelo de amenazas, en [`docs/amenazas.md`](../amenazas.md).
@@ -23,4 +24,4 @@ Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripció
 3. **Implementada**: cada RF tiene al menos un test que lo cubre y pasa en CI.
 4. **Sustituida**: una spec posterior la reemplaza; se mantiene por trazabilidad.
 
-Los cambios de alcance se hacen con una nueva spec (`SPEC-0006`, …), no editando una aprobada.
+Los cambios de alcance se hacen con una nueva spec (`SPEC-0007`, …), no editando una aprobada.

@@ -8,7 +8,7 @@ un motivo.
 1. **Busca el requisito.** Cada comportamiento viene de un `RF-xx` o `RNF-xx` en
    [`docs/specs/`](docs/specs/). Si tu cambio encaja en uno existente, cítalo en el PR y en el test.
 2. **Si cambia el alcance, primero la spec.** Un requisito nuevo o distinto se propone como una
-   spec nueva (`SPEC-0006-…`), no editando una aprobada. Se discute en el PR de la spec antes de
+   spec nueva (`SPEC-0007-…`), no editando una aprobada. Se discute en el PR de la spec antes de
    implementar nada. Así la conversación es sobre qué queremos, no sobre un código ya escrito.
 3. **Si cambia una decisión de arquitectura, un ADR nuevo** que sustituya al anterior.
 
