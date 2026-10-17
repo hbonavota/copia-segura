@@ -8,7 +8,7 @@ atraviesa un caso de uso el sistema.
 flowchart LR
   subgraph ui["ui/ (DOM, estado de la interfaz)"]
     Main["main.ts<br/>raíz de composición"]
-    Views["vistas: header, notice, dropzone + demo,<br/>page-strip, editor, settings,<br/>export-bar, camera-dialog, about"]
+    Views["vistas: header (pasos, contador), notice,<br/>dropzone + demo, editor, page-strip,<br/>settings, export-bar, camera-dialog, about"]
     Services["services.ts"]
     Store["store.ts"]
   end
@@ -36,16 +36,16 @@ flowchart LR
 
 Funciones puras y tipos. Sin imports externos a la carpeta, sin DOM, sin `Date.now()`.
 
-| Módulo          | Responsabilidad                                                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `types.ts`      | `Page`, `PageEdits`, `Rotation`, `NormalizedRect`, `WatermarkStyle`, `WatermarkText`, `OutputOptions`, `CopyPlan`.                         |
-| `geometry.ts`   | Normalizar rectángulos, girarlos con la página, intersectar con el recorte, escalar a píxeles, `fitScale`.                                 |
-| `presets.ts`    | Presets _Normal_ y _Suave_; `resolveStyle(preset, overrides)`; acotación de rangos.                                                        |
-| `watermark.ts`  | Composición del texto (`composeWatermarkText`) y cálculo del mosaico (`layoutWatermark`), que recibe una función `MeasureText` para medir. |
-| `plan.ts`       | `planCopy(...)`: combina todo lo anterior en un `CopyPlan` determinista.                                                                   |
-| `pdf-images.ts` | Reconstrucción de la matriz de transformación sobre la lista de operadores de un PDF para localizar imágenes incrustadas.                  |
-| `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                         |
-| `naming.ts`     | Nombres de archivo de salida.                                                                                                              |
+| Módulo          | Responsabilidad                                                                                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `types.ts`      | `Page`, `PageEdits`, `Rotation`, `NormalizedRect`, `WatermarkStyle`, `WatermarkText`, `OutputOptions`, `CopyPlan`.                                                               |
+| `geometry.ts`   | Normalizar rectángulos, girarlos con la página, moverlos y redimensionarlos sin salir del marco, intersectar con el recorte, escalar a píxeles, `fitScale`, bloque del pixelado. |
+| `presets.ts`    | Presets _Normal_ y _Suave_; `resolveStyle(preset, overrides)`; acotación de rangos.                                                                                              |
+| `watermark.ts`  | Composición del texto (`composeWatermarkText`) y cálculo del mosaico (`layoutWatermark`), que recibe una función `MeasureText` para medir.                                       |
+| `plan.ts`       | `planCopy(...)`: combina todo lo anterior en un `CopyPlan` determinista.                                                                                                         |
+| `pdf-images.ts` | Reconstrucción de la matriz de transformación sobre la lista de operadores de un PDF para localizar imágenes incrustadas.                                                        |
+| `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                                                               |
+| `naming.ts`     | Nombres de archivo de salida.                                                                                                                                                    |
 
 ### `src/application/`
 
@@ -70,9 +70,12 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 
 - `main.ts`: raíz de composición. Construye los adaptadores, los casos de uso y monta las vistas.
 - `store.ts`: estado inmutable con `get`, `update` y `select` (suscripción por selector), más las
-  acciones que lo transforman.
+  acciones que lo transforman y la conversión entre coordenadas de la vista previa y del marco de
+  página (`viewToPage` / `pageToView`). Tiene sus propios tests.
 - `services.ts`: orquesta casos de uso con el estado (ocupado, avisos traducidos).
 - `views/*.ts`: cada vista recibe el elemento raíz, el store y las dependencias que necesita.
+- `trust.ts`: contador de peticiones a otros dominios (RF-22), con _Resource Timing_. La
+  clasificación de URLs es pura y se prueba sin navegador.
 - `theme.ts`: tema claro / oscuro (RF-19). La decisión es una función pura (`toggledPreference`,
   probada sin navegador); aplicar y recordar, en funciones finas sobre el DOM. `public/theme.js`
   aplica la preferencia guardada antes del primer pintado.
@@ -96,6 +99,6 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 
 | Nivel        | Qué cubre                                                                                                                                                                                                                                             | Herramienta                  |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| Unitarias    | `domain` y `application` con puertos falsos, y la lógica pura del tema. Nombradas por requisito (`RF-07`).                                                                                                                                            | Vitest, entorno Node         |
+| Unitarias    | `domain` y `application` con puertos falsos; en `ui`, el store, el tema y el contador. Nombradas por requisito (`RF-07`).                                                                                                                             | Vitest, entorno Node         |
 | Arquitectura | Regla de dependencia entre capas.                                                                                                                                                                                                                     | Vitest (análisis de imports) |
 | E2E          | Flujo completo con el documento de ejemplo en Chromium, servido bajo `/copia-segura/` como en Pages: importar, tapar, exportar, portada, plantillas, B/N, móvil, **cero peticiones externas** y una petición a otro dominio **bloqueada por la CSP**. | Playwright                   |

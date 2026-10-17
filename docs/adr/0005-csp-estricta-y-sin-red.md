@@ -26,8 +26,10 @@ form-action 'none'`. GitHub Pages no permite cabeceras personalizadas, por eso v
 4. Ningún script en línea: la política no lleva `'unsafe-inline'`. Lo que debe ejecutarse antes de
    pintar (aplicar el tema guardado, RF-19) va en un archivo clásico del propio origen,
    `public/theme.js`.
-5. No hay _service worker_: no hay nada que precargar y evita cualquier duda sobre qué se cachea.
-6. El _worker_ de pdf.js, donde de verdad se analiza el PDF, se arranca desde un `blob:` creado por
+5. Las fuentes de la interfaz (Inter, RF-20) se empaquetan con el build y se sirven desde el propio
+   origen: `font-src 'self'` no cambia.
+6. No hay _service worker_: no hay nada que precargar y evita cualquier duda sobre qué se cachea.
+7. El _worker_ de pdf.js, donde de verdad se analiza el PDF, se arranca desde un `blob:` creado por
    la página y no desde una URL. Un worker cargado por URL recibe su política de las cabeceras de
    su propia respuesta (Pages no envía ninguna); uno `blob:` hereda la del documento. Así la CSP
    también rige dentro del worker.

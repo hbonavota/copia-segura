@@ -2,6 +2,28 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.3.0] · 2026-10-17
+
+Rediseño de la interfaz: SPEC-0007, SPEC-0008 y SPEC-0009.
+
+### Añadido
+
+- Sistema visual nuevo (RF-20): neutros fríos, un solo color de acción, verde para la confianza y
+  el rojo del sello solo para la marca; Inter alojada en el propio origen.
+- Contador en vivo de peticiones a otros dominios en la cabecera (RF-22).
+- Portada y editor de dos paneles con indicador de pasos _Subir → Ajustar → Descargar_ y transición
+  entre ambos (RF-24); descarga fija al pie del panel (RF-25).
+- Intensidad como control segmentado con muestra de la marca (RF-21).
+- Sugerencias de finalidad y hueco para el dorso (RF-26).
+- Zonas editables: seleccionar, mover, redimensionar y quitar, también con teclado (RF-27).
+- Tapado pixelado grueso como alternativa al negro, con aviso de cuándo no usarlo (RF-28).
+- Aviso específico para fotos HEIC que el navegador no abre (RF-29).
+- Preguntas frecuentes (RF-30).
+
+### Cambiado
+
+- Textos más cortos y directos; aviso de éxito al exportar (RF-23).
+
 ## [1.2.0] · 2026-10-17
 
 SPEC-0006: tema claro y oscuro.

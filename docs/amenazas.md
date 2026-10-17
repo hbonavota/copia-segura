@@ -14,6 +14,7 @@ de "seguridad" promete más de lo que cumple.
 | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | La copia entregada se reutiliza para otro trámite o se vende.                                        | Marca diagonal repetida con destinatario, finalidad y fecha que cruza foto, número y firma. Encarece la reutilización y deja constancia de a quién se entregó. | RF-07, e2e                                                       |
 | Datos que el trámite no necesita viajan igualmente (número de trámite, código de barras, dirección). | Zonas tapadas con negro opaco pintado sobre los píxeles.                                                                                                       | RF-06, e2e "en el archivo exportado el píxel original no existe" |
+| Texto pixelado que se recupera con técnicas de _depixelado_.                                         | Negro por defecto. El pixelado es opcional, de bloques grandes (la mitad del lado corto de la zona) y la interfaz desaconseja usarlo sobre números o texto.    | RF-28                                                            |
 | La foto lleva ubicación, modelo de móvil y fecha en EXIF.                                            | La salida se genera desde un lienzo nuevo: sin EXIF, XMP ni ICC.                                                                                               | RF-08, test sobre el archivo generado                            |
 | Una copia en alta resolución facilita falsificaciones físicas.                                       | Lado máximo 1200 px por defecto; nunca se amplía.                                                                                                              | RF-08                                                            |
 | La herramienta misma envía el documento a un servidor.                                               | Sin backend; CSP con `connect-src 'self'` (solo el propio origen, estático); sin dependencias externas; test e2e que registra todas las peticiones.            | ADR-0001, ADR-0005, RNF-01                                       |
@@ -46,6 +47,8 @@ de "seguridad" promete más de lo que cumple.
 
 ## Qué revisar si cambias algo
 
-- Añadir una dependencia: ¿carga algo en tiempo de ejecución? Debe empaquetarse (ADR-0005).
+- Añadir una dependencia: ¿carga algo en tiempo de ejecución? Debe empaquetarse (ADR-0005). Así se
+  sirve la fuente Inter: es un recurso más del build, del propio origen.
+- Mensajes de confianza: solo lo que se puede comprobar. Nada de "cifrado": no ciframos nada (RF-23).
 - Añadir persistencia: ¿contiene algo del documento? Entonces no (RNF-01).
 - Cambiar la marca por defecto: ¿sigue cruzando los campos sensibles en una tarjeta 86×54 mm? (RF-07)
