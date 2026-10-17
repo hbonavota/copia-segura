@@ -31,6 +31,7 @@ documento a un servidor ajeno, que es justo lo que quieres evitar.
 | **Edición**       | Tapar zonas dibujando con el ratón o el dedo, por franjas con botones o con plantillas de zonas típicas (DNI de España y de Argentina, frente y dorso); recortar, girar, deshacer.                                                                                                                         |
 | **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Normal_ y _Suave_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                                                        |
 | **Salida**        | JPG por página, ZIP, un PDF de varias páginas o el menú de compartir del móvil. Blanco y negro opcional. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                             |
+| **Interfaz**      | Español e inglés; tema claro u oscuro (sigue al del sistema o el que elijas, y lo recuerda).                                                                                                                                                                                                               |
 | **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un test e2e registra todas las peticiones de un flujo completo y falla si alguna sale del origen.                                     |
 
 Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y deja rastro, pero no
@@ -110,7 +111,7 @@ Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```
 docs/
-  specs/          SPEC-0001…0005: visión, requisitos, RNF, modelo de dominio, portada y diferencial
+  specs/          SPEC-0001…0006: visión, requisitos, RNF, modelo de dominio, portada y diferencial, tema
   adr/            decisiones de arquitectura
   arquitectura.md capas, puertos, flujo de un caso de uso
   amenazas.md     qué protege y qué no

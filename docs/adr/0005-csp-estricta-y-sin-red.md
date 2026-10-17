@@ -23,8 +23,11 @@ form-action 'none'`. GitHub Pages no permite cabeceras personalizadas, por eso v
    necesita su WebSocket de recarga en caliente.
 3. Un test e2e recorre el flujo completo registrando todas las peticiones y falla si alguna sale del
    origen de la página. Es la comprobación de verdad: la CSP es el cinturón; el test, los tirantes.
-4. No hay _service worker_: no hay nada que precargar y evita cualquier duda sobre qué se cachea.
-5. El _worker_ de pdf.js, donde de verdad se analiza el PDF, se arranca desde un `blob:` creado por
+4. Ningún script en línea: la política no lleva `'unsafe-inline'`. Lo que debe ejecutarse antes de
+   pintar (aplicar el tema guardado, RF-19) va en un archivo clásico del propio origen,
+   `public/theme.js`.
+5. No hay _service worker_: no hay nada que precargar y evita cualquier duda sobre qué se cachea.
+6. El _worker_ de pdf.js, donde de verdad se analiza el PDF, se arranca desde un `blob:` creado por
    la página y no desde una URL. Un worker cargado por URL recibe su política de las cabeceras de
    su propia respuesta (Pages no envía ninguna); uno `blob:` hereda la del documento. Así la CSP
    también rige dentro del worker.

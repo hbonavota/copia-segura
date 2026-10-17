@@ -2,6 +2,17 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.2.0] · 2026-10-17
+
+SPEC-0006: tema claro y oscuro.
+
+### Añadido
+
+- Interruptor de tema en la cabecera (RF-19): por defecto sigue al sistema; la elección se recuerda
+  y, si coincide con la del sistema, se vuelve a seguir al sistema. Accesible (`role="switch"`) y
+  sin parpadeo al recargar, con un script del propio origen que respeta la CSP.
+- Colores definidos una sola vez como pares claro / oscuro con `light-dark()`.
+
 ## [1.1.1] · 2026-10-17
 
 Revisión técnica del repositorio antes de enseñarlo.

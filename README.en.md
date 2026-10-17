@@ -31,6 +31,7 @@ else's server, which is exactly what you want to avoid.
 | **Editing**   | Redact areas by drawing with mouse or finger, by strips with buttons, or with templates of typical areas (Spanish and Argentine IDs, front and back); crop, rotate, undo.                                                                                                      |
 | **Watermark** | Editable text: `COPY ONLY VALID FOR <recipient> · <purpose> · <date>` (Spanish default in the Spanish UI). Two intensities (_Normal_ and _Subtle_) plus fine tuning of opacity, size, spacing, angle, colour and outline. The tiling covers the whole image, corners included. |
 | **Output**    | One JPG per page, a ZIP, a multi-page PDF, or the phone's share menu. Optional black and white. Configurable longest side (1200 px by default); no EXIF, XMP or colour profile from the original photo.                                                                        |
+| **Interface** | Spanish and English; light or dark theme (follows the system or your choice, and remembers it).                                                                                                                                                                                |
 | **Privacy**   | Everything happens in the browser. The page cannot make requests to other domains (enforced by its Content Security Policy) and stores the document nowhere. An end-to-end test records every request of a full flow and fails if any leaves the origin.                       |
 
 And what it does **not** do, stated in the interface itself: a watermark deters and leaves a trace,
@@ -111,7 +112,7 @@ messages are in English where the ecosystem expects it and Spanish where the dom
 
 ```
 docs/
-  specs/          SPEC-0001…0005: vision, requirements, NFRs, domain model, landing and differentiators
+  specs/          SPEC-0001…0006: vision, requirements, NFRs, domain model, landing and differentiators, theme
   adr/            architecture decision records
   arquitectura.md layers, ports, one use case end to end
   amenazas.md     threat model: what it protects and what it does not

@@ -73,8 +73,11 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
   acciones que lo transforman.
 - `services.ts`: orquesta casos de uso con el estado (ocupado, avisos traducidos).
 - `views/*.ts`: cada vista recibe el elemento raíz, el store y las dependencias que necesita.
+- `theme.ts`: tema claro / oscuro (RF-19). La decisión es una función pura (`toggledPreference`,
+  probada sin navegador); aplicar y recordar, en funciones finas sobre el DOM. `public/theme.js`
+  aplica la preferencia guardada antes del primer pintado.
 - `i18n/`: diccionarios `es` y `en`.
-- `styles.css`: tokens de diseño y estilos. Sin preprocesador.
+- `styles.css`: tokens de diseño (cada color, un par `light-dark()`) y estilos. Sin preprocesador.
 
 ## Un caso de uso de principio a fin: exportar un PDF
 
@@ -93,6 +96,6 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 
 | Nivel        | Qué cubre                                                                                                                                                                                                                                             | Herramienta                  |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| Unitarias    | `domain` y `application` con puertos falsos. Nombradas por requisito (`RF-07`).                                                                                                                                                                       | Vitest, entorno Node         |
+| Unitarias    | `domain` y `application` con puertos falsos, y la lógica pura del tema. Nombradas por requisito (`RF-07`).                                                                                                                                            | Vitest, entorno Node         |
 | Arquitectura | Regla de dependencia entre capas.                                                                                                                                                                                                                     | Vitest (análisis de imports) |
 | E2E          | Flujo completo con el documento de ejemplo en Chromium, servido bajo `/copia-segura/` como en Pages: importar, tapar, exportar, portada, plantillas, B/N, móvil, **cero peticiones externas** y una petición a otro dominio **bloqueada por la CSP**. | Playwright                   |
