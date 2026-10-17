@@ -2,43 +2,34 @@
    Papel de ficha y tinta de sello: la marca de agua roja es el único elemento que grita; el
    resto de la interfaz es un formulario sobrio. Solo fuentes del sistema (ADR-0005). */
 :root {
-  --paper: #f2f1ec;
-  --paper-2: #e9e8e2;
-  --surface: #fbfaf7;
-  --ink: #17202a;
-  --ink-2: #5b6470;
-  --line: #d3d1ca;
-  --line-strong: #a9a7a0;
-  --stamp: #b4231f;
-  --accent: #1f4e79;
-  --accent-ink: #ffffff;
-  --focus: #1f4e79;
-  --danger-bg: #fbe9e7;
-  --info-bg: #e8f0f7;
-  --shade: rgb(23 32 42 / 0.55);
+  /* Cada color es un par claro / oscuro; `color-scheme` decide cuál se usa (RF-19). */
+  --paper: light-dark(#f2f1ec, #16181b);
+  --paper-2: light-dark(#e9e8e2, #1f2226);
+  --surface: light-dark(#fbfaf7, #202327);
+  --ink: light-dark(#17202a, #ebe9e3);
+  --ink-2: light-dark(#5b6470, #a6a9ae);
+  --line: light-dark(#d3d1ca, #33373d);
+  --line-strong: light-dark(#a9a7a0, #4b5057);
+  --stamp: light-dark(#b4231f, #e5534b);
+  --accent: light-dark(#1f4e79, #7fb2e5);
+  --accent-ink: light-dark(#ffffff, #0f1a26);
+  --focus: light-dark(#1f4e79, #7fb2e5);
+  --danger-bg: light-dark(#fbe9e7, #3a1f1d);
+  --info-bg: light-dark(#e8f0f7, #1d2a38);
+  --shade: light-dark(rgb(23 32 42 / 0.55), rgb(0 0 0 / 0.6));
   --radius: 4px;
   --font:
     system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* Sin preferencia, el del sistema; con el interruptor, el elegido. */
   color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #16181b;
-    --paper-2: #1f2226;
-    --surface: #202327;
-    --ink: #ebe9e3;
-    --ink-2: #a6a9ae;
-    --line: #33373d;
-    --line-strong: #4b5057;
-    --stamp: #e5534b;
-    --accent: #7fb2e5;
-    --accent-ink: #0f1a26;
-    --focus: #7fb2e5;
-    --danger-bg: #3a1f1d;
-    --info-bg: #1d2a38;
-    --shade: rgb(0 0 0 / 0.6);
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 /* ---------------------------------------------------------------------------- base */
@@ -221,6 +212,55 @@ a {
 
 .lang[aria-pressed='true'] {
   background: var(--ink);
+  color: var(--paper);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Interruptor de tema: sol a la izquierda, luna a la derecha y la bola sobre el activo. */
+.theme-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 58px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.theme-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.theme-switch[aria-checked='true']::before {
+  transform: translateX(26px);
+}
+
+.theme-switch svg {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.theme-switch[aria-checked='false'] svg:first-child,
+.theme-switch[aria-checked='true'] svg:last-child {
   color: var(--paper);
 }
 
@@ -826,6 +866,9 @@ input[type='color'] {
     transition:
       border-color 120ms ease,
       background-color 120ms ease;
+  }
+  .theme-switch::before {
+    transition: transform 160ms ease;
   }
 }
 

@@ -80,6 +80,8 @@ export const ICONS = {
   shield: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z',
   download: 'M12 4v12m0 0 5-5m-5 5-5-5M4 20h16',
   share: 'M12 15V3m0 0L7 8m5-5 5 5M5 12v8h14v-8',
+  sun: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z',
 } as const;
 
 /** Descarga un valor de `<input type="range">` o `number` como número finito. */

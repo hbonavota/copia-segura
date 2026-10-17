@@ -5,6 +5,7 @@ export const en: Record<MessageKey, string> = {
   'app.tagline': 'Prepare a limited copy of your ID document without it ever leaving your browser.',
   'app.local': 'Everything happens in your browser. Your document is never sent anywhere.',
   'app.language': 'Language',
+  'app.theme.dark': 'Dark mode',
 
   'drop.title': 'Drop your ID here',
   'drop.hint': 'A PDF, or one or more photos (JPG, PNG, WebP).',

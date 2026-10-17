@@ -3,6 +3,7 @@ export const es = {
   'app.tagline': 'Prepara una copia limitada de tu documento sin que salga de tu navegador.',
   'app.local': 'Todo ocurre en tu navegador. Tu documento no se envía a ningún sitio.',
   'app.language': 'Idioma',
+  'app.theme.dark': 'Modo oscuro',
 
   'drop.title': 'Arrastra aquí tu DNI',
   'drop.hint': 'Un PDF, o una o varias fotos (JPG, PNG, WebP).',

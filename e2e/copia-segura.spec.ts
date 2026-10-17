@@ -1,4 +1,4 @@
-import { expect, test, type Download } from '@playwright/test';
+import { expect, test, type Download, type Page } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
 import {
   afterRender,
@@ -185,6 +185,45 @@ test.describe('RF-12 · idioma', () => {
     await expect(page.locator('.dropzone h2')).toHaveText('Drop your ID here');
     // El texto inicial de la marca sigue al idioma con el que arranca la sesión.
     await expect(page.getByTestId('text-freeText')).toHaveValue('COPY ONLY VALID FOR');
+  });
+});
+
+test.describe('RF-19 · tema claro y oscuro', () => {
+  const background = (page: Page) =>
+    page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
+
+  test('sin elegir nada sigue el tema del sistema', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('./');
+    const toggle = page.getByRole('switch', { name: 'Modo oscuro' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(await background(page)).toBe('rgb(22, 24, 27)');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(await background(page)).toBe('rgb(242, 241, 236)');
+  });
+
+  test('el interruptor cambia el tema, lo recuerda y vuelve a seguir al sistema', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('./');
+    const toggle = page.getByRole('switch', { name: 'Modo oscuro' });
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(await background(page)).toBe('rgb(22, 24, 27)');
+
+    // Se aplica antes de que arranque la aplicación (public/theme.js), así que no parpadea.
+    await page.reload({ waitUntil: 'commit' });
+    await page.waitForSelector('html[data-theme="dark"]', { state: 'attached' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+
+    // Volver al tema del sistema borra la preferencia: si el sistema cambia, la página lo sigue.
+    await toggle.click();
+    await expect(page.locator('html')).not.toHaveAttribute('data-theme');
+    expect(await page.evaluate(() => localStorage.getItem('copia-segura.theme'))).toBeNull();
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
   });
 });
 

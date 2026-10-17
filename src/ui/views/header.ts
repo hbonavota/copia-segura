@@ -2,13 +2,21 @@ import type { View } from '../context';
 import type { Locale } from '../i18n';
 import { ICONS, h, icon, replaceChildren } from '../dom';
 import { actions } from '../store';
+import {
+  applyTheme,
+  effectiveTheme,
+  onSystemThemeChange,
+  savedTheme,
+  systemPrefersDark,
+  toggledPreference,
+} from '../theme';
 
 const LOCALES: readonly { code: Locale; label: string }[] = [
   { code: 'es', label: 'ES' },
   { code: 'en', label: 'EN' },
 ];
 
-/** Cabecera: el nombre como un sello, la frase que explica la herramienta y el idioma. */
+/** Cabecera: el nombre como un sello, la frase que explica la herramienta, el idioma y el tema. */
 export const header: View = (root, { store, t }) => {
   const languageButtons = LOCALES.map(({ code, label }) =>
     h(
@@ -22,6 +30,30 @@ export const header: View = (root, { store, t }) => {
       label,
     ),
   );
+
+  // Interruptor de tema (RF-19): `role="switch"` encendido = modo oscuro.
+  const themeSwitch = h(
+    'button',
+    {
+      type: 'button',
+      class: 'theme-switch',
+      dataset: { testid: 'theme-switch' },
+      attrs: { role: 'switch', 'aria-label': t('app.theme.dark'), title: t('app.theme.dark') },
+      on: {
+        click: () => {
+          applyTheme(toggledPreference(savedTheme(), systemPrefersDark()));
+          syncTheme();
+        },
+      },
+    },
+    icon(ICONS.sun),
+    icon(ICONS.moon),
+  );
+  const syncTheme = (): void => {
+    const dark = effectiveTheme(savedTheme(), systemPrefersDark()) === 'dark';
+    themeSwitch.setAttribute('aria-checked', String(dark));
+  };
+  syncTheme();
 
   replaceChildren(
     root,
@@ -37,13 +69,19 @@ export const header: View = (root, { store, t }) => {
       ),
     ),
     h(
-      'nav',
-      { class: 'lang-switch', attrs: { 'aria-label': t('app.language') } },
-      ...languageButtons,
+      'div',
+      { class: 'header-controls' },
+      h(
+        'nav',
+        { class: 'lang-switch', attrs: { 'aria-label': t('app.language') } },
+        ...languageButtons,
+      ),
+      themeSwitch,
     ),
   );
 
-  return store.select(
+  const stopWatchingSystem = onSystemThemeChange(syncTheme);
+  const unsubscribe = store.select(
     (s) => s.locale,
     (locale) => {
       languageButtons.forEach((b, i) =>
@@ -51,4 +89,8 @@ export const header: View = (root, { store, t }) => {
       );
     },
   );
+  return () => {
+    stopWatchingSystem();
+    unsubscribe();
+  };
 };
