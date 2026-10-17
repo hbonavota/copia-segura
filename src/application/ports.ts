@@ -58,6 +58,16 @@ export interface Downloader {
   download(blob: Blob, fileName: string): void;
 }
 
+/** Menú nativo de compartir del sistema (RF-18). */
+export interface Sharer {
+  /** `true` si el navegador puede compartir archivos de imagen. */
+  available(): boolean;
+  /** Abre el menú de compartir. `cancelled` si el usuario lo cierra sin elegir destino. */
+  share(
+    files: readonly { readonly name: string; readonly blob: Blob }[],
+  ): Promise<'shared' | 'cancelled'>;
+}
+
 export interface CameraSession {
   /** Flujo de vídeo para la vista previa (la interfaz lo muestra en espejo). */
   readonly stream: MediaStream;

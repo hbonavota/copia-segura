@@ -1,8 +1,9 @@
 import { outputFileName, type Page, type PageEdits } from '../../domain';
-import type { Archiver, Bitmap, Downloader, PdfWriter } from '../ports';
+import type { Archiver, Bitmap, Downloader, PdfWriter, Sharer } from '../ports';
 import type { RenderPage, RenderSettings } from './render-page';
 
-export type ExportFormat = 'jpg' | 'zip' | 'pdf';
+/** `share` entrega los JPG al menú de compartir del sistema en vez de descargarlos (RF-18). */
+export type ExportFormat = 'jpg' | 'zip' | 'pdf' | 'share';
 
 export interface ExportItem {
   readonly page: Page;
@@ -53,8 +54,14 @@ export class ExportCopies {
       readonly pdfWriter: PdfWriter;
       readonly archiver: Archiver;
       readonly downloader: Downloader;
+      readonly sharer?: Sharer;
     },
   ) {}
+
+  /** ¿Se puede ofrecer "Compartir"? */
+  canShare(): boolean {
+    return this.deps.sharer?.available() ?? false;
+  }
 
   async run(input: ExportInput): Promise<ExportSummary> {
     if (input.items.length === 0) return { files: [] };
@@ -66,6 +73,8 @@ export class ExportCopies {
         return this.deliverZip(rendered, collectionName(input.items));
       case 'pdf':
         return this.deliverPdf(rendered, collectionName(input.items));
+      case 'share':
+        return this.deliverShare(rendered);
     }
   }
 
@@ -123,6 +132,18 @@ export class ExportCopies {
     const name = outputFileName(collection, null, 'zip');
     this.deps.downloader.download(zip, name);
     return { files: [name] };
+  }
+
+  private async deliverShare(rendered: { page: Page; jpeg: Blob }[]): Promise<ExportSummary> {
+    const sharer = this.deps.sharer;
+    if (!sharer?.available()) throw new Error('Este navegador no permite compartir archivos.');
+    const names = this.jpegNames(rendered);
+    const files = rendered.map(({ jpeg }, i) => ({
+      name: names[i] ?? `pagina-${i + 1}.jpg`,
+      blob: jpeg,
+    }));
+    const outcome = await sharer.share(files);
+    return { files: outcome === 'shared' ? names : [] };
   }
 
   private async deliverPdf(

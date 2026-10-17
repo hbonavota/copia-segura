@@ -17,6 +17,7 @@ import {
   FakeDownloader,
   FakePdfWriter,
   FakeRasterizer,
+  FakeSharer,
   decoded,
   fakeBitmap,
   fakeMeasurer,
@@ -189,5 +190,43 @@ describe('RF-03 · CaptureFromCamera', () => {
   it('propaga el error de permiso denegado para que la interfaz lo explique', async () => {
     const useCase = new CaptureFromCamera({ camera: new FakeCamera(new CameraError('denied')) });
     await expect(useCase.start()).rejects.toMatchObject({ code: 'denied' });
+  });
+});
+
+describe('RF-18 · compartir', () => {
+  const items: ExportItem[] = [
+    { page: page('1', 'p1'), bitmap: fakeBitmap({ width: 3000, height: 1900 }), edits: noEdits },
+  ];
+  const useCaseWith = (sharer?: FakeSharer) =>
+    new ExportCopies({
+      renderPage: renderPage(),
+      pdfWriter: new FakePdfWriter(),
+      archiver: new FakeArchiver(),
+      downloader: new FakeDownloader(),
+      ...(sharer ? { sharer } : {}),
+    });
+
+  it('entrega los JPG al menú de compartir con sus nombres', async () => {
+    const sharer = new FakeSharer();
+    const summary = await useCaseWith(sharer).run({ items, format: 'share', ...settings });
+    expect(sharer.shared.map((f) => f.name)).toEqual(['dni-p1-copia-segura.jpg']);
+    expect(summary.files).toEqual(['dni-p1-copia-segura.jpg']);
+  });
+
+  it('cancelar el menú no es un error: no se entrega nada', async () => {
+    const summary = await useCaseWith(new FakeSharer(true, 'cancelled')).run({
+      items,
+      format: 'share',
+      ...settings,
+    });
+    expect(summary.files).toEqual([]);
+  });
+
+  it('sin soporte del navegador no se ofrece y, si se fuerza, falla con un motivo', async () => {
+    expect(useCaseWith().canShare()).toBe(false);
+    expect(useCaseWith(new FakeSharer()).canShare()).toBe(true);
+    await expect(
+      useCaseWith(new FakeSharer(false)).run({ items, format: 'share', ...settings }),
+    ).rejects.toThrow('compartir');
   });
 });

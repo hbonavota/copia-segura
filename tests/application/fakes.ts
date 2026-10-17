@@ -14,6 +14,7 @@ import type {
   PdfWriter,
   Raster,
   Rasterizer,
+  Sharer,
   TextMeasurer,
 } from '../../src/application';
 
@@ -125,5 +126,20 @@ export class FakeCamera implements Camera {
     return this.session instanceof Error
       ? Promise.reject(this.session)
       : Promise.resolve(this.session);
+  }
+}
+
+export class FakeSharer implements Sharer {
+  shared: { name: string; blob: Blob }[] = [];
+  constructor(
+    private readonly isAvailable = true,
+    private readonly outcome: 'shared' | 'cancelled' = 'shared',
+  ) {}
+  available(): boolean {
+    return this.isAvailable;
+  }
+  share(files: readonly { name: string; blob: Blob }[]): Promise<'shared' | 'cancelled'> {
+    this.shared = [...files];
+    return Promise.resolve(this.outcome);
   }
 }
