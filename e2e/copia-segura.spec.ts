@@ -178,11 +178,11 @@ test.describe('RNF-01 · privacidad', () => {
 test.describe('RF-12 · idioma', () => {
   test('cambia a inglés y lo recuerda al recargar', async ({ page }) => {
     await page.goto('./');
-    await expect(page.locator('.dropzone h2')).toHaveText('Suelta tu DNI aquí');
+    await expect(page.locator('.dropzone h2')).toHaveText('Suelta tu documento aquí');
     await page.getByRole('button', { name: 'EN', exact: true }).click();
-    await expect(page.locator('.dropzone h2')).toHaveText('Drop your ID here');
+    await expect(page.locator('.dropzone h2')).toHaveText('Drop your document here');
     await page.reload();
-    await expect(page.locator('.dropzone h2')).toHaveText('Drop your ID here');
+    await expect(page.locator('.dropzone h2')).toHaveText('Drop your document here');
     // El texto inicial de la marca sigue al idioma con el que arranca la sesión.
     await expect(page.getByTestId('text-freeText')).toHaveValue('COPY ONLY VALID FOR');
   });
@@ -513,5 +513,92 @@ test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
     await expect(faq.locator('details')).toHaveCount(9);
     await faq.locator('summary').first().click();
     await expect(faq.locator('details').first()).toHaveAttribute('open', '');
+  });
+});
+
+test.describe('SPEC-0010 · cualquier documento', () => {
+  /** PNG generado en el navegador: una "nómina" blanca con un logo de color. */
+  async function pngOf(page: Page, width: number, height: number): Promise<Buffer> {
+    const dataUrl = await page.evaluate(
+      ([w, hgt]) => {
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = hgt;
+        const ctx = c.getContext('2d');
+        if (!ctx) throw new Error('sin canvas');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, hgt);
+        ctx.fillStyle = '#2a6f97';
+        ctx.fillRect(w * 0.08, hgt * 0.05, w * 0.3, hgt * 0.1);
+        return c.toDataURL('image/png');
+      },
+      [width, height] as const,
+    );
+    return Buffer.from(dataUrl.split(',')[1] ?? '', 'base64');
+  }
+
+  test('RF-31 · la portada dice qué documentos acepta, no solo el DNI', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByTestId('kinds').locator('li')).toHaveText([
+      'DNI',
+      'Pasaporte',
+      'Nómina',
+      'Contrato',
+      'Factura',
+      'Cualquier PDF o imagen',
+    ]);
+    await expect(page.locator('.dropzone h2')).toHaveText('Suelta tu documento aquí');
+  });
+
+  test('RF-32 · una imagen cualquiera recibe la marca y sale con su nombre', async ({ page }) => {
+    await page.goto('./');
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'nomina-octubre.png',
+      mimeType: 'image/png',
+      buffer: await pngOf(page, 900, 1270),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 45_000 });
+    await expect(page.locator('.page-item')).toHaveCount(1);
+    // La marca cruza la página en blanco: alguna fila tiene píxeles rojizos.
+    const marked = await page.evaluate(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('canvas.preview');
+      const ctx = canvas?.getContext('2d');
+      if (!canvas || !ctx) return false;
+      const px = ctx.getImageData(0, Math.floor(canvas.height * 0.6), canvas.width, 1).data;
+      for (let i = 0; i < px.length; i += 4) {
+        if ((px[i] ?? 0) - (px[i + 2] ?? 0) > 40) return true;
+      }
+      return false;
+    });
+    expect(marked).toBe(true);
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('export-jpg').click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/^nomina-octubre-.*copia-segura\.jpg$/);
+  });
+
+  test('RF-32 · un PDF de texto con logo no se recorta al logo', async ({ page }) => {
+    await page.goto('./');
+    const pdf = await PDFDocument.create();
+    const sheet = pdf.addPage([595, 842]);
+    const logo = await pdf.embedPng(await pngOf(page, 300, 120));
+    sheet.drawImage(logo, { x: 50, y: 690, width: 220, height: 110 });
+    const lines = [
+      'NOMINA DE EJEMPLO - EMPRESA FICTICIA S.L.',
+      'Trabajador: Persona Ficticia - Periodo: octubre',
+      'Salario base, complementos, retenciones y liquido a percibir.',
+      'Documento de prueba generado por el test e2e de copia segura.',
+    ];
+    lines.forEach((line, i) => sheet.drawText(line, { x: 50, y: 620 - i * 24, size: 12 }));
+    await page.locator('.dropzone input[type="file"]').setInputFiles({
+      name: 'nomina.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await pdf.save()),
+    });
+    await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 45_000 });
+    // Página A4 entera (vertical), sin el aviso de recorte automático.
+    await expect(page.getByTestId('meta')).toHaveText(/8\d\d × 1200 px/);
+    await expect(page.locator('.notice')).not.toContainText('recortado automáticamente');
   });
 });

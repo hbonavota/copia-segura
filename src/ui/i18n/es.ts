@@ -1,12 +1,12 @@
 export const es = {
   'app.title': 'copia segura',
-  'app.tagline': 'Tu DNI, solo para quien tú decidas.',
+  'app.tagline': 'Tus documentos, solo para quien tú decidas.',
   'app.local': 'Todo ocurre en tu navegador. Tu documento no se envía a ningún sitio.',
   'app.language': 'Idioma',
   'app.theme.dark': 'Modo oscuro',
 
-  'drop.title': 'Suelta tu DNI aquí',
-  'drop.hint': 'PDF o fotos (JPG, PNG, WebP). Frente y dorso a la vez, si quieres.',
+  'drop.title': 'Suelta tu documento aquí',
+  'drop.hint': 'PDF de una o varias páginas, o fotos (JPG, PNG, WebP).',
   'drop.choose': 'Elegir archivos',
   'drop.camera': 'Usar la cámara',
   'drop.example': 'Ver cómo funciona con un DNI de prueba',
@@ -119,7 +119,7 @@ export const es = {
 
   'demo.recipient': 'EMPRESA EJEMPLO',
   'demo.purpose': 'alta de un servicio',
-  'demo.title': 'Así queda una copia, paso a paso (documento ficticio)',
+  'demo.title': 'Así queda una copia, paso a paso (DNI ficticio)',
   'demo.alt': 'Tarjeta ficticia procesada por copia segura',
   'demo.tab.original': 'Original',
   'demo.tab.masked': 'Tapado',
@@ -166,9 +166,9 @@ export const es = {
   'distinct.2.title': 'Verificable, no prometido',
   'distinct.2.text':
     'La política de seguridad lo impone y un test lo comprueba en cada cambio. El código es público.',
-  'distinct.3.title': 'PDF y varias páginas',
+  'distinct.3.title': 'Cualquier documento',
   'distinct.3.text':
-    'Abre el PDF del escáner o del móvil, recorta solo la tarjeta y exporta frente y dorso juntos en PDF o ZIP.',
+    'DNI, pasaporte, nómina, contrato o cualquier PDF o imagen. Abre el PDF del escáner o del móvil, de una o de muchas páginas, y exporta todo junto en PDF o ZIP.',
   'distinct.4.title': 'Sin metadatos y con resolución justa',
   'distinct.4.text':
     'Elimina la ubicación, el modelo del móvil y la fecha de la foto, y limita el tamaño para que sirva para leer, no para falsificar.',
@@ -182,9 +182,9 @@ export const es = {
   'notice.close': 'Cerrar aviso',
   'footer.source': 'Código fuente',
   'footer.docs': 'Cómo está hecho',
-  'hero.title': 'Tu DNI, solo para quien tú decidas.',
+  'hero.title': 'Tus documentos, solo para quien tú decidas.',
   'hero.sub':
-    'Marca, tapa y descarga una copia limitada de tu documento. Sin subir nada: todo ocurre en este dispositivo.',
+    'DNI, pasaporte, nóminas, contratos o cualquier PDF o imagen: márcalo, tapa lo que sobra y descarga una copia limitada. Sin subir nada: todo ocurre en este dispositivo.',
   'trust.local': 'Se procesa en este dispositivo',
   'trust.noTracking': 'Sin analítica ni cookies',
   'trust.open': 'Código abierto',
@@ -220,7 +220,7 @@ export const es = {
   'import.error.heic':
     '{file}: este navegador no abre fotos HEIC del iPhone. Ábrela en Safari, compártela como JPG o pon la cámara en «Más compatible» (Ajustes › Cámara › Formatos).',
   'faq.title': 'Preguntas frecuentes',
-  'faq.1.q': '¿Se sube mi DNI a algún servidor?',
+  'faq.1.q': '¿Se sube mi documento a algún servidor?',
   'faq.1.a':
     'No. El documento se abre y se procesa en tu navegador: la página no tiene un servidor al que enviarlo y su política de seguridad le impide pedir datos a otros dominios. «Compruébalo tú» explica cómo verificarlo con las herramientas del propio navegador.',
   'faq.2.q': '¿Qué texto pongo en la marca?',
@@ -250,6 +250,13 @@ export const es = {
   'mask.selected': 'seleccionada',
   'steps.done': 'completado',
   'export.as': 'Descargar {format}',
+  'hero.kinds': 'Sirve para',
+  'kind.1': 'DNI',
+  'kind.2': 'Pasaporte',
+  'kind.3': 'Nómina',
+  'kind.4': 'Contrato',
+  'kind.5': 'Factura',
+  'kind.6': 'Cualquier PDF o imagen',
 } as const;
 
 export type MessageKey = keyof typeof es;

@@ -22,7 +22,7 @@ export function filePicker(onFiles: (files: File[]) => void): HTMLInputElement {
 }
 
 /**
- * Portada (RF-24): titular, zona de carga con las señales de confianza (RF-23) y la demo (RF-14).
+ * Portada (RF-24): titular con los tipos de documento que acepta (RF-31), zona de carga con las señales de confianza (RF-23) y la demo (RF-14).
  * Ocupa el sitio del editor hasta que hay una página.
  */
 export const dropzone: View = (root, ctx) => {
@@ -36,6 +36,12 @@ export const dropzone: View = (root, ctx) => {
       { class: 'hero' },
       h('p', { class: 'hero-title' }, t('hero.title')),
       h('p', { class: 'hero-sub' }, t('hero.sub')),
+      // Lo que acepta (RF-31): informativo, no cambia el procesado.
+      h(
+        'ul',
+        { class: 'kinds', dataset: { testid: 'kinds' }, attrs: { 'aria-label': t('hero.kinds') } },
+        ...(['1', '2', '3', '4', '5', '6'] as const).map((n) => h('li', {}, t(`kind.${n}`))),
+      ),
     ),
     h(
       'div',

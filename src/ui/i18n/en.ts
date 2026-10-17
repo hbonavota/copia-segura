@@ -2,13 +2,13 @@ import type { MessageKey } from './es';
 
 export const en: Record<MessageKey, string> = {
   'app.title': 'copia segura',
-  'app.tagline': 'Your ID, only for whoever you choose.',
+  'app.tagline': 'Your documents, only for whoever you choose.',
   'app.local': 'Everything happens in your browser. Your document is never sent anywhere.',
   'app.language': 'Language',
   'app.theme.dark': 'Dark mode',
 
-  'drop.title': 'Drop your ID here',
-  'drop.hint': 'PDF or photos (JPG, PNG, WebP). Front and back together, if you like.',
+  'drop.title': 'Drop your document here',
+  'drop.hint': 'Single or multi-page PDF, or photos (JPG, PNG, WebP).',
   'drop.choose': 'Choose files',
   'drop.camera': 'Use the camera',
   'drop.example': 'See how it works with a sample ID',
@@ -121,7 +121,7 @@ export const en: Record<MessageKey, string> = {
 
   'demo.recipient': 'EXAMPLE CO.',
   'demo.purpose': 'account opening',
-  'demo.title': 'What a copy looks like, step by step (fictional document)',
+  'demo.title': 'What a copy looks like, step by step (fictional ID)',
   'demo.alt': 'Fictional card processed by copia segura',
   'demo.tab.original': 'Original',
   'demo.tab.masked': 'Redacted',
@@ -167,9 +167,9 @@ export const en: Record<MessageKey, string> = {
   'distinct.2.title': 'Verifiable, not promised',
   'distinct.2.text':
     'The security policy enforces it and a test checks it on every change. The code is public.',
-  'distinct.3.title': 'PDFs and multiple pages',
+  'distinct.3.title': 'Any document',
   'distinct.3.text':
-    'Open the PDF from your scanner or phone, crop just the card, and export front and back together as PDF or ZIP.',
+    'ID card, passport, payslip, contract or any PDF or image. Open the PDF from your scanner or phone, single or multi-page, and export it all together as PDF or ZIP.',
   'distinct.4.title': 'No metadata, just enough resolution',
   'distinct.4.text':
     'Removes location, phone model and date from the photo, and caps the size so it is good for reading, not for forging.',
@@ -183,9 +183,9 @@ export const en: Record<MessageKey, string> = {
   'notice.close': 'Dismiss',
   'footer.source': 'Source code',
   'footer.docs': 'How it is built',
-  'hero.title': 'Your ID, only for whoever you choose.',
+  'hero.title': 'Your documents, only for whoever you choose.',
   'hero.sub':
-    'Watermark, redact and download a limited copy of your ID. Nothing is uploaded: it all happens on this device.',
+    "ID card, passport, payslips, contracts or any PDF or image: watermark it, cover what isn't needed and download a limited copy. Nothing is uploaded: it all happens on this device.",
   'trust.local': 'Processed on this device',
   'trust.noTracking': 'No analytics, no cookies',
   'trust.open': 'Open source',
@@ -221,7 +221,7 @@ export const en: Record<MessageKey, string> = {
   'import.error.heic':
     '{file}: this browser can\'t open iPhone HEIC photos. Open it in Safari, share it as JPG, or set the camera to "Most Compatible" (Settings › Camera › Formats).',
   'faq.title': 'Frequently asked questions',
-  'faq.1.q': 'Is my ID uploaded to a server?',
+  'faq.1.q': 'Is my document uploaded to a server?',
   'faq.1.a':
     'No. The document is opened and processed in your browser: the page has no server to send it to, and its security policy stops it from requesting data from other domains. "Check it yourself" explains how to verify this with the browser\'s own tools.',
   'faq.2.q': 'What text should the watermark say?',
@@ -251,4 +251,11 @@ export const en: Record<MessageKey, string> = {
   'mask.selected': 'selected',
   'steps.done': 'done',
   'export.as': 'Download {format}',
+  'hero.kinds': 'Works with',
+  'kind.1': 'ID card',
+  'kind.2': 'Passport',
+  'kind.3': 'Payslip',
+  'kind.4': 'Contract',
+  'kind.5': 'Invoice',
+  'kind.6': 'Any PDF or image',
 };
