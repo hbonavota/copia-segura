@@ -2,6 +2,20 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.4.0] · 2026-10-17
+
+SPEC-0010: cualquier documento, no solo el DNI.
+
+### Añadido
+
+- La portada dice qué acepta: DNI, pasaporte, nómina, contrato, factura o cualquier PDF o imagen
+  (RF-31). Titular, carga, descripción y README hablan de "documentos".
+
+### Corregido
+
+- El recorte automático de PDF ya no actúa en páginas con texto propio: una nómina o un contrato
+  con un logo grande se recortaba al logo (RF-32).
+
 ## [1.3.0] · 2026-10-17
 
 Rediseño de la interfaz: SPEC-0007, SPEC-0008 y SPEC-0009.

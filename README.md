@@ -4,7 +4,7 @@
 [![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
 
-**Prepara una copia limitada de tu DNI sin que salga de tu navegador.** Marca de agua con
+**Prepara una copia limitada de tu DNI, o de cualquier documento, sin que salga de tu navegador.** Marca de agua con
 destinatario, finalidad y fecha; zonas tapadas; resolución reducida; sin metadatos. Sin servidor,
 sin cuenta, sin instalar nada.
 
@@ -14,9 +14,9 @@ sin cuenta, sin instalar nada.
 
 ## Por qué
 
-Cada vez que una empresa pide "una foto del DNI" (cambio de titularidad, alta, verificación,
-alquiler…) entregas una copia íntegra y reutilizable de tu identidad, con los metadatos de la foto
-incluidos. Si esa copia se filtra, no hay forma de demostrar a quién la diste ni para qué.
+Cada vez que una empresa pide "una foto del DNI", una nómina o un contrato (cambio de titularidad,
+alta, verificación, alquiler…) entregas una copia íntegra y reutilizable de tus datos, con los
+metadatos de la foto incluidos. Si esa copia se filtra, no hay forma de demostrar a quién la diste ni para qué.
 
 Las agencias de protección de datos recomiendan entregar **copias limitadas**: con una marca que
 diga a quién, para qué y cuándo; con los datos que el trámite no necesita tapados; y con la
@@ -25,14 +25,14 @@ documento a un servidor ajeno, que es justo lo que quieres evitar.
 
 ## Qué hace
 
-|                   |                                                                                                                                                                                                                                                                                                                                                                          |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Entrada**       | Un PDF (cada página es editable; si la página es un A4 con la foto del documento dentro, se recorta sola), fotos JPG/PNG/WebP, o una captura con la cámara para la foto sosteniendo el documento (sin espejo). La portada enseña el resultado, paso a paso, con un documento ficticio antes de subir nada.                                                               |
-| **Edición**       | Tapar zonas dibujando con el ratón o el dedo, por franjas con botones o con plantillas de zonas típicas (DNI de España y de Argentina, frente y dorso); moverlas y redimensionarlas, también con teclado; en negro o pixelado grueso; recortar, girar, deshacer.                                                                                                         |
-| **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Visible_ y _Discreta_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                                                                                                                  |
-| **Salida**        | JPG por página, ZIP, un PDF de varias páginas o el menú de compartir del móvil. Blanco y negro opcional. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                                                                                           |
-| **Interfaz**      | Español e inglés; tema claro u oscuro (sigue al del sistema o el que elijas, y lo recuerda).                                                                                                                                                                                                                                                                             |
-| **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un contador en la cabecera muestra en vivo los recursos de otros dominios que registra el navegador (cero) y un test e2e registra todas las de un flujo completo y falla si alguna sale del origen. |
+|                   |                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entrada**       | Cualquier documento: DNI, pasaporte, nómina, contrato, factura… Un PDF (cada página es editable; si la página es un A4 con la foto del documento dentro, se recorta sola; si tiene texto propio, como una nómina, se deja entera), fotos JPG/PNG/WebP, o una captura con la cámara para la foto sosteniendo el documento (sin espejo). La portada enseña el resultado, paso a paso, con un documento ficticio antes de subir nada. |
+| **Edición**       | Tapar zonas dibujando con el ratón o el dedo, por franjas con botones o con plantillas de zonas típicas (DNI de España y de Argentina, frente y dorso); moverlas y redimensionarlas, también con teclado; en negro o pixelado grueso; recortar, girar, deshacer.                                                                                                                                                                   |
+| **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Visible_ y _Discreta_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                                                                                                                                                                            |
+| **Salida**        | JPG por página, ZIP, un PDF de varias páginas o el menú de compartir del móvil. Blanco y negro opcional. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                                                                                                                                                     |
+| **Interfaz**      | Español e inglés; tema claro u oscuro (sigue al del sistema o el que elijas, y lo recuerda).                                                                                                                                                                                                                                                                                                                                       |
+| **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un contador en la cabecera muestra en vivo los recursos de otros dominios que registra el navegador (cero) y un test e2e registra todas las de un flujo completo y falla si alguna sale del origen.                                                           |
 
 Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y deja rastro, pero no
 impide que alguien use la copia, y se puede intentar borrar con herramientas de _inpainting_. Los
@@ -49,7 +49,7 @@ hace falta creérselo:
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Sin terceros**                     | Ni analítica, ni fuentes de Google, ni CDN. La página solo habla con el servidor que la aloja (GitHub Pages), y solo para cargarse; el documento nunca sale del navegador.                                        |
 | **Verificable, no prometido**        | Una _Content Security Policy_ impide a la página pedir datos o cargar recursos de otros dominios (también dentro del worker que analiza el PDF), y un test e2e lo comprueba en cada cambio. El código es público. |
-| **PDF y varias páginas**             | Abre el PDF del escáner o del móvil, recorta sola la tarjeta que hay dentro y exporta frente y dorso juntos en PDF o ZIP.                                                                                         |
+| **Cualquier documento**              | DNI, pasaporte, nómina, contrato o cualquier PDF o imagen, de una o muchas páginas; recorta sola la tarjeta de un escaneo y exporta todo junto en PDF o ZIP.                                                      |
 | **Sin metadatos y resolución justa** | Quita ubicación, modelo de móvil y fecha de la foto; limita el tamaño para que sirva para leer, no para falsificar.                                                                                               |
 | **Zonas típicas en un clic**         | Plantillas para el DNI de España y de Argentina (frente y dorso).                                                                                                                                                 |
 | **Blanco y negro**                   | El documento en grises con la marca en color.                                                                                                                                                                     |
@@ -111,7 +111,7 @@ Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```
 docs/
-  specs/          SPEC-0001…0009: visión, requisitos, RNF, dominio, diferencial, tema, rediseño
+  specs/          SPEC-0001…0010: visión, requisitos, RNF, dominio, diferencial, tema, rediseño, cualquier documento
   adr/            decisiones de arquitectura
   arquitectura.md capas, puertos, flujo de un caso de uso
   amenazas.md     qué protege y qué no

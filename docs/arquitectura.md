@@ -54,7 +54,7 @@ Casos de uso (una función o clase pequeña por caso) y puertos (interfaces Type
 
 - `ImportFiles`: decide por extensión/`type` si un archivo es PDF o imagen, usa `PdfReader` o
   `ImageDecoder` y devuelve `Page[]` con etiquetas únicas. Propone recorte automático para páginas
-  de PDF con una imagen grande.
+  de PDF con una imagen grande y sin texto propio (una nómina con logo no se recorta, RF-32).
 - `RenderPage`: `planCopy` + `Rasterizer.render(plan)` → `{ raster, plan }`. Lo usan la vista previa,
   la demo de la portada y la exportación, así que las tres ven exactamente lo mismo.
 - `ExportCopies`: renderiza cada página, codifica a JPEG con la calidad del plan y entrega JPG, ZIP,

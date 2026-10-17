@@ -4,7 +4,7 @@
 [![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Prepare a limited copy of your ID document without it ever leaving your browser.** Watermark
+**Prepare a limited copy of your ID, or any document, without it ever leaving your browser.** Watermark
 with recipient, purpose and date; redacted areas; reduced resolution; no metadata. No server, no
 account, nothing to install.
 
@@ -27,7 +27,7 @@ else's server, which is exactly what you want to avoid.
 
 |               |                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Input**     | A PDF (every page is editable; if a page is an A4 with the document photo inside, it is cropped automatically), JPG/PNG/WebP photos, or a camera capture for the "holding the document" selfie (not mirrored).                                                                                                                                                   |
+| **Input**     | Any document: ID card, passport, payslip, contract, invoice… A PDF (every page is editable; if a page is an A4 with the document photo inside, it is cropped automatically; if it has its own text, like a payslip, it is left whole), JPG/PNG/WebP photos, or a camera capture for the "holding the document" selfie (not mirrored).                            |
 | **Editing**   | Redact areas by drawing with mouse or finger, by strips with buttons, or with templates of typical areas (Spanish and Argentine IDs, front and back); move and resize them, keyboard included; solid black or coarse pixelation; crop, rotate, undo.                                                                                                             |
 | **Watermark** | Editable text: `COPY ONLY VALID FOR <recipient> · <purpose> · <date>` (Spanish default in the Spanish UI). Two intensities (_Visible_ and _Discreet_) plus fine tuning of opacity, size, spacing, angle, colour and outline. The tiling covers the whole image, corners included.                                                                                |
 | **Output**    | One JPG per page, a ZIP, a multi-page PDF, or the phone's share menu. Optional black and white. Configurable longest side (1200 px by default); no EXIF, XMP or colour profile from the original photo.                                                                                                                                                          |
@@ -49,7 +49,7 @@ not have to take our word for it:
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **No third parties**                    | No analytics, no Google Fonts, no CDN. The page only talks to the server that hosts it (GitHub Pages), and only to load itself; the document never leaves the browser.                                                  |
 | **Verifiable, not promised**            | A Content Security Policy stops the page from fetching data or loading resources from other domains (also inside the worker that parses the PDF), and an end-to-end test checks it on every change. The code is public. |
-| **PDFs and multiple pages**             | Open the PDF from your scanner or phone, crop the card inside it automatically, and export front and back together as PDF or ZIP.                                                                                       |
+| **Any document**                        | ID card, passport, payslip, contract or any PDF or image, single or multi-page; crops the card out of a scan automatically and exports it all together as PDF or ZIP.                                                   |
 | **No metadata, just enough resolution** | Removes location, phone model and date from the photo; caps the size so it is good for reading, not forging.                                                                                                            |
 | **Typical areas in one click**          | Templates for Spanish and Argentine IDs (front and back).                                                                                                                                                               |
 | **Black and white**                     | The document in greyscale, the watermark in colour.                                                                                                                                                                     |
@@ -112,7 +112,7 @@ messages are in English where the ecosystem expects it and Spanish where the dom
 
 ```
 docs/
-  specs/          SPEC-0001…0009: vision, requirements, NFRs, domain, differentiators, theme, redesign
+  specs/          SPEC-0001…0010: vision, requirements, NFRs, domain, differentiators, theme, redesign, any document
   adr/            architecture decision records
   arquitectura.md layers, ports, one use case end to end
   amenazas.md     threat model: what it protects and what it does not
