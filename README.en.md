@@ -6,7 +6,7 @@ account, nothing to install.
 
 [Versión en español](README.md) · [Try it](https://hbonavota.github.io/copia-segura/) · [How it is built](docs/arquitectura.md)
 
-![The editor with the sample document: diagonal watermark, one redacted area and the settings panel](docs/img/editor.png)
+![copia segura landing: upload area, step-by-step demo with a fictional document and watermark settings](docs/img/inicio.png)
 
 ## Why
 
@@ -24,14 +24,33 @@ else's server, which is exactly what you want to avoid.
 |               |                                                                                                                                                                                                                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Input**     | A PDF (every page is editable; if a page is an A4 with the document photo inside, it is cropped automatically), JPG/PNG/WebP photos, or a camera capture for the "holding the document" selfie (not mirrored).                                                                 |
-| **Editing**   | Redact areas by drawing with the mouse or by strips with buttons, crop, rotate, undo.                                                                                                                                                                                          |
+| **Editing**   | Redact areas by drawing with mouse or finger, by strips with buttons, or with templates of typical areas (Spanish and Argentine IDs, front and back); crop, rotate, undo.                                                                                                      |
 | **Watermark** | Editable text: `COPY ONLY VALID FOR <recipient> · <purpose> · <date>` (Spanish default in the Spanish UI). Two intensities (_Normal_ and _Subtle_) plus fine tuning of opacity, size, spacing, angle, colour and outline. The tiling covers the whole image, corners included. |
-| **Output**    | One JPG per page, a ZIP, or a multi-page PDF. Configurable longest side (1200 px by default); no EXIF, XMP or colour profile from the original photo.                                                                                                                          |
+| **Output**    | One JPG per page, a ZIP, a multi-page PDF, or the phone's share menu. Optional black and white. Configurable longest side (1200 px by default); no EXIF, XMP or colour profile from the original photo.                                                                        |
 | **Privacy**   | Everything happens in the browser. The page cannot make requests to other domains (enforced by its Content Security Policy) and stores the document nowhere. An end-to-end test records every request of a full flow and fails if any leaves the origin.                       |
 
 And what it does **not** do, stated in the interface itself: a watermark deters and leaves a trace,
 but it does not stop someone from using the copy, and it can be attacked with inpainting tools.
 Details in the [threat model](docs/amenazas.md) (Spanish).
+
+## What makes it different
+
+Other sites also promise to process your document "locally". The difference is that here you do
+not have to take our word for it:
+
+|                                         | copia segura                                                                                                                                                                                     |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **No third parties**                    | No analytics, no Google Fonts, no CDN. Not even your IP address goes to another domain.                                                                                                          |
+| **Verifiable, not promised**            | A Content Security Policy stops the browser from connecting to other domains (also inside the worker that parses the PDF), and an end-to-end test checks it on every change. The code is public. |
+| **PDFs and multiple pages**             | Open the PDF from your scanner or phone, crop the card inside it automatically, and export front and back together as PDF or ZIP.                                                                |
+| **No metadata, just enough resolution** | Removes location, phone model and date from the photo; caps the size so it is good for reading, not forging.                                                                                     |
+| **Typical areas in one click**          | Templates for Spanish and Argentine IDs (front and back).                                                                                                                                        |
+| **Black and white**                     | The document in greyscale, the watermark in colour.                                                                                                                                              |
+| **Honest about its limits**             | It explains what a watermark achieves and what it does not, instead of promising security that does not exist.                                                                                   |
+
+The app itself has a **Check it yourself** section with three steps to verify this without reading
+code: the Network tab of the developer tools, the security policy in the page source, and the test
+that enforces it.
 
 ## Use it
 

@@ -13,13 +13,13 @@ flowchart LR
   end
   subgraph app["application/ (casos de uso y puertos)"]
     UC["ImportFiles · RenderPage<br/>ExportCopies · CaptureFromCamera"]
-    Ports["puertos: PdfReader, ImageDecoder,<br/>Rasterizer, TextMeasurer, PdfWriter,<br/>Archiver, Downloader, Camera, Clock"]
+    Ports["puertos: PdfReader, ImageDecoder,<br/>Rasterizer, TextMeasurer, PdfWriter,<br/>Archiver, Downloader, Sharer, Camera, Clock"]
   end
   subgraph dom["domain/ (puro)"]
     D["Page · PageEdits · NormalizedRect<br/>WatermarkStyle · WatermarkText · OutputOptions<br/>CopyPlan · presets · geometry · watermark · pdf-images"]
   end
   subgraph infra["infrastructure/ (adaptadores)"]
-    I["PdfJsReader · BrowserImageDecoder<br/>CanvasRasterizer · CanvasTextMeasurer<br/>PdfLibWriter · JsZipArchiver<br/>AnchorDownloader · MediaDevicesCamera · SystemClock"]
+    I["PdfJsReader · BrowserImageDecoder<br/>CanvasRasterizer · CanvasTextMeasurer<br/>PdfLibWriter · JsZipArchiver<br/>AnchorDownloader · WebShareSharer<br/>MediaDevicesCamera · SystemClock"]
   end
   Main --> Views --> Store
   Views --> UC
@@ -43,6 +43,8 @@ Funciones puras y tipos. Sin imports externos a la carpeta, sin DOM, sin `Date.n
 | `watermark.ts`  | Composición del texto (`composeWatermarkText`) y cálculo del mosaico (`layoutWatermark`), que recibe una función `MeasureText` para medir. |
 | `plan.ts`       | `planCopy(...)`: combina todo lo anterior en un `CopyPlan` determinista.                                                                   |
 | `pdf-images.ts` | Reconstrucción de la matriz de transformación sobre la lista de operadores de un PDF para localizar imágenes incrustadas.                  |
+| `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                         |
+| `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                         |
 | `naming.ts`     | Nombres de archivo de salida.                                                                                                              |
 
 ### `src/application/`

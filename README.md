@@ -6,7 +6,7 @@ sin cuenta, sin instalar nada.
 
 [English version](README.en.md) · [Probar la aplicación](https://hbonavota.github.io/copia-segura/) · [Cómo está hecha](docs/arquitectura.md)
 
-![Editor de copia segura con el documento de ejemplo: marca diagonal, una zona tapada y el panel de ajustes](docs/img/editor.png)
+![Portada de copia segura: zona de carga, demo paso a paso con un documento ficticio y ajustes de la marca](docs/img/inicio.png)
 
 ## Por qué
 
@@ -21,17 +21,36 @@ documento a un servidor ajeno, que es justo lo que quieres evitar.
 
 ## Qué hace
 
-|                   |                                                                                                                                                                                                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Entrada**       | Un PDF (cada página es editable; si la página es un A4 con la foto del documento dentro, se recorta sola), fotos JPG/PNG/WebP, o una captura con la cámara para la foto sosteniendo el documento (sin espejo).                                                         |
-| **Edición**       | Tapar zonas dibujando con el ratón o por franjas con botones, recortar, girar, deshacer.                                                                                                                                                                               |
-| **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Normal_ y _Suave_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                    |
-| **Salida**        | JPG por página, ZIP o un PDF de varias páginas. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                                                  |
-| **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un test e2e registra todas las peticiones de un flujo completo y falla si alguna sale del origen. |
+|                   |                                                                                                                                                                                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entrada**       | Un PDF (cada página es editable; si la página es un A4 con la foto del documento dentro, se recorta sola), fotos JPG/PNG/WebP, o una captura con la cámara para la foto sosteniendo el documento (sin espejo). La portada enseña el resultado, paso a paso, con un documento ficticio antes de subir nada. |
+| **Edición**       | Tapar zonas dibujando con el ratón o el dedo, por franjas con botones o con plantillas de zonas típicas (DNI de España y de Argentina, frente y dorso); recortar, girar, deshacer.                                                                                                                         |
+| **Marca de agua** | Texto editable: `COPIA SOLO VÁLIDA PARA <destinatario> · <finalidad> · <fecha>`. Dos intensidades (_Normal_ y _Suave_) y ajuste fino de opacidad, tamaño, separación, ángulo, color y borde. El mosaico cruza toda la imagen, también las esquinas.                                                        |
+| **Salida**        | JPG por página, ZIP, un PDF de varias páginas o el menú de compartir del móvil. Blanco y negro opcional. Lado máximo configurable (1200 px por defecto), sin EXIF, XMP ni perfil de color de la foto original.                                                                                             |
+| **Privacidad**    | Todo ocurre en el navegador. La página no puede hacer peticiones a otros dominios (lo impone su _Content Security Policy_) y no guarda el documento en ningún sitio. Un test e2e registra todas las peticiones de un flujo completo y falla si alguna sale del origen.                                     |
 
 Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y deja rastro, pero no
 impide que alguien use la copia, y se puede intentar borrar con herramientas de _inpainting_. Los
 detalles están en el [modelo de amenazas](docs/amenazas.md).
+
+## Qué la hace distinta
+
+Hay otras webs que prometen procesar el documento "en local". La diferencia está en que aquí no
+hace falta creérselo:
+
+|                                      | copia segura                                                                                                                                                                                   |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sin terceros**                     | Ni analítica, ni fuentes de Google, ni CDN. Ni siquiera tu IP sale hacia otro dominio.                                                                                                         |
+| **Verificable, no prometido**        | Una _Content Security Policy_ impide al navegador conectar con otros dominios (también dentro del worker que analiza el PDF), y un test e2e lo comprueba en cada cambio. El código es público. |
+| **PDF y varias páginas**             | Abre el PDF del escáner o del móvil, recorta sola la tarjeta que hay dentro y exporta frente y dorso juntos en PDF o ZIP.                                                                      |
+| **Sin metadatos y resolución justa** | Quita ubicación, modelo de móvil y fecha de la foto; limita el tamaño para que sirva para leer, no para falsificar.                                                                            |
+| **Zonas típicas en un clic**         | Plantillas para el DNI de España y de Argentina (frente y dorso).                                                                                                                              |
+| **Blanco y negro**                   | El documento en grises con la marca en color.                                                                                                                                                  |
+| **Honesta sobre sus límites**        | Explica qué consigue una marca de agua y qué no, en vez de prometer una seguridad que no existe.                                                                                               |
+
+La propia aplicación incluye un apartado **Compruébalo tú** con los tres pasos para verificarlo sin
+leer código: pestaña _Red_ de las herramientas de desarrollo, la política de seguridad en el código
+fuente de la página, y el test que lo comprueba.
 
 ## Usarla
 
@@ -85,7 +104,7 @@ Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```
 docs/
-  specs/          SPEC-0001…0004: visión, requisitos, RNF, modelo de dominio
+  specs/          SPEC-0001…0005: visión, requisitos, RNF, modelo de dominio, portada y diferencial
   adr/            decisiones de arquitectura
   arquitectura.md capas, puertos, flujo de un caso de uso
   amenazas.md     qué protege y qué no
