@@ -135,6 +135,7 @@ scripts/          pdf.js assets, sample document, screenshots
 | `npm run test:e2e`      | End-to-end tests against the production build (`npx playwright install chromium` the first time) |
 | `npm run check`         | Lint, typecheck, formatting, tests and build: same as CI                                         |
 | `npm run build`         | Production build in `dist/` (`BASE_PATH=/copia-segura/` for Pages)                               |
+| `npm run example:cards` | Regenerates the fictional cards (front, back and demo)                                           |
 | `npm run example:build` | Regenerates the sample PDF from the fictional cards                                              |
 
 ## Contributing

@@ -134,6 +134,7 @@ scripts/          recursos de pdf.js, documento de ejemplo, capturas
 | `npm run test:e2e`      | E2E contra el build de producción (`npx playwright install chromium` la primera vez) |
 | `npm run check`         | Lint, typecheck, formato, tests y build: lo mismo que CI                             |
 | `npm run build`         | Build de producción en `dist/` (`BASE_PATH=/copia-segura/` para Pages)               |
+| `npm run example:cards` | Regenera las tarjetas ficticias (frente, dorso y demo)                               |
 | `npm run example:build` | Regenera el PDF de ejemplo a partir de las tarjetas ficticias                        |
 
 ## Contribuir

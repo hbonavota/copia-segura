@@ -10,11 +10,19 @@ SPEC-0010: cualquier documento, no solo el DNI.
 
 - La portada dice qué acepta: DNI, pasaporte, nómina, contrato, factura o cualquier PDF o imagen
   (RF-31). Titular, carga, descripción y README hablan de "documentos".
+- Tarjeta de muestra nueva, creíble e inventada (guilloches, chip, retrato ilustrado, firma, CAN,
+  zona de lectura mecánica y sello MUESTRA), generada por `npm run example:cards` (RF-34).
+
+### Cambiado
+
+- Textos más breves; el detalle va en desplegables _Más información_ (RF-33).
 
 ### Corregido
 
 - El recorte automático de PDF ya no actúa en páginas con texto propio: una nómina o un contrato
   con un logo grande se recortaba al logo (RF-32).
+- El código de barras de la tarjeta de ejemplo se salía del borde; el sello del nombre se estiraba
+  a todo el ancho en el móvil.
 
 ## [1.3.0] · 2026-10-17
 
