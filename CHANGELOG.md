@@ -2,14 +2,12 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
-## [1.4.0] · 2026-10-17
+## [1.4.1] · 2026-10-17
 
-SPEC-0010: cualquier documento, no solo el DNI.
+SPEC-0011: textos breves y tarjeta de muestra.
 
 ### Añadido
 
-- La portada dice qué acepta: DNI, pasaporte, nómina, contrato, factura o cualquier PDF o imagen
-  (RF-31). Titular, carga, descripción y README hablan de "documentos".
 - Tarjeta de muestra nueva, creíble e inventada (guilloches, chip, retrato ilustrado, firma, CAN,
   zona de lectura mecánica y sello MUESTRA), generada por `npm run example:cards` (RF-34).
 
@@ -19,10 +17,22 @@ SPEC-0010: cualquier documento, no solo el DNI.
 
 ### Corregido
 
-- El recorte automático de PDF ya no actúa en páginas con texto propio: una nómina o un contrato
-  con un logo grande se recortaba al logo (RF-32).
 - El código de barras de la tarjeta de ejemplo se salía del borde; el sello del nombre se estiraba
   a todo el ancho en el móvil.
+
+## [1.4.0] · 2026-10-17
+
+SPEC-0010: cualquier documento, no solo el DNI.
+
+### Añadido
+
+- La portada dice qué acepta: DNI, pasaporte, nómina, contrato, factura o cualquier PDF o imagen
+  (RF-31). Titular, carga, descripción y README hablan de "documentos".
+
+### Corregido
+
+- El recorte automático de PDF ya no actúa en páginas con texto propio: una nómina o un contrato
+  con un logo grande se recortaba al logo (RF-32).
 
 ## [1.3.0] · 2026-10-17
 

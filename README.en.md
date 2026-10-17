@@ -112,7 +112,7 @@ messages are in English where the ecosystem expects it and Spanish where the dom
 
 ```
 docs/
-  specs/          SPEC-0001…0010: vision, requirements, NFRs, domain, differentiators, theme, redesign, any document
+  specs/          SPEC-0001…0011: vision, requirements, NFRs, domain, differentiators, theme, redesign, any document
   adr/            architecture decision records
   arquitectura.md layers, ports, one use case end to end
   amenazas.md     threat model: what it protects and what it does not

@@ -17,6 +17,7 @@ de modo que se puede trazar cualquier línea de código hasta el requisito que l
 | [SPEC-0008](SPEC-0008-portada-y-editor.md)                     | Portada y editor de dos paneles (RF-24…RF-27)                                               | Implementada |
 | [SPEC-0009](SPEC-0009-pixelado-iphone-y-preguntas.md)          | Tapado pixelado, fotos del iPhone y preguntas frecuentes (RF-28…RF-30)                      | Implementada |
 | [SPEC-0010](SPEC-0010-cualquier-documento.md)                  | Cualquier documento, no solo el DNI (RF-31, RF-32)                                          | Implementada |
+| [SPEC-0011](SPEC-0011-textos-breves-y-tarjeta-de-muestra.md)   | Textos breves y tarjeta de muestra (RF-33, RF-34)                                           | Implementada |
 
 Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripción de capas en
 [`docs/arquitectura.md`](../arquitectura.md). El modelo de amenazas, en [`docs/amenazas.md`](../amenazas.md).
@@ -28,4 +29,4 @@ Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripció
 3. **Implementada**: cada RF tiene al menos un test que lo cubre y pasa en CI.
 4. **Sustituida**: una spec posterior la reemplaza; se mantiene por trazabilidad.
 
-Los cambios de alcance se hacen con una nueva spec (`SPEC-0011`, …), no editando una aprobada.
+Los cambios de alcance se hacen con una nueva spec (`SPEC-0012`, …), no editando una aprobada.

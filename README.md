@@ -111,7 +111,7 @@ Más detalle y un diagrama en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```
 docs/
-  specs/          SPEC-0001…0010: visión, requisitos, RNF, dominio, diferencial, tema, rediseño, cualquier documento
+  specs/          SPEC-0001…0011: visión, requisitos, RNF, dominio, diferencial, tema, rediseño, cualquier documento
   adr/            decisiones de arquitectura
   arquitectura.md capas, puertos, flujo de un caso de uso
   amenazas.md     qué protege y qué no
