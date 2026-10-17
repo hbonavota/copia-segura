@@ -1,6 +1,6 @@
 # SPEC-0004 · Modelo de dominio
 
-**Estado:** Aprobada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0002
+**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0002
 
 El dominio es **puro**: no conoce el DOM, `canvas`, pdf.js ni ningún formato de archivo. Recibe
 números y devuelve números (o un _plan_ de dibujo que otra capa ejecuta). Eso es lo que permite

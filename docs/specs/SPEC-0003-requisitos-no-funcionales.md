@@ -1,6 +1,6 @@
 # SPEC-0003 · Requisitos no funcionales
 
-**Estado:** Aprobada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
+**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
 
 ## RNF-01 · Privacidad verificable
 
@@ -47,7 +47,7 @@
 - TypeScript en modo `strict`, sin `any` implícitos.
 - Arquitectura por capas (ver `docs/arquitectura.md`) con la regla de dependencia comprobada por un
   test: `domain` no importa nada fuera de `domain`; `application` solo importa `domain`.
-- Cobertura de tests unitarios ≥ 90 % en `domain` y `application`.
+- Cobertura de tests unitarios en `domain` y `application`: ≥ 90 % de líneas y ≥ 85 % de ramas (umbral de CI).
 - CI en cada push: lint, typecheck, tests unitarios, build y e2e. Despliegue a Pages solo desde `main`
   con CI en verde.
 - Commits en formato _Conventional Commits_ con referencia al requisito cuando aplica

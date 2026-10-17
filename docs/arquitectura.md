@@ -8,7 +8,8 @@ atraviesa un caso de uso el sistema.
 flowchart LR
   subgraph ui["ui/ (DOM, estado de la interfaz)"]
     Main["main.ts<br/>raíz de composición"]
-    Views["vistas: dropzone, page-strip,<br/>editor, settings, export-bar, camera"]
+    Views["vistas: header, notice, dropzone + demo,<br/>page-strip, editor, settings,<br/>export-bar, camera-dialog, about"]
+    Services["services.ts"]
     Store["store.ts"]
   end
   subgraph app["application/ (casos de uso y puertos)"]
@@ -16,13 +17,13 @@ flowchart LR
     Ports["puertos: PdfReader, ImageDecoder,<br/>Rasterizer, TextMeasurer, PdfWriter,<br/>Archiver, Downloader, Sharer, Camera, Clock"]
   end
   subgraph dom["domain/ (puro)"]
-    D["Page · PageEdits · NormalizedRect<br/>WatermarkStyle · WatermarkText · OutputOptions<br/>CopyPlan · presets · geometry · watermark · pdf-images"]
+    D["Page · PageEdits · NormalizedRect<br/>WatermarkStyle · WatermarkText · OutputOptions<br/>CopyPlan · presets · geometry · watermark<br/>pdf-images · templates · naming"]
   end
   subgraph infra["infrastructure/ (adaptadores)"]
     I["PdfJsReader · BrowserImageDecoder<br/>CanvasRasterizer · CanvasTextMeasurer<br/>PdfLibWriter · JsZipArchiver<br/>AnchorDownloader · WebShareSharer<br/>MediaDevicesCamera · SystemClock"]
   end
   Main --> Views --> Store
-  Views --> UC
+  Views --> Services --> UC
   UC --> Ports
   UC --> D
   I -. implementa .-> Ports
@@ -38,12 +39,11 @@ Funciones puras y tipos. Sin imports externos a la carpeta, sin DOM, sin `Date.n
 | Módulo          | Responsabilidad                                                                                                                            |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `types.ts`      | `Page`, `PageEdits`, `Rotation`, `NormalizedRect`, `WatermarkStyle`, `WatermarkText`, `OutputOptions`, `CopyPlan`.                         |
-| `geometry.ts`   | Normalizar rectángulos, girarlos con la página, intersectar con el recorte, escalar a píxeles, `fitWithin`.                                |
+| `geometry.ts`   | Normalizar rectángulos, girarlos con la página, intersectar con el recorte, escalar a píxeles, `fitScale`.                                 |
 | `presets.ts`    | Presets _Normal_ y _Suave_; `resolveStyle(preset, overrides)`; acotación de rangos.                                                        |
 | `watermark.ts`  | Composición del texto (`composeWatermarkText`) y cálculo del mosaico (`layoutWatermark`), que recibe una función `MeasureText` para medir. |
 | `plan.ts`       | `planCopy(...)`: combina todo lo anterior en un `CopyPlan` determinista.                                                                   |
 | `pdf-images.ts` | Reconstrucción de la matriz de transformación sobre la lista de operadores de un PDF para localizar imágenes incrustadas.                  |
-| `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                         |
 | `templates.ts`  | Plantillas de zonas a tapar por tipo de documento, relativas a la tarjeta (RF-16).                                                         |
 | `naming.ts`     | Nombres de archivo de salida.                                                                                                              |
 
@@ -55,8 +55,10 @@ Casos de uso (una función o clase pequeña por caso) y puertos (interfaces Type
 - `ImportFiles`: decide por extensión/`type` si un archivo es PDF o imagen, usa `PdfReader` o
   `ImageDecoder` y devuelve `Page[]` con etiquetas únicas. Propone recorte automático para páginas
   de PDF con una imagen grande.
-- `RenderPage`: `planCopy` + `Rasterizer.render(plan)` → bitmap. Lo usan la vista previa y la exportación.
-- `ExportCopies`: renderiza cada página, codifica a JPEG y entrega un JPG, un ZIP o un PDF.
+- `RenderPage`: `planCopy` + `Rasterizer.render(plan)` → `{ raster, plan }`. Lo usan la vista previa,
+  la demo de la portada y la exportación, así que las tres ven exactamente lo mismo.
+- `ExportCopies`: renderiza cada página, codifica a JPEG con la calidad del plan y entrega JPG, ZIP,
+  PDF o los pasa al menú de compartir (`share`). Desambigua nombres repetidos.
 - `CaptureFromCamera`: abre la cámara, captura un fotograma sin espejo, cierra la cámara.
 
 ### `src/infrastructure/`
@@ -67,14 +69,17 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 ### `src/ui/`
 
 - `main.ts`: raíz de composición. Construye los adaptadores, los casos de uso y monta las vistas.
-- `store.ts`: estado observable mínimo (`get`, `set`, `subscribe`).
+- `store.ts`: estado inmutable con `get`, `update` y `select` (suscripción por selector), más las
+  acciones que lo transforman.
+- `services.ts`: orquesta casos de uso con el estado (ocupado, avisos traducidos).
 - `views/*.ts`: cada vista recibe el elemento raíz, el store y las dependencias que necesita.
 - `i18n/`: diccionarios `es` y `en`.
 - `styles.css`: tokens de diseño y estilos. Sin preprocesador.
 
 ## Un caso de uso de principio a fin: exportar un PDF
 
-1. La vista `export-bar` llama a `ExportCopies.run({ format: 'pdf' })` con las páginas del store.
+1. La vista `export-bar` llama a `services.exportAs('pdf')`, que marca la interfaz como ocupada y
+   llama a `ExportCopies.run({ format: 'pdf' })` con las páginas del store.
 2. `ExportCopies` recorre las páginas; para cada una llama a `planCopy` (dominio) con la página, sus
    ediciones, el estilo y texto de la marca y las opciones de salida. Para medir el texto, el dominio
    recibe la función del puerto `TextMeasurer`.
@@ -86,8 +91,8 @@ o el DOM de descarga. Cada adaptador implementa exactamente un puerto.
 
 ## Pruebas
 
-| Nivel        | Qué cubre                                                                                                          | Herramienta                  |
-| ------------ | ------------------------------------------------------------------------------------------------------------------ | ---------------------------- |
-| Unitarias    | `domain` y `application` con puertos falsos. Nombradas por requisito (`RF-07`).                                    | Vitest, entorno Node         |
-| Arquitectura | Regla de dependencia entre capas.                                                                                  | Vitest (análisis de imports) |
-| E2E          | Flujo completo con el documento de ejemplo en Chromium: importar, tapar, exportar, y **cero peticiones externas**. | Playwright                   |
+| Nivel        | Qué cubre                                                                                                                                                                                                                                             | Herramienta                  |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Unitarias    | `domain` y `application` con puertos falsos. Nombradas por requisito (`RF-07`).                                                                                                                                                                       | Vitest, entorno Node         |
+| Arquitectura | Regla de dependencia entre capas.                                                                                                                                                                                                                     | Vitest (análisis de imports) |
+| E2E          | Flujo completo con el documento de ejemplo en Chromium, servido bajo `/copia-segura/` como en Pages: importar, tapar, exportar, portada, plantillas, B/N, móvil, **cero peticiones externas** y una petición a otro dominio **bloqueada por la CSP**. | Playwright                   |

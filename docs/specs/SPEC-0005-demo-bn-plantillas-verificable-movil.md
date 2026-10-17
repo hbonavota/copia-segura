@@ -1,6 +1,6 @@
 # SPEC-0005 · Demo en portada, blanco y negro, plantillas de zonas, verificabilidad y móvil
 
-**Estado:** Aprobada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0002, SPEC-0004
+**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0002, SPEC-0004
 
 ## Contexto
 

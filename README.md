@@ -1,5 +1,9 @@
 # copia segura
 
+[![CI](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml/badge.svg)](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml)
+[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
+
 **Prepara una copia limitada de tu DNI sin que salga de tu navegador.** Marca de agua con
 destinatario, finalidad y fecha; zonas tapadas; resolución reducida; sin metadatos. Sin servidor,
 sin cuenta, sin instalar nada.
@@ -33,20 +37,22 @@ Y lo que **no** hace, dicho en la propia interfaz: una marca de agua disuade y d
 impide que alguien use la copia, y se puede intentar borrar con herramientas de _inpainting_. Los
 detalles están en el [modelo de amenazas](docs/amenazas.md).
 
+<p align="center"><img src="docs/img/movil.png" alt="En el móvil: el editor delante y la barra de descarga fija abajo" width="300"></p>
+
 ## Qué la hace distinta
 
 Hay otras webs que prometen procesar el documento "en local". La diferencia está en que aquí no
 hace falta creérselo:
 
-|                                      | copia segura                                                                                                                                                                                   |
-| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Sin terceros**                     | Ni analítica, ni fuentes de Google, ni CDN. Ni siquiera tu IP sale hacia otro dominio.                                                                                                         |
-| **Verificable, no prometido**        | Una _Content Security Policy_ impide al navegador conectar con otros dominios (también dentro del worker que analiza el PDF), y un test e2e lo comprueba en cada cambio. El código es público. |
-| **PDF y varias páginas**             | Abre el PDF del escáner o del móvil, recorta sola la tarjeta que hay dentro y exporta frente y dorso juntos en PDF o ZIP.                                                                      |
-| **Sin metadatos y resolución justa** | Quita ubicación, modelo de móvil y fecha de la foto; limita el tamaño para que sirva para leer, no para falsificar.                                                                            |
-| **Zonas típicas en un clic**         | Plantillas para el DNI de España y de Argentina (frente y dorso).                                                                                                                              |
-| **Blanco y negro**                   | El documento en grises con la marca en color.                                                                                                                                                  |
-| **Honesta sobre sus límites**        | Explica qué consigue una marca de agua y qué no, en vez de prometer una seguridad que no existe.                                                                                               |
+|                                      | copia segura                                                                                                                                                                                                      |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sin terceros**                     | Ni analítica, ni fuentes de Google, ni CDN. La página solo habla con el servidor que la aloja (GitHub Pages), y solo para cargarse; el documento nunca sale del navegador.                                        |
+| **Verificable, no prometido**        | Una _Content Security Policy_ impide a la página pedir datos o cargar recursos de otros dominios (también dentro del worker que analiza el PDF), y un test e2e lo comprueba en cada cambio. El código es público. |
+| **PDF y varias páginas**             | Abre el PDF del escáner o del móvil, recorta sola la tarjeta que hay dentro y exporta frente y dorso juntos en PDF o ZIP.                                                                                         |
+| **Sin metadatos y resolución justa** | Quita ubicación, modelo de móvil y fecha de la foto; limita el tamaño para que sirva para leer, no para falsificar.                                                                                               |
+| **Zonas típicas en un clic**         | Plantillas para el DNI de España y de Argentina (frente y dorso).                                                                                                                                                 |
+| **Blanco y negro**                   | El documento en grises con la marca en color.                                                                                                                                                                     |
+| **Honesta sobre sus límites**        | Explica qué consigue una marca de agua y qué no, en vez de prometer una seguridad que no existe.                                                                                                                  |
 
 La propia aplicación incluye un apartado **Compruébalo tú** con los tres pasos para verificarlo sin
 leer código: pestaña _Red_ de las herramientas de desarrollo, la política de seguridad en el código
@@ -58,7 +64,7 @@ La forma más simple es abrir la [versión publicada](https://hbonavota.github.i
 no se instala nada. Con fotos funciona sin conexión una vez cargada; abrir un PDF o exportar a
 PDF/ZIP descarga la primera vez los módulos correspondientes, siempre desde el propio origen.
 
-En local, con Node 20 o superior:
+En local, con Node 22.13 o superior (`.nvmrc`):
 
 ```bash
 git clone https://github.com/hbonavota/copia-segura.git
@@ -93,7 +99,7 @@ Es un proyecto pensado también como muestra de forma de trabajar: **Spec-Driven
   mínimo y vistas que se montan y desmontan.
 
 - **Tres niveles de prueba.** Unitarias en `domain` y `application` con dobles de los puertos
-  (Vitest, cobertura ≥ 90 %); un test de arquitectura que analiza los imports; y e2e con Playwright
+  (Vitest, ≥ 90 % de líneas y ≥ 85 % de ramas); un test de arquitectura que analiza los imports; y e2e con Playwright
   contra el build de producción, CSP incluida.
 - **CI y despliegue.** Cada push pasa lint, typecheck, formato, tests, build y e2e. `main` se publica
   en GitHub Pages solo si CI está en verde.

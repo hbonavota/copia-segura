@@ -1,5 +1,9 @@
 # copia segura
 
+[![CI](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml/badge.svg)](https://github.com/hbonavota/copia-segura/actions/workflows/ci.yml)
+[![Pages](https://github.com/hbonavota/copia-segura/actions/workflows/deploy-pages.yml/badge.svg)](https://hbonavota.github.io/copia-segura/)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Prepare a limited copy of your ID document without it ever leaving your browser.** Watermark
 with recipient, purpose and date; redacted areas; reduced resolution; no metadata. No server, no
 account, nothing to install.
@@ -33,20 +37,22 @@ And what it does **not** do, stated in the interface itself: a watermark deters 
 but it does not stop someone from using the copy, and it can be attacked with inpainting tools.
 Details in the [threat model](docs/amenazas.md) (Spanish).
 
+<p align="center"><img src="docs/img/movil.png" alt="On a phone: the editor first and the download bar pinned to the bottom" width="300"></p>
+
 ## What makes it different
 
 Other sites also promise to process your document "locally". The difference is that here you do
 not have to take our word for it:
 
-|                                         | copia segura                                                                                                                                                                                     |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **No third parties**                    | No analytics, no Google Fonts, no CDN. Not even your IP address goes to another domain.                                                                                                          |
-| **Verifiable, not promised**            | A Content Security Policy stops the browser from connecting to other domains (also inside the worker that parses the PDF), and an end-to-end test checks it on every change. The code is public. |
-| **PDFs and multiple pages**             | Open the PDF from your scanner or phone, crop the card inside it automatically, and export front and back together as PDF or ZIP.                                                                |
-| **No metadata, just enough resolution** | Removes location, phone model and date from the photo; caps the size so it is good for reading, not forging.                                                                                     |
-| **Typical areas in one click**          | Templates for Spanish and Argentine IDs (front and back).                                                                                                                                        |
-| **Black and white**                     | The document in greyscale, the watermark in colour.                                                                                                                                              |
-| **Honest about its limits**             | It explains what a watermark achieves and what it does not, instead of promising security that does not exist.                                                                                   |
+|                                         | copia segura                                                                                                                                                                                                            |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **No third parties**                    | No analytics, no Google Fonts, no CDN. The page only talks to the server that hosts it (GitHub Pages), and only to load itself; the document never leaves the browser.                                                  |
+| **Verifiable, not promised**            | A Content Security Policy stops the page from fetching data or loading resources from other domains (also inside the worker that parses the PDF), and an end-to-end test checks it on every change. The code is public. |
+| **PDFs and multiple pages**             | Open the PDF from your scanner or phone, crop the card inside it automatically, and export front and back together as PDF or ZIP.                                                                                       |
+| **No metadata, just enough resolution** | Removes location, phone model and date from the photo; caps the size so it is good for reading, not forging.                                                                                                            |
+| **Typical areas in one click**          | Templates for Spanish and Argentine IDs (front and back).                                                                                                                                                               |
+| **Black and white**                     | The document in greyscale, the watermark in colour.                                                                                                                                                                     |
+| **Honest about its limits**             | It explains what a watermark achieves and what it does not, instead of promising security that does not exist.                                                                                                          |
 
 The app itself has a **Check it yourself** section with three steps to verify this without reading
 code: the Network tab of the developer tools, the security policy in the page source, and the test
@@ -58,7 +64,7 @@ The simplest way is the [published version](https://hbonavota.github.io/copia-se
 install. With photos it keeps working offline once loaded; opening a PDF or exporting to PDF/ZIP
 downloads the corresponding modules the first time, always from the page's own origin.
 
-Locally, with Node 20 or newer:
+Locally, with Node 22.13 or newer (`.nvmrc`):
 
 ```bash
 git clone https://github.com/hbonavota/copia-segura.git
@@ -92,7 +98,7 @@ architecture** applied to a genuinely small application.
   TypeScript against the DOM, no React: a minimal observable state store and views that mount and unmount.
 
 - **Three levels of testing.** Unit tests for `domain` and `application` with port doubles (Vitest,
-  ≥ 90 % coverage); an architecture test that analyses imports; and Playwright end-to-end tests
+  ≥ 90 % line and ≥ 85 % branch coverage); an architecture test that analyses imports; and Playwright end-to-end tests
   against the production build, CSP included.
 - **CI and deployment.** Every push runs lint, typecheck, formatting, tests, build and e2e. `main`
   is published to GitHub Pages only when CI is green.
@@ -100,6 +106,24 @@ architecture** applied to a genuinely small application.
 More detail and a diagram in [`docs/arquitectura.md`](docs/arquitectura.md). The documentation is
 written in Spanish, the language of the audience the tool is for; the code, identifiers and commit
 messages are in English where the ecosystem expects it and Spanish where the domain does.
+
+### Structure
+
+```
+docs/
+  specs/          SPEC-0001…0005: vision, requirements, NFRs, domain model, landing and differentiators
+  adr/            architecture decision records
+  arquitectura.md layers, ports, one use case end to end
+  amenazas.md     threat model: what it protects and what it does not
+src/
+  domain/         pure types and functions
+  application/    use cases and ports
+  infrastructure/ browser adapters
+  ui/             views, store, i18n, styles, main.ts (composition root)
+tests/            unit and architecture tests (Vitest)
+e2e/              Playwright
+scripts/          pdf.js assets, sample document, screenshots
+```
 
 ### Commands
 

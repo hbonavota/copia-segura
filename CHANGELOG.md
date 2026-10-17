@@ -2,6 +2,32 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.1.1] · 2026-10-17
+
+Revisión técnica del repositorio antes de enseñarlo.
+
+### Corregido
+
+- Textos de privacidad más precisos: la CSP impide peticiones y recursos de otros dominios, no la
+  navegación, y el hosting ve la IP al cargar la página. Documentado en ADR-0005 y en el modelo de
+  amenazas.
+- El despliegue publica exactamente el commit que validó CI y solo tras un push a `main`; los
+  permisos de Pages, solo en el job que publica.
+- Versión de Node real (22.13+) en `engines` y en la documentación.
+- Demo de la portada: una sola carga aunque se pulsen varias pestañas, sin fugas al desmontar y sin
+  errores visibles si falla.
+- Las plantillas no duplican zonas si se aplican dos veces.
+- Errores de exportación y de compartir traducidos; en iOS, aviso para volver a pulsar _Compartir_.
+- Ejemplos neutros (sin marcas reales) en la interfaz, los tests y las capturas.
+
+### Añadido
+
+- Test e2e que comprueba que la CSP bloquea de verdad una petición a otro dominio.
+- Los e2e corren bajo `/copia-segura/`, igual que en GitHub Pages.
+- Acciones de GitHub actualizadas (checkout, setup-node, upload-artifact v7; configure-pages v6;
+  upload-pages-artifact v5).
+- Insignias de CI, Pages y licencia, captura móvil y estructura del repo en el README en inglés.
+
 ## [1.1.0] · 2026-10-17
 
 SPEC-0005: lo que hace distinta a la herramienta, a la vista.

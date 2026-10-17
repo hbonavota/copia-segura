@@ -26,8 +26,8 @@ await page.screenshot({ path: join(out, 'inicio.png') });
 
 await page.getByTestId('load-example').click();
 await page.locator('canvas.preview[data-ready="true"]').waitFor({ timeout: 45_000 });
-await page.getByTestId('text-recipient').fill('Movistar');
-await page.getByTestId('text-purpose').fill('cambio de titularidad');
+await page.getByTestId('text-recipient').fill('Empresa Ejemplo');
+await page.getByTestId('text-purpose').fill('alta de un servicio');
 const box = await page.getByTestId('overlay').boundingBox();
 await page.mouse.move(box.x + box.width * 0.05, box.y + box.height * 0.82);
 await page.mouse.down();
@@ -36,9 +36,10 @@ await page.mouse.up();
 await page.waitForTimeout(700);
 await page.screenshot({ path: join(out, 'editor.png') });
 
-await page.getByTestId('tool-crop').click();
+// Móvil: el editor delante y la barra de descarga fija abajo (RF-18).
+await page.setViewportSize({ width: 390, height: 844 });
 await page.waitForTimeout(700);
-await page.screenshot({ path: join(out, 'recorte.png') });
+await page.screenshot({ path: join(out, 'movil.png') });
 
 await browser.close();
 console.log(`Capturas en ${out}`);

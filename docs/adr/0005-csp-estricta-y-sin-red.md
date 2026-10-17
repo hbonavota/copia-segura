@@ -16,8 +16,9 @@ worker-src 'self' blob:; style-src 'self'; font-src 'self'; object-src 'none'; b
 form-action 'none'`. GitHub Pages no permite cabeceras personalizadas, por eso va en el HTML.
    `connect-src 'self'` y no `'none'` porque pdf.js descarga sus decodificadores WebAssembly y las
    fuentes estándar desde nuestro propio origen, y el documento de ejemplo también se sirve de ahí.
-   Un origen estático no puede recibir datos, así que la garantía que importa se mantiene: **ninguna
-   petición a otro dominio**.
+   La garantía que importa se mantiene: **ninguna petición `fetch`/XHR ni recurso de otro dominio**.
+   El propio origen es GitHub Pages, que ve las peticiones de carga de la página (como cualquier
+   hosting), pero el documento nunca viaja en ellas: no hay ningún código que lo envíe.
 2. La política se inyecta solo en el build de producción (plugin de Vite): el servidor de desarrollo
    necesita su WebSocket de recarga en caliente.
 3. Un test e2e recorre el flujo completo registrando todas las peticiones y falla si alguna sale del
@@ -30,6 +31,15 @@ form-action 'none'`. GitHub Pages no permite cabeceras personalizadas, por eso v
 
 No se concede `'unsafe-inline'` para estilos: la interfaz posiciona elementos a través del CSSOM
 (`element.style`), que la CSP no gobierna, y pdf.js carga fuentes con la API `FontFace`.
+
+## Límites conocidos
+
+- La CSP no gobierna la **navegación** (`location.href`, `window.open`, un enlace pulsado): la
+  directiva `navigate-to` se retiró de la especificación. La aplicación no navega por código y sus
+  únicos enlaces van al repositorio; el test e2e vigila que ningún flujo genere peticiones a otros
+  dominios.
+- El hosting (GitHub Pages) recibe la IP del visitante al cargar la página. Eso no lo evita
+  ninguna aplicación web; lo que sí garantizamos es que no hay terceros (analítica, fuentes, CDN).
 
 ## Consecuencias
 

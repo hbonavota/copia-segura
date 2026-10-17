@@ -25,17 +25,23 @@ de "seguridad" promete más de lo que cumple.
   marca densa que cruza cara, números y firma, en una imagen de resolución reducida, deja artefactos
   y los sistemas de verificación suelen detectar la manipulación, pero no es imposible. La marca sube
   el coste; no lo hace infinito.
-- **Un destinatario legítimo que hace mal uso.** Si Movistar (o quien sea) filtra la copia, la marca
+- **Un destinatario legítimo que hace mal uso.** Si el destinatario filtra la copia, la marca
   identifica el origen de la filtración, pero el documento ya está fuera.
 - **Canal de envío inseguro.** La herramienta no sabe a quién envías la copia. Pedir una foto del DNI
   junto a un cambio de titularidad es exactamente el material de un _SIM swap_: usa solo canales
   oficiales (app, web o correo verificado), nunca el WhatsApp de "un asesor".
+- **Lo que pasa después de Compartir.** El botón _Compartir_ entrega los JPG a la app que elijas
+  en el menú del sistema; a partir de ahí la herramienta no controla nada.
 - **Compromiso del propio dispositivo.** Si el navegador o el sistema están comprometidos, nada de lo
   anterior importa.
 
 ## Supuestos
 
 - El navegador aplica la CSP y aísla el origen. Es el mismo supuesto que hace cualquier aplicación web.
+- La CSP impide peticiones y recursos de otros dominios, pero no la navegación. La aplicación no
+  navega por código y solo enlaza al repositorio (ADR-0005, _Límites conocidos_).
+- GitHub Pages, como cualquier hosting, ve la IP del visitante al cargar la página. No hay más
+  terceros que ese.
 - El usuario descarga el resultado y envía _ese_ archivo, no el original.
 
 ## Qué revisar si cambias algo
