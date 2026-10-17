@@ -1,0 +1,25 @@
+# Especificaciones (SDD)
+
+Este proyecto se desarrolla con **Spec-Driven Development**: primero se escribe la especificación,
+de ella se derivan los tests y solo entonces se implementa. Cada requisito tiene un identificador
+estable (`RF-xx`, `RNF-xx`) que aparece en los tests (`describe('RF-07 …')`) y en los commits,
+de modo que se puede trazar cualquier línea de código hasta el requisito que la justifica.
+
+| Spec                                                | Título                                                                  | Estado   |
+| --------------------------------------------------- | ----------------------------------------------------------------------- | -------- |
+| [SPEC-0001](SPEC-0001-vision-y-alcance.md)          | Visión, problema y alcance                                              | Aprobada |
+| [SPEC-0002](SPEC-0002-requisitos-funcionales.md)    | Requisitos funcionales (RF) con criterios de aceptación                 | Aprobada |
+| [SPEC-0003](SPEC-0003-requisitos-no-funcionales.md) | Requisitos no funcionales (RNF): privacidad, rendimiento, accesibilidad | Aprobada |
+| [SPEC-0004](SPEC-0004-modelo-de-dominio.md)         | Modelo de dominio, invariantes y glosario                               | Aprobada |
+
+Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripción de capas en
+[`docs/arquitectura.md`](../arquitectura.md). El modelo de amenazas, en [`docs/amenazas.md`](../amenazas.md).
+
+## Ciclo de vida de una spec
+
+1. **Borrador**: se discute el problema y se redactan requisitos con criterios _Dado / Cuando / Entonces_.
+2. **Aprobada**: los requisitos tienen identificador y no cambian sin una nueva revisión.
+3. **Implementada**: cada RF tiene al menos un test que lo cubre y pasa en CI.
+4. **Sustituida**: una spec posterior la reemplaza; se mantiene por trazabilidad.
+
+Los cambios de alcance se hacen con una nueva spec (`SPEC-0005`, …), no editando una aprobada.
