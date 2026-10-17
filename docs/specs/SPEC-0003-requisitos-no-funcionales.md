@@ -1,6 +1,6 @@
 # SPEC-0003 · Requisitos no funcionales
 
-**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
+**Estado:** Implementada (RNF-01 modificado por SPEC-0012) · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
 
 ## RNF-01 · Privacidad verificable
 

@@ -1,6 +1,6 @@
 # ADR-0005 · CSP estricta: ninguna petición fuera del propio origen
 
-**Estado:** Aceptada · **Fecha:** 2026-10-17
+**Estado:** Aceptada (punto 7 modificado por ADR-0007) · **Fecha:** 2026-10-17
 
 ## Contexto
 
@@ -31,7 +31,8 @@ form-action 'none'`. GitHub Pages no permite cabeceras personalizadas, por eso v
    bloqueados ni las peticiones de los _workers_ (ver SPEC-0007).
 6. Las fuentes de la interfaz (Inter, RF-20) se empaquetan con el build y se sirven desde el propio
    origen: `font-src 'self'` no cambia.
-7. No hay _service worker_: no hay nada que precargar y evita cualquier duda sobre qué se cachea.
+7. ~~No hay _service worker_.~~ Sustituido por ADR-0007: hay un _service worker_ propio que guarda
+   archivos de la app (nunca el documento) para instalarla y usarla sin conexión.
 8. El _worker_ de pdf.js, donde de verdad se analiza el PDF, se arranca desde un `blob:` creado por
    la página y no desde una URL. Un worker cargado por URL recibe su política de las cabeceras de
    su propia respuesta (Pages no envía ninguna); uno `blob:` hereda la del documento. Así la CSP
