@@ -1,6 +1,6 @@
 # ADR-0006 · GitHub Pages como distribución, CI como única puerta
 
-**Estado:** Aceptada · **Fecha:** 2026-10-17
+**Estado:** Aceptada (dominio y ruta modificados por ADR-0008) · **Fecha:** 2026-10-17
 
 ## Contexto
 
@@ -12,8 +12,9 @@ publica y qué garantiza que lo publicado es lo que está en `main`.
 - Se publica en GitHub Pages desde un workflow de GitHub Actions (`deploy-pages.yml`) que solo se
   ejecuta en `main` y solo tras pasar el workflow de CI (lint, typecheck, tests, build, e2e).
 - El build usa `BASE_PATH=/copia-segura/` para que las rutas funcionen bajo el subdirectorio del
-  repositorio. En local, `npm start` sirve en `/`.
-- No se usan dominios personalizados ni CDN adicionales: la URL es la del proyecto en GitHub.
+  repositorio (desde ADR-0008, la ruta la da Pages). En local, `npm start` sirve en `/`.
+- ~~No se usan dominios personalizados~~ (ver ADR-0008: `copia-segura.orbytia.es`). Ni CDN
+  adicionales.
 
 ## Consecuencias
 
