@@ -7,6 +7,18 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    # Los saltos de versión mayor de la cadena de tipos y lint (TypeScript, ESLint, @types/node)
+    # rompen la compatibilidad entre ellos (typescript-eslint, .nvmrc en Node 22). Se actualizan a
+    # mano, juntos y con su propio PR; Dependabot propone solo menores y parches.
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
