@@ -1,4 +1,10 @@
-import { PRESETS, type NormalizedRect, type Page, type PageEdits } from '../../domain';
+import {
+  MASK_TEMPLATES,
+  PRESETS,
+  type NormalizedRect,
+  type Page,
+  type PageEdits,
+} from '../../domain';
 import type { Bitmap } from '../../application';
 import type { AppContext } from '../context';
 import type { MessageKey } from '../i18n';
@@ -8,12 +14,11 @@ import { defaultText } from '../store';
 type Step = 'original' | 'masked' | 'marked' | 'gray';
 const STEPS: readonly Step[] = ['original', 'masked', 'marked', 'gray'];
 
-/** Zonas de la tarjeta ficticia: firma, número de trámite y código de barras. */
-const DEMO_MASKS: readonly NormalizedRect[] = [
-  { x: 0.03, y: 0.69, w: 0.4, h: 0.09 },
-  { x: 0.03, y: 0.83, w: 0.45, h: 0.1 },
-  { x: 0.55, y: 0.8, w: 0.43, h: 0.14 },
-];
+/**
+ * Zonas de la tarjeta ficticia: número de soporte, firma y CAN. Son las de la plantilla del DNI
+ * (RF-16): la tarjeta de muestra sigue esa disposición, así que la demo enseña la plantilla real.
+ */
+const DEMO_MASKS: readonly NormalizedRect[] = MASK_TEMPLATES['dni-es-frente'].map((z) => z.rect);
 
 /**
  * Demo de la portada (RF-14): la tarjeta ficticia procesada en vivo con el mismo pipeline que la
