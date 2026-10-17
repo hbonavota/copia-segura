@@ -262,7 +262,7 @@ test.describe('SPEC-0005 · portada, B/N, plantillas, verificable, móvil', () =
   test('RF-17 · explica cómo verificarlo y qué la hace distinta', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByTestId('verify')).toContainText('Compruébalo tú');
-    await expect(page.getByTestId('verify').getByRole('link')).toHaveAttribute(
+    await expect(page.getByTestId('verify').locator('a')).toHaveAttribute(
       'href',
       /e2e\/copia-segura\.spec\.ts$/,
     );
@@ -483,7 +483,7 @@ test.describe('SPEC-0009 · pixelado, iPhone y preguntas', () => {
     await withoutWatermark(page);
     const original = await previewPixel(page, { x: 0.3, y: 0.3 });
     await afterRender(page, () => page.getByTestId('redaction-pixelate').check());
-    await expect(page.getByTestId('redaction-help')).toContainText('no lo uses sobre números');
+    await expect(page.getByTestId('redaction-help')).toContainText('No lo uses sobre números');
     await drag(page, { x: 0.1, y: 0.1 }, { x: 0.5, y: 0.5 });
     const pixelated = await previewPixel(page, { x: 0.3, y: 0.3 });
     expect(isBlack(pixelated)).toBe(false);
@@ -600,5 +600,24 @@ test.describe('SPEC-0010 · cualquier documento', () => {
     // Página A4 entera (vertical), sin el aviso de recorte automático.
     await expect(page.getByTestId('meta')).toHaveText(/8\d\d × 1200 px/);
     await expect(page.locator('.notice')).not.toContainText('recortado automáticamente');
+  });
+});
+
+test.describe('RF-33 · textos breves, detalle plegado', () => {
+  test('lo esencial a la vista y el detalle en desplegables cerrados', async ({ page }) => {
+    await page.goto('./');
+    await expect(page.getByTestId('verify').locator('.verify-lead')).toBeVisible();
+    const steps = page.getByTestId('verify').locator('.verify-steps');
+    await expect(steps).toBeHidden();
+    await page.getByTestId('verify').locator('summary').click();
+    await expect(steps).toBeVisible();
+    await expect(page.locator('.about-summary .about-columns')).toBeHidden();
+  });
+
+  test('el sello no se estira en el móvil', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('./');
+    const stamp = await page.locator('.stamp').boundingBox();
+    expect(stamp?.width ?? 999).toBeLessThan(220);
   });
 });

@@ -1769,3 +1769,84 @@ input[type='color'] {
     width: 100%;
   }
 }
+
+/* ---------------------------------------------------------------------------- sello y ayudas */
+/* El sello mide lo que su texto: en una rejilla de una columna no se estira a todo el ancho. */
+.stamp {
+  justify-self: start;
+  width: max-content;
+}
+
+/* Atajos del editor (RF-27): solo se muestran cuando una zona tiene el foco del teclado. */
+.hint-keys {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.editor:has(.mask-box:focus-visible) .hint-keys {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+}
+
+/* "Más información": lo esencial a la vista, el detalle plegado. */
+.more {
+  margin-top: 10px;
+}
+
+.more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.more > summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.more[open] > summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.more[open] > summary {
+  margin-bottom: 14px;
+}
+
+.about-summary {
+  margin-bottom: 40px;
+}
+
+.about-lead {
+  max-width: 72ch;
+  color: var(--ink-2);
+}
+
+.about-summary .links {
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.about-summary .about-columns {
+  margin-bottom: 0;
+}

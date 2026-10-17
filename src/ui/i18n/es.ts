@@ -6,7 +6,7 @@ export const es = {
   'app.theme.dark': 'Modo oscuro',
 
   'drop.title': 'Suelta tu documento aquí',
-  'drop.hint': 'PDF de una o varias páginas, o fotos (JPG, PNG, WebP).',
+  'drop.hint': 'PDF o fotos, de una o varias páginas.',
   'drop.choose': 'Elegir archivos',
   'drop.camera': 'Usar la cámara',
   'drop.example': 'Ver cómo funciona con un DNI de prueba',
@@ -25,8 +25,8 @@ export const es = {
   'tool.clearMasks': 'Quitar todas las zonas',
   'tool.clearCrop': 'Quitar recorte',
   'tool.hint.mask':
-    'Dibuja un rectángulo sobre lo que el trámite no necesita. Arrastra una zona para moverla o su esquina para cambiar el tamaño; con el teclado: flechas para mover, Alt + flechas para el tamaño, Supr para quitarla.',
-  'tool.hint.crop': 'Dibuja el rectángulo que quieres conservar. Fuera de él no se exporta nada.',
+    'Dibuja un rectángulo sobre lo que sobra. Arrastra una zona para moverla o su esquina para cambiar el tamaño.',
+  'tool.hint.crop': 'Dibuja el rectángulo que quieres conservar.',
   'tool.strips': 'Tapar una franja',
   'tool.strip.top': 'Arriba',
   'tool.strip.bottom': 'Abajo',
@@ -64,7 +64,7 @@ export const es = {
 
   'output.title': 'Salida',
   'output.maxSide': 'Lado máximo',
-  'output.maxSide.help': 'Suficiente para que se lea; no vale para falsificar.',
+  'output.maxSide.help': 'Para leer, no para falsificar.',
   'output.quality': 'Calidad JPEG',
 
   'export.jpg': 'Descargar copia',
@@ -98,7 +98,7 @@ export const es = {
   'import.autocrop':
     'Se ha recortado automáticamente a la imagen que había dentro del PDF. Puedes quitar el recorte en el editor.',
 
-  'about.title': 'Qué hace y qué no hace una marca de agua',
+  'about.title': 'Qué consigue una marca de agua',
   'about.does.title': 'Lo que consigue',
   'about.does.1':
     'Deja constancia de a quién entregaste la copia, para qué y cuándo. Si aparece en otro sitio, se sabe de dónde salió.',
@@ -125,22 +125,21 @@ export const es = {
   'demo.tab.masked': 'Tapado',
   'demo.tab.marked': 'Marca',
   'demo.tab.gray': 'B/N',
-  'demo.caption.original': 'La foto tal cual: todos los datos visibles.',
-  'demo.caption.masked': 'Firma, número de trámite y código de barras tapados con negro opaco.',
-  'demo.caption.marked': 'Marca con destinatario, finalidad y fecha cruzando todo el documento.',
-  'demo.caption.gray':
-    'En blanco y negro la copia vale aún menos para falsificar; la marca sigue en color.',
+  'demo.caption.original': 'La tarjeta tal cual: todos los datos visibles.',
+  'demo.caption.masked': 'Soporte, firma y CAN tapados en negro.',
+  'demo.caption.marked': 'Marca con destinatario, finalidad y fecha.',
+  'demo.caption.gray': 'En blanco y negro; la marca sigue en color.',
 
   'template.label': 'Zonas típicas',
   'template.apply': 'Aplicar',
-  'template.help': 'Aproximadas: recorta antes a la tarjeta y revísalas.',
+  'template.help': 'Aproximadas: revísalas.',
   'template.dni-es-frente': 'DNI España · frente',
   'template.dni-es-dorso': 'DNI España · dorso',
   'template.dni-ar-frente': 'DNI Argentina · frente',
   'template.dni-ar-dorso': 'DNI Argentina · dorso',
 
   'output.grayscale': 'Blanco y negro',
-  'output.grayscale.help': 'El documento en grises; la marca conserva su color.',
+  'output.grayscale.help': 'La marca sigue en color.',
 
   'export.share': 'Compartir',
   'export.shared': 'Copia compartida: {files}. Se ha generado en tu equipo.',
@@ -149,42 +148,34 @@ export const es = {
   'export.failed': 'No se pudo generar la copia ({message}). Prueba con un lado máximo menor.',
 
   'verify.title': 'Compruébalo tú',
-  'verify.lead':
-    'No hace falta fiarse de lo que dice esta página. Puedes verificarlo en un minuto:',
+  'verify.lead': 'No hace falta fiarse de lo que dice esta página.',
   'verify.step.1':
-    'Abre las herramientas de desarrollo del navegador (F12 o Cmd+Opción+I), pestaña Red, y prepara una copia: no aparece ninguna petición a otro dominio. Ni analítica, ni fuentes externas, ni servidor.',
+    'Abre las herramientas de desarrollo (F12 o Cmd+Opción+I), pestaña Red, y prepara una copia: ninguna petición va a otro dominio.',
   'verify.step.2':
-    'Mira el código fuente de la página: la política de seguridad (Content-Security-Policy) impide a la página pedir datos o cargar recursos de cualquier otro sitio, aunque alguien lo intentara.',
-  'verify.step.3':
-    'El código es abierto y cada cambio pasa un test que registra todas las peticiones de un flujo completo y falla si alguna sale del origen:',
+    'En el código fuente, la política de seguridad (Content-Security-Policy) impide pedir datos a cualquier otro sitio.',
+  'verify.step.3': 'El código es abierto y un test lo comprueba en cada cambio:',
   'verify.step.3.link': 'míralo aquí',
 
   'distinct.title': 'Qué la hace distinta',
   'distinct.1.title': 'Sin terceros',
-  'distinct.1.text':
-    'Ni analítica, ni fuentes de Google, ni CDN. La página solo habla con el servidor que la aloja, y solo para cargarse.',
-  'distinct.2.title': 'Verificable, no prometido',
-  'distinct.2.text':
-    'La política de seguridad lo impone y un test lo comprueba en cada cambio. El código es público.',
+  'distinct.1.text': 'Ni analítica, ni fuentes externas, ni CDN.',
+  'distinct.2.title': 'Verificable',
+  'distinct.2.text': 'La CSP lo impone y un test lo comprueba.',
   'distinct.3.title': 'Cualquier documento',
-  'distinct.3.text':
-    'DNI, pasaporte, nómina, contrato o cualquier PDF o imagen. Abre el PDF del escáner o del móvil, de una o de muchas páginas, y exporta todo junto en PDF o ZIP.',
-  'distinct.4.title': 'Sin metadatos y con resolución justa',
-  'distinct.4.text':
-    'Elimina la ubicación, el modelo del móvil y la fecha de la foto, y limita el tamaño para que sirva para leer, no para falsificar.',
-  'distinct.5.title': 'Zonas típicas en un clic',
-  'distinct.5.text':
-    'Plantillas para el DNI de España y de Argentina con los datos que un trámite no suele necesitar.',
-  'distinct.6.title': 'Honesta sobre sus límites',
-  'distinct.6.text':
-    'Te explica qué consigue una marca de agua y qué no, en vez de prometer una seguridad que no existe.',
+  'distinct.3.text': 'DNI, nómina, contrato… PDF o imagen.',
+  'distinct.4.title': 'Sin metadatos',
+  'distinct.4.text': 'Sin ubicación ni datos del móvil; resolución justa.',
+  'distinct.5.title': 'Zonas típicas',
+  'distinct.5.text': 'Plantillas para el DNI de España y Argentina.',
+  'distinct.6.title': 'Honesta',
+  'distinct.6.text': 'Explica qué consigue una marca y qué no.',
 
   'notice.close': 'Cerrar aviso',
   'footer.source': 'Código fuente',
   'footer.docs': 'Cómo está hecho',
   'hero.title': 'Tus documentos, solo para quien tú decidas.',
   'hero.sub':
-    'DNI, pasaporte, nóminas, contratos o cualquier PDF o imagen: márcalo, tapa lo que sobra y descarga una copia limitada. Sin subir nada: todo ocurre en este dispositivo.',
+    'DNI, pasaporte, nóminas o cualquier PDF o imagen. Márcalo, tapa lo que sobra y descárgalo sin subir nada.',
   'trust.local': 'Se procesa en este dispositivo',
   'trust.noTracking': 'Sin analítica ni cookies',
   'trust.open': 'Código abierto',
@@ -211,9 +202,8 @@ export const es = {
   'redact.style': 'Estilo',
   'redact.solid': 'Negro',
   'redact.pixelate': 'Pixelado',
-  'redact.help.solid': 'Irreversible: los píxeles originales desaparecen. Recomendado.',
-  'redact.help.pixelate':
-    'Más discreto, pero no lo uses sobre números ni texto: hay técnicas que recuperan texto pixelado.',
+  'redact.help.solid': 'Irreversible. Recomendado.',
+  'redact.help.pixelate': 'Más discreto. No lo uses sobre números ni texto.',
   'export.zip.many': 'Descargar {n} copias (ZIP)',
   'export.jpg.short': 'JPG',
   'export.more': 'También como',
@@ -257,6 +247,12 @@ export const es = {
   'kind.4': 'Contrato',
   'kind.5': 'Factura',
   'kind.6': 'Cualquier PDF o imagen',
+  'tool.hint.keys':
+    'Teclado: flechas para mover la zona seleccionada, Alt + flechas para el tamaño y Supr para quitarla.',
+  'verify.more': 'Cómo comprobarlo en un minuto',
+  'about.summary':
+    'Deja constancia de a quién, para qué y cuándo entregaste la copia, y encarece reutilizarla. No impide que alguien la use.',
+  'about.more': 'Más información',
 } as const;
 
 export type MessageKey = keyof typeof es;

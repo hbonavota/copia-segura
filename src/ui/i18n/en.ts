@@ -8,7 +8,7 @@ export const en: Record<MessageKey, string> = {
   'app.theme.dark': 'Dark mode',
 
   'drop.title': 'Drop your document here',
-  'drop.hint': 'Single or multi-page PDF, or photos (JPG, PNG, WebP).',
+  'drop.hint': 'PDF or photos, single or multi-page.',
   'drop.choose': 'Choose files',
   'drop.camera': 'Use the camera',
   'drop.example': 'See how it works with a sample ID',
@@ -27,8 +27,8 @@ export const en: Record<MessageKey, string> = {
   'tool.clearMasks': 'Remove all areas',
   'tool.clearCrop': 'Remove crop',
   'tool.hint.mask':
-    "Draw a rectangle over what the recipient doesn't need. Drag an area to move it, or its corner to resize it; with the keyboard: arrows to move, Alt + arrows to resize, Delete to remove it.",
-  'tool.hint.crop': 'Draw the rectangle you want to keep. Nothing outside it is exported.',
+    "Draw a rectangle over what isn't needed. Drag an area to move it, or its corner to resize it.",
+  'tool.hint.crop': 'Draw the rectangle you want to keep.',
   'tool.strips': 'Redact a strip',
   'tool.strip.top': 'Top',
   'tool.strip.bottom': 'Bottom',
@@ -66,7 +66,7 @@ export const en: Record<MessageKey, string> = {
 
   'output.title': 'Output',
   'output.maxSide': 'Longest side',
-  'output.maxSide.help': 'Enough to be legible; not enough to forge.',
+  'output.maxSide.help': 'Enough to read, not to forge.',
   'output.quality': 'JPEG quality',
 
   'export.jpg': 'Download copy',
@@ -100,7 +100,7 @@ export const en: Record<MessageKey, string> = {
   'import.autocrop':
     'Automatically cropped to the image found inside the PDF. You can remove the crop in the editor.',
 
-  'about.title': 'What a watermark does and does not do',
+  'about.title': 'What a watermark achieves',
   'about.does.title': 'What it achieves',
   'about.does.1':
     'It records who you gave the copy to, for what and when. If it shows up elsewhere, its origin is known.',
@@ -127,22 +127,21 @@ export const en: Record<MessageKey, string> = {
   'demo.tab.masked': 'Redacted',
   'demo.tab.marked': 'Watermark',
   'demo.tab.gray': 'B/W',
-  'demo.caption.original': 'The photo as is: every detail visible.',
-  'demo.caption.masked': 'Signature, document number and barcode covered with opaque black.',
-  'demo.caption.marked': 'A mark with recipient, purpose and date crossing the whole document.',
-  'demo.caption.gray':
-    'In black and white the copy is even less useful for forgery; the mark stays in colour.',
+  'demo.caption.original': 'The card as is: every detail visible.',
+  'demo.caption.masked': 'Card number, signature and CAN covered in black.',
+  'demo.caption.marked': 'Watermark with recipient, purpose and date.',
+  'demo.caption.gray': 'In black and white; the watermark stays in colour.',
 
   'template.label': 'Typical areas',
   'template.apply': 'Apply',
-  'template.help': 'Approximate: crop to the card first and check them.',
+  'template.help': 'Approximate: check them.',
   'template.dni-es-frente': 'Spanish DNI · front',
   'template.dni-es-dorso': 'Spanish DNI · back',
   'template.dni-ar-frente': 'Argentine DNI · front',
   'template.dni-ar-dorso': 'Argentine DNI · back',
 
   'output.grayscale': 'Black and white',
-  'output.grayscale.help': 'The document in greyscale; the watermark keeps its colour.',
+  'output.grayscale.help': 'The watermark stays in colour.',
 
   'export.share': 'Share',
   'export.shared': 'Copy shared: {files}. It was generated on your device.',
@@ -151,41 +150,34 @@ export const en: Record<MessageKey, string> = {
   'export.failed': 'The copy could not be generated ({message}). Try a smaller longest side.',
 
   'verify.title': 'Check it yourself',
-  'verify.lead': 'You do not have to trust what this page says. You can verify it in a minute:',
+  'verify.lead': "You don't have to take this page's word for it.",
   'verify.step.1':
-    'Open the browser developer tools (F12 or Cmd+Option+I), Network tab, and prepare a copy: there is no request to any other domain. No analytics, no external fonts, no server.',
+    'Open the developer tools (F12 or Cmd+Option+I), Network tab, and make a copy: no request goes to another domain.',
   'verify.step.2':
-    'Look at the page source: its Content-Security-Policy stops the page from fetching data or loading resources from any other site, even if someone tried.',
-  'verify.step.3':
-    'The code is open source, and every change runs a test that records every request of a full flow and fails if any leaves the origin:',
+    'In the page source, the security policy (Content-Security-Policy) stops it from requesting data from any other site.',
+  'verify.step.3': 'The code is open and a test checks it on every change:',
   'verify.step.3.link': 'see it here',
 
   'distinct.title': 'What makes it different',
   'distinct.1.title': 'No third parties',
-  'distinct.1.text':
-    'No analytics, no Google Fonts, no CDN. The page only talks to the server that hosts it, and only to load itself.',
-  'distinct.2.title': 'Verifiable, not promised',
-  'distinct.2.text':
-    'The security policy enforces it and a test checks it on every change. The code is public.',
+  'distinct.1.text': 'No analytics, no external fonts, no CDN.',
+  'distinct.2.title': 'Verifiable',
+  'distinct.2.text': 'The CSP enforces it and a test checks it.',
   'distinct.3.title': 'Any document',
-  'distinct.3.text':
-    'ID card, passport, payslip, contract or any PDF or image. Open the PDF from your scanner or phone, single or multi-page, and export it all together as PDF or ZIP.',
-  'distinct.4.title': 'No metadata, just enough resolution',
-  'distinct.4.text':
-    'Removes location, phone model and date from the photo, and caps the size so it is good for reading, not for forging.',
-  'distinct.5.title': 'Typical areas in one click',
-  'distinct.5.text':
-    'Templates for Spanish and Argentine IDs with the details a process usually does not need.',
-  'distinct.6.title': 'Honest about its limits',
-  'distinct.6.text':
-    'It tells you what a watermark achieves and what it does not, instead of promising security that does not exist.',
+  'distinct.3.text': 'ID, payslip, contract… PDF or image.',
+  'distinct.4.title': 'No metadata',
+  'distinct.4.text': 'No location or phone data; just enough resolution.',
+  'distinct.5.title': 'Typical areas',
+  'distinct.5.text': 'Templates for Spanish and Argentine IDs.',
+  'distinct.6.title': 'Honest',
+  'distinct.6.text': "Explains what a watermark does and doesn't do.",
 
   'notice.close': 'Dismiss',
   'footer.source': 'Source code',
   'footer.docs': 'How it is built',
   'hero.title': 'Your documents, only for whoever you choose.',
   'hero.sub':
-    "ID card, passport, payslips, contracts or any PDF or image: watermark it, cover what isn't needed and download a limited copy. Nothing is uploaded: it all happens on this device.",
+    "ID card, passport, payslips or any PDF or image. Watermark it, cover what isn't needed and download it without uploading anything.",
   'trust.local': 'Processed on this device',
   'trust.noTracking': 'No analytics, no cookies',
   'trust.open': 'Open source',
@@ -212,9 +204,8 @@ export const en: Record<MessageKey, string> = {
   'redact.style': 'Style',
   'redact.solid': 'Black',
   'redact.pixelate': 'Pixelated',
-  'redact.help.solid': 'Irreversible: the original pixels are gone. Recommended.',
-  'redact.help.pixelate':
-    "Subtler, but don't use it on numbers or text: some techniques can recover pixelated text.",
+  'redact.help.solid': 'Irreversible. Recommended.',
+  'redact.help.pixelate': "Subtler. Don't use it on numbers or text.",
   'export.zip.many': 'Download {n} copies (ZIP)',
   'export.jpg.short': 'JPG',
   'export.more': 'Also as',
@@ -258,4 +249,10 @@ export const en: Record<MessageKey, string> = {
   'kind.4': 'Contract',
   'kind.5': 'Invoice',
   'kind.6': 'Any PDF or image',
+  'tool.hint.keys':
+    'Keyboard: arrows move the selected area, Alt + arrows resize it and Delete removes it.',
+  'verify.more': 'How to check it in a minute',
+  'about.summary':
+    'It records who you gave the copy to, what for and when, and makes reusing it harder. It does not stop someone from using it.',
+  'about.more': 'More information',
 };

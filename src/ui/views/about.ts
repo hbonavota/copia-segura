@@ -9,7 +9,8 @@ const list = (t: (k: MessageKey) => string, keys: readonly MessageKey[]): HTMLUL
 
 /**
  * Explicación honesta (RF-13), cómo comprobar la privacidad sin leer código y qué distingue a la
- * herramienta (RF-17), y preguntas frecuentes (RF-30).
+ * herramienta (RF-17), y preguntas frecuentes (RF-30). Lo esencial a la vista; el detalle, en
+ * desplegables.
  */
 export const about: View = (root, { deps, t }) => {
   const testUrl = `${deps.links.source}/blob/main/e2e/copia-segura.spec.ts`;
@@ -25,17 +26,22 @@ export const about: View = (root, { deps, t }) => {
       h('h2', { id: 'verify-title' }, t('verify.title')),
       h('p', { class: 'verify-lead' }, t('verify.lead')),
       h(
-        'ol',
-        { class: 'verify-steps' },
-        h('li', {}, t('verify.step.1')),
-        h('li', {}, t('verify.step.2')),
+        'details',
+        { class: 'more' },
+        h('summary', {}, t('verify.more')),
         h(
-          'li',
-          {},
-          t('verify.step.3'),
-          ' ',
-          h('a', { href: testUrl, rel: 'noopener' }, t('verify.step.3.link')),
-          '.',
+          'ol',
+          { class: 'verify-steps' },
+          h('li', {}, t('verify.step.1')),
+          h('li', {}, t('verify.step.2')),
+          h(
+            'li',
+            {},
+            t('verify.step.3'),
+            ' ',
+            h('a', { href: testUrl, rel: 'noopener' }, t('verify.step.3.link')),
+            '.',
+          ),
         ),
       ),
     ),
@@ -55,34 +61,44 @@ export const about: View = (root, { deps, t }) => {
         ),
       ),
     ),
-    h('h2', {}, t('about.title')),
     h(
-      'div',
-      { class: 'about-columns' },
+      'section',
+      { class: 'about-summary', attrs: { 'aria-labelledby': 'about-title' } },
+      h('h2', { id: 'about-title' }, t('about.title')),
+      h('p', { class: 'about-lead' }, t('about.summary')),
       h(
-        'div',
-        {},
-        h('h3', {}, t('about.does.title')),
-        list(t, ['about.does.1', 'about.does.2', 'about.does.3']),
+        'p',
+        { class: 'links' },
+        h('a', { href: deps.links.source, rel: 'noopener' }, t('footer.source')),
+        ' · ',
+        h('a', { href: deps.links.docs, rel: 'noopener' }, t('footer.docs')),
       ),
       h(
-        'div',
-        {},
-        h('h3', {}, t('about.doesnt.title')),
-        list(t, ['about.doesnt.1', 'about.doesnt.2']),
-      ),
-      h(
-        'div',
-        {},
-        h('h3', {}, t('about.privacy.title')),
-        h('p', {}, t('about.privacy.1')),
-        h('p', {}, t('about.privacy.2')),
+        'details',
+        { class: 'more' },
+        h('summary', {}, t('about.more')),
         h(
-          'p',
-          { class: 'links' },
-          h('a', { href: deps.links.source, rel: 'noopener' }, t('footer.source')),
-          ' · ',
-          h('a', { href: deps.links.docs, rel: 'noopener' }, t('footer.docs')),
+          'div',
+          { class: 'about-columns' },
+          h(
+            'div',
+            {},
+            h('h3', {}, t('about.does.title')),
+            list(t, ['about.does.1', 'about.does.2', 'about.does.3']),
+          ),
+          h(
+            'div',
+            {},
+            h('h3', {}, t('about.doesnt.title')),
+            list(t, ['about.doesnt.1', 'about.doesnt.2']),
+          ),
+          h(
+            'div',
+            {},
+            h('h3', {}, t('about.privacy.title')),
+            h('p', {}, t('about.privacy.1')),
+            h('p', {}, t('about.privacy.2')),
+          ),
         ),
       ),
     ),

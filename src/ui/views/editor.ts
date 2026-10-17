@@ -197,7 +197,12 @@ export const editor: View = (root, { store, deps, t }) => {
     undoButton.disabled = !edits || edits.masks.length === 0;
     clearMasksButton.disabled = !edits || edits.masks.length === 0;
     clearCropButton.hidden = !edits?.crop;
-    hint.textContent = state.tool === 'crop' ? t('tool.hint.crop') : t('tool.hint.mask');
+    // Los atajos solo se leen/ven cuando hay una zona con el foco (CSS): la ayuda visible es corta.
+    replaceChildren(
+      hint,
+      state.tool === 'crop' ? t('tool.hint.crop') : t('tool.hint.mask'),
+      state.tool === 'crop' ? null : h('span', { class: 'hint-keys' }, ` ${t('tool.hint.keys')}`),
+    );
     overlay.dataset.tool = state.tool;
     const crop = state.tool === 'crop' ? (edits?.crop ?? null) : null;
     cropShade.hidden = !crop;
