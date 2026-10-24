@@ -1,19 +1,33 @@
-import { CameraError, type Camera, type CameraSession, type DecodedImage } from '../application';
+import {
+  CameraError,
+  resolveFacing,
+  type Camera,
+  type CameraFacing,
+  type CameraSession,
+  type DecodedImage,
+} from '../application';
 import { context2d, createCanvas } from './fonts';
 
 /**
- * Cámara del dispositivo vía `getUserMedia` (RF-03). La captura se toma del flujo tal cual,
- * sin espejo: el espejo es solo un efecto CSS de la vista previa.
+ * Cámara del dispositivo vía `getUserMedia` (RF-03, SPEC-0013). La captura se toma del flujo tal
+ * cual, sin espejo: el espejo de la cámara frontal es solo un efecto CSS de la vista previa.
  */
 export class MediaDevicesCamera implements Camera {
-  async start(): Promise<CameraSession> {
+  async count(): Promise<number> {
+    if (typeof navigator === 'undefined' || !('mediaDevices' in navigator)) return 0;
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter((d) => d.kind === 'videoinput').length;
+  }
+
+  async start(facing: CameraFacing): Promise<CameraSession> {
     if (typeof navigator === 'undefined' || !('mediaDevices' in navigator)) {
       throw new CameraError('unavailable', 'Este navegador no da acceso a la cámara.');
     }
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } },
+        // `ideal`, no `exact`: si no hay cámara en esa dirección, el navegador da la que haya.
+        video: { facingMode: { ideal: facing }, width: { ideal: 1920 }, height: { ideal: 1080 } },
         audio: false,
       });
     } catch (error) {
@@ -29,7 +43,9 @@ export class MediaDevicesCamera implements Camera {
       for (const track of stream.getTracks()) track.stop();
       throw toCameraError(error);
     }
-    return new Session(stream, video);
+    const reported = stream.getVideoTracks()[0]?.getSettings().facingMode;
+    const cameras = await this.count().catch(() => 0);
+    return new Session(stream, video, resolveFacing(reported, facing, cameras));
   }
 }
 
@@ -37,6 +53,7 @@ class Session implements CameraSession {
   constructor(
     readonly stream: MediaStream,
     private readonly video: HTMLVideoElement,
+    readonly facing: CameraFacing,
   ) {}
 
   async capture(): Promise<DecodedImage> {

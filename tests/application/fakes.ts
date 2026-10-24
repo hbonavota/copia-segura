@@ -4,6 +4,7 @@ import type {
   Archiver,
   Bitmap,
   Camera,
+  CameraFacing,
   CameraSession,
   Clock,
   DecodedImage,
@@ -112,7 +113,10 @@ export class FakeDownloader implements Downloader {
 export class FakeCameraSession implements CameraSession {
   stopped = false;
   readonly stream: MediaStream = {} as MediaStream;
-  constructor(private readonly shot: DecodedImage) {}
+  constructor(
+    private readonly shot: DecodedImage,
+    readonly facing: CameraFacing = 'environment',
+  ) {}
   capture(): Promise<DecodedImage> {
     return Promise.resolve(this.shot);
   }
@@ -122,11 +126,22 @@ export class FakeCameraSession implements CameraSession {
 }
 
 export class FakeCamera implements Camera {
-  constructor(private readonly session: CameraSession | Error) {}
-  start(): Promise<CameraSession> {
+  /** Cámaras pedidas, en orden. */
+  readonly requested: CameraFacing[] = [];
+  constructor(
+    private readonly session: CameraSession | Error,
+    private readonly cameras: number | Error = 1,
+  ) {}
+  start(facing: CameraFacing): Promise<CameraSession> {
+    this.requested.push(facing);
     return this.session instanceof Error
       ? Promise.reject(this.session)
       : Promise.resolve(this.session);
+  }
+  count(): Promise<number> {
+    return this.cameras instanceof Error
+      ? Promise.reject(this.cameras)
+      : Promise.resolve(this.cameras);
   }
 }
 

@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { PRESETS, type Page, type PageEdits } from '../../src/domain';
 import {
   CaptureFromCamera,
+  DEFAULT_FACING,
+  oppositeFacing,
+  resolveFacing,
   CameraError,
   ExportCopies,
   RenderPage,
@@ -190,6 +193,46 @@ describe('RF-03 · CaptureFromCamera', () => {
   it('propaga el error de permiso denegado para que la interfaz lo explique', async () => {
     const useCase = new CaptureFromCamera({ camera: new FakeCamera(new CameraError('denied')) });
     await expect(useCase.start()).rejects.toMatchObject({ code: 'denied' });
+  });
+});
+
+describe('SPEC-0013 · cámara trasera y frontal', () => {
+  it('abre por defecto la cámara trasera', async () => {
+    const camera = new FakeCamera(new FakeCameraSession(decoded(10, 10)));
+    await new CaptureFromCamera({ camera }).start();
+    expect(DEFAULT_FACING).toBe('environment');
+    expect(camera.requested).toEqual(['environment']);
+  });
+
+  it('cambiar de cámara apaga la actual y pide la contraria', async () => {
+    const back = new FakeCameraSession(decoded(10, 10), 'environment');
+    const camera = new FakeCamera(back, 2);
+    const useCase = new CaptureFromCamera({ camera });
+    await useCase.switchCamera(back);
+    expect(back.stopped).toBe(true);
+    expect(camera.requested).toEqual(['user']);
+    await useCase.switchCamera(new FakeCameraSession(decoded(10, 10), 'user'));
+    expect(camera.requested).toEqual(['user', 'environment']);
+  });
+
+  it('solo ofrece cambiar si hay más de una cámara', async () => {
+    const session = new FakeCameraSession(decoded(10, 10));
+    const useCase = (n: number | Error) =>
+      new CaptureFromCamera({ camera: new FakeCamera(session, n) });
+    expect(await useCase(2).canSwitch()).toBe(true);
+    expect(await useCase(1).canSwitch()).toBe(false);
+    expect(await useCase(new Error('sin permiso')).canSwitch()).toBe(false);
+  });
+
+  it('sabe qué cámara está en uso aunque la webcam no lo diga', () => {
+    expect(resolveFacing('environment', 'user', 2)).toBe('environment');
+    expect(resolveFacing('user', 'environment', 1)).toBe('user');
+    // Webcam única que no informa: mira al usuario aunque se pidiera la trasera.
+    expect(resolveFacing(undefined, 'environment', 1)).toBe('user');
+    expect(resolveFacing(undefined, 'environment', 2)).toBe('environment');
+    expect(resolveFacing('left', 'user', 2)).toBe('user');
+    expect(oppositeFacing('user')).toBe('environment');
+    expect(oppositeFacing('environment')).toBe('user');
   });
 });
 

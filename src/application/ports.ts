@@ -70,17 +70,27 @@ export interface Sharer {
   ): Promise<'shared' | 'cancelled'>;
 }
 
+/** Cámara frontal (`user`, la del lado de la pantalla) o trasera (`environment`). */
+export type CameraFacing = 'user' | 'environment';
+
 export interface CameraSession {
-  /** Flujo de vídeo para la vista previa (la interfaz lo muestra en espejo). */
+  /** Flujo de vídeo para la vista previa. */
   readonly stream: MediaStream;
+  /** Cámara en uso: la frontal se previsualiza en espejo; la trasera, no (SPEC-0013). */
+  readonly facing: CameraFacing;
   /** Captura el fotograma actual tal cual lo ve la cámara: sin espejo (RF-03). */
   capture(): Promise<DecodedImage>;
   stop(): void;
 }
 
 export interface Camera {
-  /** Lanza `CameraError` si no hay cámara o el usuario deniega el permiso. */
-  start(): Promise<CameraSession>;
+  /**
+   * Enciende la cámara pedida, o la que haya si el dispositivo no tiene esa (un portátil con una
+   * sola cámara). Lanza `CameraError` si no hay cámara o el usuario deniega el permiso.
+   */
+  start(facing: CameraFacing): Promise<CameraSession>;
+  /** Cámaras de vídeo del dispositivo. Fiable tras conceder el permiso. */
+  count(): Promise<number>;
 }
 
 export interface Clock {

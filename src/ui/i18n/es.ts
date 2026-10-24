@@ -77,6 +77,12 @@ export const es = {
   'camera.title': 'Hazte la foto sosteniendo el documento',
   'camera.help':
     'Luz de frente, el documento junto a la cara e inclinado un poco para que no refleje. La foto se guarda sin espejo: el texto se leerá del derecho.',
+  'camera.back.title': 'Haz una foto al documento',
+  'camera.back.help':
+    'Apóyalo en una superficie lisa, con buena luz y sin reflejos, y que entre entero en el encuadre.',
+  'camera.switch': 'Cambiar de cámara',
+  'camera.using.back': 'Cámara trasera.',
+  'camera.using.front': 'Cámara frontal.',
   'camera.shoot': 'Hacer foto',
   'camera.cancel': 'Cancelar',
   'camera.starting': 'Encendiendo la cámara…',

@@ -1,7 +1,7 @@
-import { CameraError, type CameraSession } from '../../application';
+import { CameraError, type CameraFacing, type CameraSession } from '../../application';
 import type { AppContext } from '../context';
 import type { MessageKey } from '../i18n';
-import { h, replaceChildren } from '../dom';
+import { h, icon, ICONS, replaceChildren } from '../dom';
 import { actions } from '../store';
 
 const ERROR_KEYS: Record<CameraError['code'], MessageKey> = {
@@ -10,9 +10,19 @@ const ERROR_KEYS: Record<CameraError['code'], MessageKey> = {
   unknown: 'camera.error.unknown',
 };
 
+const TEXTS: Record<CameraFacing, { title: MessageKey; help: MessageKey; using: MessageKey }> = {
+  environment: {
+    title: 'camera.back.title',
+    help: 'camera.back.help',
+    using: 'camera.using.back',
+  },
+  user: { title: 'camera.title', help: 'camera.help', using: 'camera.using.front' },
+};
+
 /**
- * Diálogo de captura (RF-03). La vista previa va en espejo para encuadrar; la foto no.
- * Devuelve la función que lo abre; la registra `services.openCamera`.
+ * Diálogo de captura (RF-03, SPEC-0013). Se abre con la cámara trasera y, si hay más de una,
+ * permite cambiar a la frontal. La vista previa de la frontal va en espejo para encuadrar; la foto
+ * nunca. Devuelve la función que lo abre; la registra `services.openCamera`.
  */
 export function cameraDialog(
   root: HTMLElement,
@@ -32,16 +42,40 @@ export function cameraDialog(
     t('camera.shoot'),
   );
   const cancel = h('button', { type: 'button', class: 'button' }, t('camera.cancel'));
+  // Sobre la vista previa, como en la cámara del móvil.
+  const flip = h(
+    'button',
+    {
+      type: 'button',
+      class: 'camera-flip',
+      dataset: { testid: 'camera-switch' },
+      hidden: true,
+      title: t('camera.switch'),
+      attrs: { 'aria-label': t('camera.switch') },
+    },
+    icon(ICONS.flip),
+  );
+  const title = h('h2', { id: 'camera-title' });
+  const help = h('p', { class: 'muted' });
   const dialog = h(
     'dialog',
-    { class: 'camera-dialog' },
-    h('h2', {}, t('camera.title')),
-    h('p', { class: 'muted' }, t('camera.help')),
-    video,
+    { class: 'camera-dialog', attrs: { 'aria-labelledby': 'camera-title' } },
+    title,
+    help,
+    h('div', { class: 'camera-frame' }, video, flip),
     status,
-    h('div', { class: 'actions' }, shoot, cancel),
+    h('div', { class: 'actions' }, cancel, shoot),
   );
   replaceChildren(root, dialog);
+
+  /** Textos y espejo según la cámara en uso. */
+  const show = (facing: CameraFacing): void => {
+    title.textContent = t(TEXTS[facing].title);
+    help.textContent = t(TEXTS[facing].help);
+    video.classList.toggle('is-mirrored', facing === 'user');
+    video.dataset.facing = facing;
+  };
+  show('environment');
 
   let session: CameraSession | null = null;
   /** Cada apertura tiene su número; una sesión que llega tarde (diálogo ya cerrado) se apaga. */
@@ -55,14 +89,17 @@ export function cameraDialog(
     if (dialog.open) dialog.close();
   };
 
-  const open = async (): Promise<void> => {
-    close();
+  /** Enciende una cámara (al abrir o al cambiar). `previous` se apaga antes de pedir la otra. */
+  const start = async (previous: CameraSession | null): Promise<void> => {
     const attempt = opening;
     status.textContent = t('camera.starting');
     shoot.disabled = true;
-    dialog.showModal();
+    flip.disabled = true;
+    session = null;
     try {
-      const started = await deps.capture.start();
+      const started = previous
+        ? await deps.capture.switchCamera(previous)
+        : await deps.capture.start();
       if (attempt !== opening || !dialog.open) {
         // El usuario canceló mientras el navegador pedía permiso: la cámara no se queda encendida.
         started.stop();
@@ -70,8 +107,13 @@ export function cameraDialog(
       }
       session = started;
       video.srcObject = session.stream;
-      status.textContent = '';
+      show(session.facing);
+      // Tras el permiso, el navegador ya dice cuántas cámaras hay.
+      flip.hidden = !(await deps.capture.canSwitch());
+      if (attempt !== opening) return;
+      status.textContent = previous ? t(TEXTS[session.facing].using) : '';
       shoot.disabled = false;
+      flip.disabled = false;
     } catch (error) {
       if (attempt !== opening) return;
       const code = error instanceof CameraError ? error.code : 'unknown';
@@ -80,6 +122,18 @@ export function cameraDialog(
       store.update(actions.notify({ kind: 'error', message: t(ERROR_KEYS[code], { message }) }));
     }
   };
+
+  const open = (): void => {
+    close();
+    show('environment');
+    flip.hidden = true;
+    dialog.showModal();
+    void start(null);
+  };
+
+  flip.addEventListener('click', () => {
+    if (session) void start(session);
+  });
 
   shoot.addEventListener('click', () => {
     if (!session) return;
@@ -109,5 +163,5 @@ export function cameraDialog(
     session = null;
   });
 
-  return { open: () => void open(), dispose: close };
+  return { open, dispose: close };
 }

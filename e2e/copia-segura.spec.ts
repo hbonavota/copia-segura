@@ -784,3 +784,105 @@ test.describe('SPEC-0012 · app instalable y sin conexión', () => {
     await expect(page.locator('.hero-title')).toBeVisible();
   });
 });
+
+/**
+ * Simula un móvil con cámara trasera y frontal: cada una emite un color (trasera roja, frontal
+ * azul) desde un lienzo, e informa de su `facingMode` como hace Chrome en Android.
+ */
+async function twoCameras(page: Page, cameras = 2): Promise<void> {
+  await page.addInitScript((count: number) => {
+    const log: { requested: string[]; stopped: number } = { requested: [], stopped: 0 };
+    (window as unknown as { __camera: typeof log }).__camera = log;
+    const devices = Array.from({ length: count }, (_, i) => ({
+      kind: 'videoinput',
+      deviceId: `cam-${i}`,
+      label: '',
+      groupId: '',
+    }));
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        enumerateDevices: () => Promise.resolve(devices),
+        getUserMedia: (constraints: { video: { facingMode: { ideal: string } } }) => {
+          const wanted = constraints.video.facingMode.ideal;
+          const facing = count > 1 ? wanted : 'user';
+          log.requested.push(wanted);
+          const canvas = document.createElement('canvas');
+          canvas.width = 640;
+          canvas.height = 400;
+          const ctx = canvas.getContext('2d')!;
+          const paint = () => {
+            ctx.fillStyle = facing === 'environment' ? '#ff0000' : '#0000ff';
+            ctx.fillRect(0, 0, 640, 400);
+          };
+          paint();
+          const timer = setInterval(paint, 50);
+          const stream = canvas.captureStream(20);
+          const track = stream.getVideoTracks()[0]!;
+          const stop = track.stop.bind(track);
+          track.stop = () => {
+            log.stopped += 1;
+            clearInterval(timer);
+            stop();
+          };
+          track.getSettings = () => ({ facingMode: count > 1 ? facing : undefined }) as never;
+          return Promise.resolve(stream);
+        },
+      },
+    });
+  }, cameras);
+}
+
+test.describe('SPEC-0013 · cámara trasera y frontal', () => {
+  test('abre la trasera sin espejo, cambia a la frontal y la foto sale de la cámara elegida', async ({
+    page,
+  }) => {
+    await twoCameras(page);
+    await page.goto('./');
+    await page.getByRole('button', { name: 'Usar la cámara' }).click();
+    const preview = page.locator('.camera-preview');
+    await expect(preview).toHaveAttribute('data-facing', 'environment');
+    await expect(preview).not.toHaveClass(/is-mirrored/);
+    await expect(page.locator('.camera-dialog h2')).toHaveText('Haz una foto al documento');
+
+    const flip = page.getByTestId('camera-switch');
+    await expect(flip).toBeVisible();
+    await flip.click();
+    await expect(preview).toHaveAttribute('data-facing', 'user');
+    await expect(preview).toHaveClass(/is-mirrored/);
+    await expect(page.locator('.camera-dialog [role="status"]')).toHaveText('Cámara frontal.');
+    // La trasera se apagó antes de encender la frontal.
+    expect(
+      await page.evaluate(
+        () => (window as never as { __camera: { stopped: number } }).__camera.stopped,
+      ),
+    ).toBe(1);
+
+    await flip.click();
+    await expect(preview).toHaveAttribute('data-facing', 'environment');
+    await page.getByRole('button', { name: 'Hacer foto' }).click();
+    await page.locator('canvas.preview[data-ready="true"]').waitFor();
+    await withoutWatermark(page);
+    const [r, g, b] = await previewPixel(page, { x: 0.5, y: 0.5 });
+    expect(r).toBeGreaterThan(200);
+    expect(g + b).toBeLessThan(80);
+    const log = await page.evaluate(
+      () => (window as never as { __camera: { requested: string[]; stopped: number } }).__camera,
+    );
+    expect(log.requested).toEqual(['environment', 'user', 'environment']);
+    // Las tres sesiones apagadas: ninguna cámara queda encendida tras la foto.
+    expect(log.stopped).toBe(3);
+  });
+
+  test('con una sola cámara no ofrece cambiar y la previsualiza en espejo', async ({ page }) => {
+    await twoCameras(page, 1);
+    await page.goto('./');
+    await page.getByRole('button', { name: 'Usar la cámara' }).click();
+    const preview = page.locator('.camera-preview');
+    await expect(preview).toHaveAttribute('data-facing', 'user');
+    await expect(preview).toHaveClass(/is-mirrored/);
+    await expect(page.getByTestId('camera-switch')).toBeHidden();
+    await page.getByRole('button', { name: 'Cancelar' }).click();
+    await expect(page.locator('.camera-dialog')).not.toHaveAttribute('open', '');
+  });
+});

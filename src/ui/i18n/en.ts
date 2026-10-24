@@ -79,6 +79,12 @@ export const en: Record<MessageKey, string> = {
   'camera.title': 'Take a photo holding your document',
   'camera.help':
     'Face the light, hold the document next to your face and tilt it slightly to avoid glare. The photo is saved un-mirrored: the text will read correctly.',
+  'camera.back.title': 'Take a photo of your document',
+  'camera.back.help':
+    'Lay it on a flat surface, with good light and no glare, and fit the whole document in the frame.',
+  'camera.switch': 'Switch camera',
+  'camera.using.back': 'Rear camera.',
+  'camera.using.front': 'Front camera.',
   'camera.shoot': 'Take photo',
   'camera.cancel': 'Cancel',
   'camera.starting': 'Starting the camera…',
