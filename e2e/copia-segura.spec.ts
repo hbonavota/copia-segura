@@ -886,3 +886,83 @@ test.describe('SPEC-0013 · cámara trasera y frontal', () => {
     await expect(page.locator('.camera-dialog')).not.toHaveAttribute('open', '');
   });
 });
+
+test.describe('SPEC-0014 · publicación profesional', () => {
+  test('RF-38 · el HTML sin JavaScript ya tiene título, descripción, h1 y datos para buscadores y redes', async ({
+    page,
+  }) => {
+    const html = await (await page.request.get('./')).text();
+    expect(html).toMatch(/<html lang="es">/);
+    expect(html).toMatch(/<title>copia segura · [^<]+<\/title>/);
+    expect(html).toMatch(/<meta\s+name="description"/);
+    expect(html).toContain('<link rel="canonical" href="https://copia-segura.orbytia.es/" />');
+    expect(html).toContain('property="og:image" content="https://copia-segura.orbytia.es/og.png"');
+    expect(html).toContain('name="twitter:card" content="summary_large_image"');
+    expect(html).toMatch(/<h1>copia segura<\/h1>/);
+    const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html);
+    const data = JSON.parse(ld?.[1] ?? 'null') as { '@type': string; url: string };
+    expect(data['@type']).toBe('WebApplication');
+    expect(data.url).toBe('https://copia-segura.orbytia.es/');
+    // La imagen social existe y mide lo que dice.
+    const og = await page.request.get('./og.png');
+    expect(og.headers()['content-type']).toContain('image/png');
+  });
+
+  test('RF-38 · al arrancar queda un solo h1, el idioma en <html> y ninguna imagen sin alt', async ({
+    page,
+  }) => {
+    await loadExample(page);
+    await expect(page.locator('h1')).toHaveCount(1);
+    await expect(page.locator('.boot')).toHaveCount(0);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await expect(page.locator('img:not([alt])')).toHaveCount(0);
+    await page.locator('.lang[lang="en"]').click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('RF-39 · robots.txt, sitemap.xml, llms.txt, favicon y página 404', async ({ page }) => {
+    const text = async (path: string) => {
+      const response = await page.request.get(path);
+      expect(response.status(), path).toBe(200);
+      return response.text();
+    };
+    const robots = await text('./robots.txt');
+    expect(robots).toMatch(/User-agent: \*\s+Allow: \//);
+    expect(robots).not.toMatch(/Disallow/);
+    expect(robots).toContain('Sitemap: https://copia-segura.orbytia.es/sitemap.xml');
+    expect(await text('./sitemap.xml')).toContain('<loc>https://copia-segura.orbytia.es/</loc>');
+    expect(await text('./llms.txt')).toMatch(/^# copia segura\n\n> /);
+    expect((await page.request.get('./favicon.ico')).status()).toBe(200);
+    expect(await text('./favicon.svg')).toContain('<svg');
+
+    await page.goto('./404.html');
+    await expect(page.locator('h1')).toHaveText('Esta página no existe');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await page.getByRole('link', { name: 'Ir a copia segura' }).click();
+    await expect(page.locator('.hero-title')).toBeVisible();
+  });
+
+  test('RF-40 · sin errores ni avisos en la consola y sin mapas de código publicados', async ({
+    page,
+  }) => {
+    const messages: string[] = [];
+    page.on('console', (m) => {
+      if (m.type() === 'error' || m.type() === 'warning') messages.push(`${m.type()}: ${m.text()}`);
+    });
+    page.on('pageerror', (e) => messages.push(`pageerror: ${e.message}`));
+    await loadExample(page);
+    await page.getByTestId('export-jpg').click();
+    await expect(page.locator('.notice')).toContainText('Copia lista');
+    expect(messages).toEqual([]);
+
+    const scripts = await page.evaluate(() =>
+      performance
+        .getEntriesByType('resource')
+        .map((r) => r.name)
+        .filter((n) => /\.m?js$/.test(n)),
+    );
+    for (const url of scripts) {
+      expect(await (await page.request.get(url)).text()).not.toContain('sourceMappingURL');
+    }
+  });
+});

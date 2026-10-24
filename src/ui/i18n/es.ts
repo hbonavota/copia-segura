@@ -1,6 +1,6 @@
 export const es = {
   'app.title': 'copia segura',
-  'app.tagline': 'Tus documentos, solo para quien tú decidas.',
+  'app.headline': 'Marca de agua para tu DNI y documentos, sin subirlos',
   'app.local': 'Todo ocurre en tu navegador. Tu documento no se envía a ningún sitio.',
   'app.language': 'Idioma',
   'app.theme.dark': 'Modo oscuro',

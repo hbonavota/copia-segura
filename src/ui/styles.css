@@ -134,6 +134,25 @@ output,
   padding: 0 24px 48px;
 }
 
+/* Contenido del HTML antes de que arranque la app (SPEC-0014): lo sustituye al montar. */
+.boot {
+  justify-self: center;
+  text-align: center;
+  max-width: 40rem;
+  padding: 15vh 0 0;
+}
+
+.boot h1 {
+  margin-bottom: 12px;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  letter-spacing: -0.02em;
+}
+
+.boot p {
+  margin-bottom: 10px;
+  color: var(--ink-2);
+}
+
 /* Arrastrar un archivo sobre la página (RF-01). El texto viene de `data-drop-label`. */
 .app.is-dragging::after {
   content: attr(data-drop-label);

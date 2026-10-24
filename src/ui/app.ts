@@ -56,7 +56,8 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
     unmount.forEach((fn) => fn());
     const ctx: AppContext = { store, deps, services, t: translator(store.get().locale) };
     document.documentElement.lang = ctx.store.get().locale;
-    document.title = `${ctx.t('app.title')} · ${ctx.t('app.tagline')}`;
+    // El mismo título que el HTML publicado (SPEC-0014), en el idioma elegido.
+    document.title = `${ctx.t('app.title')} · ${ctx.t('app.headline')}`;
     root.dataset.dropLabel = ctx.t('drop.release');
     const camera = cameraDialog(regions.camera, ctx);
     services.registerCamera(camera.open);

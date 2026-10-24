@@ -1,0 +1,30 @@
+# copia segura
+
+> Aplicación web gratuita y de código abierto para preparar una copia limitada de un DNI, pasaporte, nómina, contrato o cualquier PDF o imagen antes de enviarla: marca de agua con destinatario, finalidad y fecha; zonas tapadas en negro o pixeladas; y sin metadatos. Todo el procesado ocurre en el navegador: el documento no se sube a ningún servidor. Se puede instalar como app y funciona sin conexión.
+
+- Web: https://copia-segura.orbytia.es/
+- Idiomas: español e inglés.
+- Precio: gratis, sin registro ni cuenta.
+- Licencia: MIT. Autor: Hernán Bonavota.
+
+## Cómo se usa
+
+1. Abrir una foto, un PDF o hacer una foto con la cámara (trasera o frontal).
+2. Escribir para quién es la copia y para qué (por ejemplo, "Solo para la inmobiliaria X, alquiler, 24/10/2026").
+3. Tapar los datos que no hacen falta (número de soporte, firma, foto…) con plantillas o a mano.
+4. Exportar como JPG, PDF o ZIP, o compartir directamente desde el móvil.
+
+## Privacidad
+
+- No hay backend: la página solo puede pedir archivos a su propio dominio (política de seguridad de contenido `connect-src 'self'`).
+- El tapado en negro sustituye los píxeles: el dato original no existe en el archivo exportado.
+- Las copias se exportan sin metadatos EXIF ni de PDF.
+- La propia página muestra cuántos recursos ha cargado de otros dominios (debe ser 0).
+
+## Código y documentación
+
+- [Repositorio en GitHub](https://github.com/hbonavota/copia-segura): TypeScript, arquitectura limpia, desarrollo guiado por especificaciones.
+- [README](https://github.com/hbonavota/copia-segura/blob/main/README.md)
+- [Especificaciones](https://github.com/hbonavota/copia-segura/tree/main/docs/specs)
+- [Decisiones de arquitectura](https://github.com/hbonavota/copia-segura/tree/main/docs/adr)
+- [Modelo de amenazas](https://github.com/hbonavota/copia-segura/blob/main/docs/amenazas.md)

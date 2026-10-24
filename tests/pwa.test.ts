@@ -16,6 +16,7 @@ describe('RF-36 · qué guarda el service worker', () => {
     'index.html',
     'theme.js',
     'sw.js',
+    'favicon.svg',
     'manifest.webmanifest',
     'icons/icon-192.png',
     'ejemplo/tarjeta-ficticia.jpg',
@@ -36,6 +37,7 @@ describe('RF-36 · qué guarda el service worker', () => {
       'assets/index-Vh8sJQMx.css',
       'assets/inter-latin-wght-normal-Dx4kXJAl.woff2',
       'ejemplo/tarjeta-ficticia.jpg',
+      'favicon.svg',
       'icons/icon-192.png',
       'manifest.webmanifest',
       'theme.js',
@@ -68,9 +70,16 @@ describe('RF-36 · segundo plano tras abrir el primer documento', () => {
     'assets/es-C3.js',
     'pdfjs/wasm/openjpeg.wasm',
     'ejemplo/documento-ficticio.pdf',
+    '404.html',
+    'assets/notFound-D4.css',
+    'robots.txt',
+    'sitemap.xml',
+    'llms.txt',
+    'og.png',
+    'favicon.ico',
   ];
 
-  it('guarda el resto de la app, sin repetir lo precargado, ni mapas, ni sw.js', () => {
+  it('guarda el resto de la app, sin repetir lo precargado, ni mapas, ni sw.js, ni lo que es para buscadores y redes (SPEC-0014)', () => {
     expect(selectWarmup(build)).toEqual([
       'assets/es-C3.js',
       'assets/pdf-B2.js',

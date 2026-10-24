@@ -93,10 +93,13 @@ export default defineConfig({
   plugins: [contentSecurityPolicy(), serviceWorkerManifest()],
   build: {
     target: 'es2022',
-    sourcemap: true,
+    // Sin mapas de código en la web publicada (SPEC-0014): el código fuente está en el repositorio
+    // público, y la web solo sirve lo que el navegador necesita.
+    sourcemap: false,
     rollupOptions: {
       // El service worker se construye aparte y se publica con un nombre fijo en la raíz de la app.
-      input: { index: 'index.html', sw: 'src/pwa/sw.ts' },
+      // `404.html` es la página que GitHub Pages sirve para rutas que no existen.
+      input: { index: 'index.html', notFound: '404.html', sw: 'src/pwa/sw.ts' },
       output: {
         entryFileNames: (chunk) => (chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'),
       },

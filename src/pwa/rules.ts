@@ -17,6 +17,7 @@ export function selectPrecache(paths: readonly string[]): string[] {
   const shell = [
     /^index\.html$/,
     /^theme\.js$/,
+    /^favicon\.svg$/,
     /^manifest\.webmanifest$/,
     /^icons\/.+\.png$/,
     /^ejemplo\/tarjeta-ficticia\.jpg$/,
@@ -31,16 +32,30 @@ export function selectPrecache(paths: readonly string[]): string[] {
 }
 
 /**
+ * Archivos publicados que no son de la app sino para buscadores y redes (SPEC-0014): la app nunca
+ * los usa, así que no se guardan para usarla sin conexión.
+ */
+const NOT_APP = new Set([
+  '404.html',
+  'robots.txt',
+  'sitemap.xml',
+  'llms.txt',
+  'og.png',
+  'favicon.ico',
+]);
+
+/**
  * Lo que se guarda en segundo plano en cuanto el usuario abre su primer documento: el resto de la
  * app (pdf.js y sus recursos, pdf-lib, JSZip, fuentes), para que a partir de ahí todo funcione sin
- * conexión. Quien solo entra a mirar no lo descarga. Nunca entran mapas de código ni el propio
- * `sw.js`.
+ * conexión. Quien solo entra a mirar no lo descarga. Nunca entran mapas de código, el propio
+ * `sw.js` ni los archivos para buscadores y redes.
  */
 export function selectWarmup(paths: readonly string[]): string[] {
   const precached = new Set(selectPrecache(paths));
   return paths
     .map((p) => p.replace(/\\/g, '/'))
     .filter((p) => !p.endsWith('.map') && p !== 'sw.js' && p !== 'index.html')
+    .filter((p) => !NOT_APP.has(p) && !p.startsWith('assets/notFound-'))
     .filter((p) => !precached.has(p))
     .sort();
 }

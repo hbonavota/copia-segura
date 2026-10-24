@@ -1,0 +1,6 @@
+# copia segura (SPEC-0014): todo es público y se puede indexar, también por buscadores con IA.
+# La app no tiene datos de usuarios ni páginas privadas: los documentos nunca salen del navegador.
+User-agent: *
+Allow: /
+
+Sitemap: https://copia-segura.orbytia.es/sitemap.xml

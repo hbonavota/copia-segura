@@ -2,7 +2,7 @@ import type { MessageKey } from './es';
 
 export const en: Record<MessageKey, string> = {
   'app.title': 'copia segura',
-  'app.tagline': 'Your documents, only for whoever you choose.',
+  'app.headline': 'Watermark your ID and documents without uploading them',
   'app.local': 'Everything happens in your browser. Your document is never sent anywhere.',
   'app.language': 'Language',
   'app.theme.dark': 'Dark mode',
