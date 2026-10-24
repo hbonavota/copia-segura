@@ -63,7 +63,8 @@ Casos de uso (una función o clase pequeña por caso) y puertos (interfaces Type
   la demo de la portada y la exportación, así que las tres ven exactamente lo mismo.
 - `ExportCopies`: renderiza cada página, codifica a JPEG con la calidad del plan y entrega JPG, ZIP,
   PDF o los pasa al menú de compartir (`share`). Desambigua nombres repetidos.
-- `CaptureFromCamera`: abre la cámara, captura un fotograma sin espejo, cierra la cámara.
+- `CaptureFromCamera`: abre la cámara (la trasera por defecto), cambia entre trasera y frontal
+  apagando antes la anterior, captura un fotograma sin espejo y cierra la cámara.
 
 ### `src/infrastructure/`
 

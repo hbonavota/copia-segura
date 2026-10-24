@@ -1,6 +1,6 @@
 {
   "name": "copia-segura",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Prepara una copia limitada de tu DNI o de cualquier documento (marca de agua, zonas tapadas, sin metadatos) sin que salga de tu navegador.",
   "private": true,
   "type": "module",

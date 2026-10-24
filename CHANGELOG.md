@@ -2,6 +2,28 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.6.0] · 2026-10-24
+
+SPEC-0013: cámara trasera y frontal. SPEC-0014: publicación profesional.
+
+### Añadido
+
+- La cámara se abre con la trasera, la adecuada para fotografiar un documento, y un botón sobre la
+  vista previa cambia a la frontal cuando hay más de una. Solo la frontal se previsualiza en
+  espejo; la foto nunca (RF-37).
+- El HTML publicado se entiende sin JavaScript: título descriptivo, URL canónica, Open Graph y
+  Twitter Card con imagen propia (`og.png`), datos estructurados JSON-LD y un `h1` con qué hace la
+  app (RF-38).
+- `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg`/`favicon.ico` y una página 404 propia
+  (RF-39).
+- `npm run check:dist` en CI y antes de desplegar: presupuesto de la portada (45 KB de JS y 10 KB de
+  CSS con gzip), sin mapas de código y con los archivos anteriores (RF-40).
+
+### Cambiado
+
+- RF-03 queda modificado por SPEC-0013 (antes, solo cámara frontal y siempre en espejo).
+- La web publicada ya no incluye mapas de código (RF-40).
+
 ## [1.5.1] · 2026-10-18
 
 ADR-0008: dominio propio.
