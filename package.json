@@ -45,7 +45,8 @@
     "test:coverage": "vitest run --coverage",
     "pretest:e2e": "node scripts/copy-pdfjs-assets.mjs",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build",
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm test && npm run build && npm run check:dist",
+    "check:dist": "node scripts/check-dist.mjs",
     "example:icons": "node scripts/build-icons.mjs",
     "example:cards": "node scripts/build-cards.mjs",
     "example:build": "node scripts/build-example.mjs"
