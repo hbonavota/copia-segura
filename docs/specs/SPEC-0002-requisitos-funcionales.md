@@ -1,6 +1,6 @@
 # SPEC-0002 · Requisitos funcionales
 
-**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
+**Estado:** Implementada (RF-03 modificado por SPEC-0013) · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0001
 
 Cada requisito lleva criterios de aceptación en formato _Dado / Cuando / Entonces_. Los tests
 unitarios y e2e citan el identificador del requisito que cubren.

@@ -1,6 +1,6 @@
 # SPEC-0012 · App instalable y sin conexión
 
-**Estado:** Implementada · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0003, ADR-0007
+**Estado:** Implementada (RF-36 ampliado por SPEC-0014: qué no se guarda) · **Fecha:** 2026-10-17 · **Depende de:** SPEC-0003, ADR-0007
 
 ## Contexto
 
