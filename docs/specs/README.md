@@ -21,6 +21,7 @@ de modo que se puede trazar cualquier línea de código hasta el requisito que l
 | [SPEC-0012](SPEC-0012-app-instalable-y-sin-conexion.md)        | App instalable y sin conexión (RF-35, RF-36)                                                | Implementada |
 | [SPEC-0013](SPEC-0013-camara-trasera-y-frontal.md)             | Cámara trasera y frontal (RF-37)                                                            | Implementada |
 | [SPEC-0014](SPEC-0014-publicacion-profesional.md)              | Publicación profesional: buscadores, redes y build (RF-38…RF-40)                            | Implementada |
+| [SPEC-0015](SPEC-0015-pie-y-paginas-legales.md)                | Pie, aviso legal y privacidad (RF-41, RF-42)                                                | Implementada |
 
 Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripción de capas en
 [`docs/arquitectura.md`](../arquitectura.md). El modelo de amenazas, en [`docs/amenazas.md`](../amenazas.md).
@@ -32,4 +33,4 @@ Las decisiones de arquitectura están en [`docs/adr/`](../adr/) y la descripció
 3. **Implementada**: cada RF tiene al menos un test que lo cubre y pasa en CI.
 4. **Sustituida**: una spec posterior la reemplaza; se mantiene por trazabilidad.
 
-Los cambios de alcance se hacen con una nueva spec (`SPEC-0015`, …), no editando una aprobada.
+Los cambios de alcance se hacen con una nueva spec (`SPEC-0016`, …), no editando una aprobada.
