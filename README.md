@@ -151,4 +151,7 @@ Las vulnerabilidades se reportan según [SECURITY.md](SECURITY.md).
 
 ## Licencia
 
-[MIT](LICENSE) · Hernán Bonavota
+[MIT](LICENSE) · Hernán Bonavota · Desarrollado por [Orbytia](https://orbytia.es/).
+
+[Aviso legal](https://copia-segura.orbytia.es/aviso-legal/) ·
+[Privacidad](https://copia-segura.orbytia.es/privacidad/) · contacto@orbytia.es

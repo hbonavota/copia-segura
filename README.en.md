@@ -152,4 +152,8 @@ are reported as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) · Hernán Bonavota
+[MIT](LICENSE) · Hernán Bonavota · Developed by [Orbytia](https://orbytia.es/).
+
+[Legal notice](https://copia-segura.orbytia.es/aviso-legal/) ·
+[Privacy](https://copia-segura.orbytia.es/privacidad/) (in Spanish, with an English summary) ·
+contacto@orbytia.es

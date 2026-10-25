@@ -2,6 +2,23 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Versionado semántico.
 
+## [1.7.0] · 2026-10-25
+
+SPEC-0015: pie, aviso legal y privacidad.
+
+### Añadido
+
+- Pie de página en la app y en las páginas estáticas: Aviso legal, Privacidad, Contacto, Código
+  fuente y «© copia segura · Desarrollado por Orbytia» (RF-41).
+- `/aviso-legal/` y `/privacidad/`: HTML estático sin JavaScript, con titular (Orbytia), contacto,
+  condiciones de uso, garantías, licencia, qué guarda el navegador (sin cookies ni analítica),
+  alojamiento y derechos RGPD. Un test comprueba que la política nombra exactamente lo que la app
+  guarda en el navegador (RF-42).
+
+### Cambiado
+
+- Los datos estructurados atribuyen la app a Orbytia.
+
 ## [1.6.0] · 2026-10-24
 
 SPEC-0013: cámara trasera y frontal. SPEC-0014: publicación profesional.

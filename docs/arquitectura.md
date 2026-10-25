@@ -8,7 +8,7 @@ atraviesa un caso de uso el sistema.
 flowchart LR
   subgraph ui["ui/ (DOM, estado de la interfaz)"]
     Main["main.ts<br/>raíz de composición"]
-    Views["vistas: header (pasos, contador), notice,<br/>dropzone + demo, editor, page-strip,<br/>settings, export-bar, camera-dialog, about"]
+    Views["vistas: header (pasos, contador), notice,<br/>dropzone + demo, editor, page-strip,<br/>settings, export-bar, camera-dialog, about,<br/>site-footer"]
     Services["services.ts"]
     Store["store.ts"]
   end
