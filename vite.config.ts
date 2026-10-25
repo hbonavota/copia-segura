@@ -38,6 +38,41 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+/**
+ * Pie de las páginas estáticas (SPEC-0015): el mismo que el de la app, sin JavaScript. Se escribe
+ * una vez aquí y se inyecta donde el HTML tenga `<!-- site-footer -->`, marcando la página actual.
+ */
+function staticFooter(): Plugin {
+  let base = '/';
+  const newTab = '<span class="visually-hidden"> (se abre en otra pestaña)</span>';
+  return {
+    name: 'copia-segura:footer',
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html, ctx) => {
+        if (!html.includes('<!-- site-footer -->')) return html;
+        const page = (path: string, text: string): string =>
+          `<a href="${base}${path}"${ctx.path === `/${path}index.html` ? ' aria-current="page"' : ''}>${text}</a>`;
+        const footer = [
+          '<footer class="site-footer">',
+          '<nav class="site-footer-nav" aria-label="Información legal">',
+          page('aviso-legal/', 'Aviso legal'),
+          page('privacidad/', 'Privacidad'),
+          '<a href="mailto:contacto@orbytia.es">Contacto</a>',
+          `<a href="https://github.com/hbonavota/copia-segura" target="_blank" rel="noopener noreferrer">Código fuente${newTab}</a>`,
+          '</nav>',
+          `<p>© ${new Date().getFullYear()} copia segura<span class="site-footer-dot" aria-hidden="true">·</span>Desarrollado por <a href="https://orbytia.es/" target="_blank" rel="noopener">Orbytia${newTab}</a></p>`,
+          '</footer>',
+        ].join('');
+        return html.replace('<!-- site-footer -->', footer);
+      },
+    },
+  };
+}
+
 /** Todos los archivos de `dir`, con rutas relativas y separador `/`. */
 function listFiles(dir: string, root = dir): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -90,7 +125,7 @@ function serviceWorkerManifest(): Plugin {
 export default defineConfig({
   // En GitHub Pages la app vive bajo /<repositorio>/ (ADR-0006).
   base: process.env.BASE_PATH ?? '/',
-  plugins: [contentSecurityPolicy(), serviceWorkerManifest()],
+  plugins: [staticFooter(), contentSecurityPolicy(), serviceWorkerManifest()],
   build: {
     target: 'es2022',
     // Sin mapas de código en la web publicada (SPEC-0014): el código fuente está en el repositorio
@@ -98,8 +133,15 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       // El service worker se construye aparte y se publica con un nombre fijo en la raíz de la app.
-      // `404.html` es la página que GitHub Pages sirve para rutas que no existen.
-      input: { index: 'index.html', notFound: '404.html', sw: 'src/pwa/sw.ts' },
+      // `404.html` es la página que GitHub Pages sirve para rutas que no existen. Las páginas
+      // legales (SPEC-0015) son HTML estático, sin JavaScript, en su propia carpeta.
+      input: {
+        index: 'index.html',
+        notFound: '404.html',
+        legal: 'aviso-legal/index.html',
+        privacy: 'privacidad/index.html',
+        sw: 'src/pwa/sw.ts',
+      },
       output: {
         entryFileNames: (chunk) => (chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'),
       },

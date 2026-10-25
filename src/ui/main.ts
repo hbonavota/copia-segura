@@ -53,7 +53,14 @@ const deps = {
   }),
   capture: new CaptureFromCamera({ camera: new MediaDevicesCamera() }),
   exampleUrl: `${base}ejemplo/documento-ficticio.pdf`,
-  links: { source: REPOSITORY, docs: `${REPOSITORY}/blob/main/docs/arquitectura.md` },
+  links: {
+    source: REPOSITORY,
+    docs: `${REPOSITORY}/blob/main/docs/arquitectura.md`,
+    legal: `${base}aviso-legal/`,
+    privacy: `${base}privacidad/`,
+    contact: 'mailto:contacto@orbytia.es',
+    developer: 'https://orbytia.es/',
+  },
 };
 
 const saved = savedLocale();

@@ -21,8 +21,15 @@ export interface Dependencies {
   readonly demoImageUrl: string;
   /** Decodifica una imagen (para la demo; las importaciones pasan por `importFiles`). */
   readonly decodeImage: (blob: Blob) => Promise<DecodedImage>;
-  /** Enlaces del pie: repositorio y documentación. */
-  readonly links: { readonly source: string; readonly docs: string };
+  /** Enlaces del pie (SPEC-0015): repositorio, documentación, páginas legales y contacto. */
+  readonly links: {
+    readonly source: string;
+    readonly docs: string;
+    readonly legal: string;
+    readonly privacy: string;
+    readonly contact: string;
+    readonly developer: string;
+  };
 }
 
 /** Operaciones de la interfaz que combinan casos de uso con estado y avisos. */

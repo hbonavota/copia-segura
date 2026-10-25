@@ -179,6 +179,12 @@ export const es = {
   'notice.close': 'Cerrar aviso',
   'footer.source': 'Código fuente',
   'footer.docs': 'Cómo está hecho',
+  'footer.legalLabel': 'Información legal',
+  'footer.legal': 'Aviso legal',
+  'footer.privacy': 'Privacidad',
+  'footer.contact': 'Contacto',
+  'footer.developedBy': 'Desarrollado por',
+  'footer.newTab': '(se abre en otra pestaña)',
   'hero.title': 'Tus documentos, solo para quien tú decidas.',
   'hero.sub':
     'DNI, pasaporte, nóminas o cualquier PDF o imagen. Márcalo, tapa lo que sobra y descárgalo sin subir nada.',

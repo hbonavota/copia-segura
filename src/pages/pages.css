@@ -1,11 +1,24 @@
-/* Página 404 (SPEC-0014): independiente de la app, sin JavaScript y con los mismos colores. */
+/*
+ * Páginas estáticas sin JavaScript (SPEC-0014, SPEC-0015): 404, aviso legal y privacidad.
+ * Mismos colores que la app y el tema que el usuario eligió en ella (theme.js).
+ */
 :root {
   color-scheme: light dark;
   --paper: light-dark(#f6f7f9, #0b0d10);
+  --surface: light-dark(#ffffff, #14171c);
   --ink: light-dark(#0f172a, #e8ebf0);
   --ink-2: light-dark(#475569, #a3acba);
+  --line: light-dark(#e2e6ec, #262a31);
   --accent: light-dark(#1d4ed8, #7aa2ff);
   --stamp: light-dark(#b4231f, #f06a63);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 * {
@@ -16,19 +29,33 @@ body {
   margin: 0;
   min-height: 100vh;
   display: grid;
-  place-items: center;
+  grid-template-rows: 1fr auto;
   padding: 24px 16px;
   background: var(--paper);
   color: var(--ink);
   font:
-    16px/1.5 system-ui,
+    16px/1.6 system-ui,
     -apple-system,
     'Segoe UI',
     Roboto,
     sans-serif;
 }
 
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------- 404 */
 .nf {
+  align-self: center;
+  justify-self: center;
   max-width: 34rem;
   text-align: center;
 }
@@ -46,12 +73,12 @@ body {
   transform: rotate(-8deg);
 }
 
-h1 {
+.nf h1 {
   margin: 0 0 8px;
   font-size: 1.6rem;
 }
 
-p {
+.nf p {
   margin: 0 0 8px;
   color: var(--ink-2);
 }
@@ -67,7 +94,166 @@ p {
   text-decoration: none;
 }
 
-.nf-home:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
+/* ---------------------------------------------------------------- textos legales */
+.doc {
+  justify-self: center;
+  width: 100%;
+  max-width: 46rem;
+}
+
+.doc-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.doc-back .stamp {
+  padding: 2px 8px;
+  border: 2px solid var(--stamp);
+  border-radius: 4px;
+  color: var(--stamp);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-4deg);
+}
+
+.doc h1 {
+  margin: 0 0 4px;
+  font-size: clamp(1.7rem, 5vw, 2.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.doc-updated {
+  margin: 0 0 24px;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+}
+
+.doc-lead {
+  margin: 0 0 32px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.doc h2 {
+  margin: 32px 0 8px;
+  font-size: 1.15rem;
+}
+
+.doc p,
+.doc li {
+  color: var(--ink-2);
+}
+
+.doc p {
+  margin: 0 0 12px;
+}
+
+.doc ul {
+  margin: 0 0 12px;
+  padding-left: 1.25rem;
+}
+
+.doc li + li {
+  margin-top: 6px;
+}
+
+.doc strong {
+  color: var(--ink);
+}
+
+.doc dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+}
+
+.doc dt {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.doc dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.doc-en {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------------------------------------------------------------- pie, igual que en la app */
+.site-footer {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+}
+
+.site-footer a {
+  display: inline-block;
+  padding: 6px 0;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.site-footer a[aria-current='page'] {
+  color: var(--accent);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer-dot {
+  margin-inline: 8px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .doc dl {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .doc dd {
+    margin-bottom: 8px;
+  }
 }

@@ -5,7 +5,7 @@
 - Web: https://copia-segura.orbytia.es/
 - Idiomas: español e inglés.
 - Precio: gratis, sin registro ni cuenta.
-- Licencia: MIT. Autor: Hernán Bonavota.
+- Licencia: MIT. Desarrollado por Orbytia (https://orbytia.es/). Contacto: contacto@orbytia.es.
 
 ## Cómo se usa
 
@@ -20,6 +20,11 @@
 - El tapado en negro sustituye los píxeles: el dato original no existe en el archivo exportado.
 - Las copias se exportan sin metadatos EXIF ni de PDF.
 - La propia página muestra cuántos recursos ha cargado de otros dominios (debe ser 0).
+
+## Legal
+
+- [Aviso legal y condiciones de uso](https://copia-segura.orbytia.es/aviso-legal/)
+- [Política de privacidad](https://copia-segura.orbytia.es/privacidad/): no recoge datos personales, sin cookies ni analítica.
 
 ## Código y documentación
 

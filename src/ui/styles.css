@@ -126,7 +126,7 @@ output,
   display: grid;
   /* Columna acotada: ningún contenido puede ensanchar la página y forzar scroll lateral. */
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto 1fr auto auto auto;
   min-height: 100vh;
   min-height: 100dvh;
   max-width: 1320px;
@@ -1905,6 +1905,49 @@ input[type='color'] {
 
 .about-summary {
   margin-bottom: 40px;
+}
+
+/* ---------------------------------------------------------------------------- pie (SPEC-0015) */
+.site-footer {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+}
+
+.site-footer a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  /* Zona de toque cómoda sin cambiar el aspecto (RNF-04). */
+  display: inline-block;
+  padding: 6px 0;
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.site-footer-credit {
+  margin: 0;
+}
+
+.site-footer-dot {
+  margin-inline: 8px;
+  color: var(--line-strong);
 }
 
 .about-lead {

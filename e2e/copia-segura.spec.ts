@@ -966,3 +966,98 @@ test.describe('SPEC-0014 · publicación profesional', () => {
     }
   });
 });
+
+test.describe('SPEC-0015 · pie, aviso legal y privacidad', () => {
+  test('RF-41 · el pie está en la portada y en el editor, con «Desarrollado por Orbytia»', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    const footer = page.locator('footer.site-footer');
+    await expect(footer).toContainText('Desarrollado por Orbytia');
+    await expect(footer).toContainText(`© ${new Date().getFullYear()} copia segura`);
+    const orbytia = footer.getByTestId('developer');
+    await expect(orbytia).toHaveAttribute('href', 'https://orbytia.es/');
+    await expect(orbytia).toHaveAttribute('target', '_blank');
+    await expect(footer.getByRole('link', { name: 'Contacto' })).toHaveAttribute(
+      'href',
+      'mailto:contacto@orbytia.es',
+    );
+    await expect(footer.getByRole('link', { name: 'Aviso legal' })).toHaveAttribute(
+      'href',
+      /\/aviso-legal\/$/,
+    );
+
+    await loadExample(page);
+    await expect(footer).toBeVisible();
+    await page.locator('.lang[lang="en"]').click();
+    await expect(footer).toContainText('Developed by Orbytia');
+    await expect(footer.getByRole('link', { name: 'Privacy' })).toHaveAttribute(
+      'href',
+      /\/privacidad\/$/,
+    );
+  });
+
+  for (const [path, title] of [
+    ['aviso-legal/', 'Aviso legal y condiciones de uso'],
+    ['privacidad/', 'Política de privacidad'],
+  ] as const) {
+    test(`RF-42 · ${path} es una página estática con titular, contacto y pie`, async ({ page }) => {
+      const messages: string[] = [];
+      page.on('console', (m) => {
+        if (m.type() === 'error' || m.type() === 'warning') messages.push(m.text());
+      });
+      const html = await (await page.request.get(`./${path}`)).text();
+      expect(html).toContain('http-equiv="Content-Security-Policy"');
+      expect(html).toContain(
+        `<link rel="canonical" href="https://copia-segura.orbytia.es/${path}"`,
+      );
+      // Sin JavaScript propio: solo theme.js, que aplica el tema elegido en la app.
+      expect([...html.matchAll(/<script\b[^>]*>/g)].map(([tag]) => tag)).toEqual([
+        expect.stringMatching(/src="[^"]*theme\.js"/),
+      ]);
+
+      await page.goto(`./${path}`);
+      await expect(page.locator('h1')).toHaveText(title);
+      await expect(page.locator('h1')).toHaveCount(1);
+      await expect(page.locator('main')).toContainText('Orbytia');
+      await expect(page.locator('main')).toContainText('contacto@orbytia.es');
+      const footer = page.locator('footer.site-footer');
+      await expect(footer).toContainText('Desarrollado por Orbytia');
+      await expect(footer).toContainText(`© ${new Date().getFullYear()} copia segura`);
+      await expect(footer.locator('[aria-current="page"]')).toHaveAttribute(
+        'href',
+        new RegExp(`/${path}$`),
+      );
+      await page.getByRole('link', { name: 'Volver a copia segura' }).click();
+      await expect(page.locator('.hero-title')).toBeVisible();
+      expect(messages).toEqual([]);
+    });
+  }
+
+  test('RF-42 · la política de privacidad nombra exactamente lo que la app guarda en el navegador', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('./');
+    await page.locator('.lang[lang="en"]').click();
+    await page.locator('.lang[lang="es"]').click();
+    await page.getByRole('switch').click();
+    await loadExample(page);
+    const keys = await page.evaluate(() => Object.keys(localStorage).sort());
+    const cookies = await context.cookies();
+    expect(cookies).toEqual([]);
+    const policy = await (await page.request.get('./privacidad/')).text();
+    for (const key of keys) expect(policy).toContain(`<code>${key}</code>`);
+    expect(keys).toEqual(['copia-segura.locale', 'copia-segura.theme']);
+  });
+
+  test('RF-42 · el tema elegido en la app se respeta en las páginas legales', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('./');
+    await page.evaluate(() => localStorage.setItem('copia-segura.theme', 'dark'));
+    await page.goto('./aviso-legal/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(background).toBe('rgb(11, 13, 16)');
+  });
+});

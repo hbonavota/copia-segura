@@ -180,6 +180,12 @@ export const en: Record<MessageKey, string> = {
 
   'notice.close': 'Dismiss',
   'footer.source': 'Source code',
+  'footer.legalLabel': 'Legal information',
+  'footer.legal': 'Legal notice',
+  'footer.privacy': 'Privacy',
+  'footer.contact': 'Contact',
+  'footer.developedBy': 'Developed by',
+  'footer.newTab': '(opens in a new tab)',
   'footer.docs': 'How it is built',
   'hero.title': 'Your documents, only for whoever you choose.',
   'hero.sub':

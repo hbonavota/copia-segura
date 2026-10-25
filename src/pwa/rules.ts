@@ -32,11 +32,14 @@ export function selectPrecache(paths: readonly string[]): string[] {
 }
 
 /**
- * Archivos publicados que no son de la app sino para buscadores y redes (SPEC-0014): la app nunca
- * los usa, así que no se guardan para usarla sin conexión.
+ * Archivos publicados que no son de la app: para buscadores y redes (SPEC-0014) y las páginas
+ * estáticas legales (SPEC-0015). La app nunca los usa, así que no se guardan para usarla sin
+ * conexión.
  */
 const NOT_APP = new Set([
   '404.html',
+  'aviso-legal/index.html',
+  'privacidad/index.html',
   'robots.txt',
   'sitemap.xml',
   'llms.txt',
@@ -55,7 +58,7 @@ export function selectWarmup(paths: readonly string[]): string[] {
   return paths
     .map((p) => p.replace(/\\/g, '/'))
     .filter((p) => !p.endsWith('.map') && p !== 'sw.js' && p !== 'index.html')
-    .filter((p) => !NOT_APP.has(p) && !p.startsWith('assets/notFound-'))
+    .filter((p) => !NOT_APP.has(p) && !p.startsWith('assets/pages-'))
     .filter((p) => !precached.has(p))
     .sort();
 }

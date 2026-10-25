@@ -5,6 +5,7 @@ import { createServices } from './services';
 import { actions, type Store } from './store';
 import { about } from './views/about';
 import { cameraDialog } from './views/camera-dialog';
+import { siteFooter } from './views/site-footer';
 import { dropzone } from './views/dropzone';
 import { editor } from './views/editor';
 import { exportBar } from './views/export-bar';
@@ -31,6 +32,7 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
     settings: h('div', { class: 'settings' }),
     exportBar: h('footer', { class: 'export-bar' }),
     about: h('section', { class: 'about' }),
+    footer: h('footer', { class: 'site-footer' }),
     camera: h('div', {}),
   };
   const center = h('div', { class: 'center' }, regions.editor, regions.pages);
@@ -46,6 +48,7 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
     regions.notice,
     h('main', { class: 'workspace' }, regions.dropzone, center, inspector),
     regions.about,
+    regions.footer,
     regions.camera,
   );
 
@@ -70,6 +73,7 @@ export function mountApp(root: HTMLElement, store: Store, deps: Dependencies): v
       settings(regions.settings, ctx),
       exportBar(regions.exportBar, ctx),
       about(regions.about, ctx),
+      siteFooter(regions.footer, ctx),
       camera.dispose,
     ];
   };

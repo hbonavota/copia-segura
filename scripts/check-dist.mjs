@@ -13,6 +13,8 @@ const dist = 'dist';
 const BUDGET = { js: 45, css: 10 };
 const REQUIRED = [
   '404.html',
+  'aviso-legal/index.html',
+  'privacidad/index.html',
   'robots.txt',
   'sitemap.xml',
   'llms.txt',
